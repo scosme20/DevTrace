@@ -221,7 +221,7 @@ behavior; this section lists the fields.
 
 `version` (`1`), `username` (a valid GitHub username), `repositories` (`include`, `exclude`,
 `includeForks`, `includeArchived`), `collect` (`description`, `language`, `stars`, `forks`,
-`releases`), `onUnavailable` (`SKIP` or `FAIL`) and `cacheTtlMinutes` (0 to 1440). Defaults are listed
+`releases`, and the optional `languages` and `commitActivity`), `onUnavailable` (`SKIP` or `FAIL`) and `cacheTtlMinutes` (0 to 1440). Defaults are listed
 in the integration guide. Repository entries are `name` or `owner/name`. Unknown fields are
 rejected, so a credential cannot be stored here.
 

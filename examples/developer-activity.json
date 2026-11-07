@@ -1,0 +1,14 @@
+{
+  "version": 1,
+  "profile": { "displayName": "Developer Activity" },
+  "settings": {
+    "theme": "DARK",
+    "showHeatmap": true,
+    "showCommitActivity": true,
+    "showRepositories": true,
+    "showLanguages": true,
+    "showReleases": true,
+    "repositoryLimit": 6,
+    "releaseLimit": 5
+  }
+}

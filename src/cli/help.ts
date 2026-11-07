@@ -16,8 +16,8 @@ Commands:
   help [command]        Show help for a command
 
 Targets:
-  generate              startup, ai, all
-  validate              startup, ai, github, all
+  generate              startup, ai, activity, all
+  validate              startup, ai, activity, github, all
 
 Options:
   -h, --help            Show help; after a command, help for that command
@@ -59,6 +59,7 @@ a suggestion. It never writes or changes anything.
 Targets:
   startup   data/startup.json
   ai        data/ai-engineering.json
+  activity  data/developer-activity.json (optional)
   github    data/github.json (optional) and data/github-snapshot.json
   all       everything above (default)
 
@@ -76,7 +77,8 @@ Generates the SVG indicators from the configuration files.
 Targets:
   startup   public/indicators/startup-stats.svg
   ai        public/indicators/ai-engineering-stats.svg
-  all       both (default)
+  activity  public/indicators/developer-activity.svg (needs data/developer-activity.json)
+  all       startup and ai, plus activity when it is configured (default)
 
 Options:
   --theme <theme>     DARK, LIGHT, MIDNIGHT, MINIMAL or TRANSPARENT

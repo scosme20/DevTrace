@@ -11,6 +11,10 @@ export interface GitHubCollectSettings {
   readonly stars: boolean;
   readonly forks: boolean;
   readonly releases: boolean;
+  /** Bytes of code per language (one extra call per repository). Off unless set. */
+  readonly languages?: boolean | undefined;
+  /** Commits per day for the last 52 weeks (one extra call per repository). Off unless set. */
+  readonly commitActivity?: boolean | undefined;
 }
 
 export interface GitHubRepositorySelection {
@@ -39,6 +43,20 @@ export interface GitHubRelease {
   readonly publishedAt: string;
 }
 
+/** Bytes of code GitHub reports for a language. It is not time spent or skill. */
+export interface RepositoryLanguage {
+  readonly name: string;
+  readonly bytes: number;
+}
+
+/** Commits on the default branch in one week, as GitHub counts them. */
+export interface CommitWeek {
+  /** The Sunday that starts the week, `YYYY-MM-DD`. */
+  readonly weekStart: string;
+  /** Sunday to Saturday. */
+  readonly days: readonly number[];
+}
+
 export interface GitHubRepository {
   /** `owner/name`. */
   readonly fullName: string;
@@ -53,6 +71,10 @@ export interface GitHubRepository {
   readonly createdAt: string;
   readonly pushedAt?: string | undefined;
   readonly latestRelease?: GitHubRelease | undefined;
+  /** Present only when `collect.languages` was on and GitHub answered. */
+  readonly languages?: readonly RepositoryLanguage[] | undefined;
+  /** Present only when `collect.commitActivity` was on and GitHub had the statistics ready. */
+  readonly commitActivity?: readonly CommitWeek[] | undefined;
   /** Always OBSERVED: the value was read from the GitHub API, never typed in. */
   readonly provenance: "OBSERVED";
 }

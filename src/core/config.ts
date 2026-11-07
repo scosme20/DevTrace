@@ -1,6 +1,8 @@
 import { readFile, stat } from "node:fs/promises";
 import type { AiEngineeringConfig } from "./ai-engineering-models.js";
 import { validateAiEngineeringConfig } from "./ai-engineering-validation.js";
+import type { DeveloperActivityConfig } from "./developer-activity-models.js";
+import { validateDeveloperActivityConfig } from "./developer-activity-validation.js";
 import type { GitHubConfig, GitHubSnapshot } from "./github-models.js";
 import { validateGitHubConfig, validateGitHubSnapshot } from "./github-validation.js";
 import type { StartupConfig } from "./models.js";
@@ -126,4 +128,11 @@ export function loadGitHubConfig(filePath: string): Promise<GitHubConfig | undef
 /** `undefined` means no GitHub data has been synced yet. */
 export function loadGitHubSnapshot(filePath: string): Promise<GitHubSnapshot | undefined> {
   return loadOptionalConfig(filePath, validateGitHubSnapshot, "GitHub snapshot");
+}
+
+/** `undefined` means the Developer Activity indicator is not configured. */
+export function loadDeveloperActivityConfig(
+  filePath: string,
+): Promise<DeveloperActivityConfig | undefined> {
+  return loadOptionalConfig(filePath, validateDeveloperActivityConfig, "developer activity");
 }

@@ -6,6 +6,8 @@ import type { AppearanceSettings } from "../core/appearance.js";
 import { loadGitHubSnapshot, readConfigJson } from "../core/config.js";
 import type { GitHubConfig, GitHubSnapshot } from "../core/github-models.js";
 import { validateGitHubConfig } from "../core/github-validation.js";
+import type { DeveloperActivityConfig } from "../core/developer-activity-models.js";
+import { validateDeveloperActivityConfig } from "../core/developer-activity-validation.js";
 import type { StartupConfig } from "../core/models.js";
 import type { Result } from "../core/result.js";
 import { validateStartupConfig } from "../core/validation.js";
@@ -13,6 +15,10 @@ import {
   AI_ENGINEERING_CONFIG_FILE,
   AI_ENGINEERING_INDICATOR_FILE,
 } from "../generators/ai-engineering.js";
+import {
+  DEVELOPER_ACTIVITY_CONFIG_FILE,
+  DEVELOPER_ACTIVITY_INDICATOR_FILE,
+} from "../generators/developer-activity.js";
 import { GITHUB_CONFIG_FILE, GITHUB_SNAPSHOT_FILE } from "../generators/github.js";
 import {
   INDICATORS_DIR,
@@ -25,7 +31,7 @@ import { selectPublicProjects } from "../indicators/startup/stats.js";
 import { contrastWarnings, resolveDesignTokens } from "../templates/design-tokens.js";
 import { summarize, type FileReport, type Finding, type ValidationReport } from "./report.js";
 
-export type ValidationTarget = "startup" | "ai" | "github";
+export type ValidationTarget = "startup" | "ai" | "activity" | "github";
 
 const MISSING_HINT =
   'Run "devtrace init" to create the configuration files, or copy one from the examples directory.';
@@ -293,6 +299,41 @@ function aiReport(config: AiEngineeringConfig, context: Context): FileReport {
   };
 }
 
+function activityReport(config: DeveloperActivityConfig, context: Context): FileReport {
+  const findings: Finding[] = [...appearanceFindings(config.settings)];
+  const snapshot = context.snapshot;
+  if (snapshot === undefined) {
+    findings.push({
+      level: "warning",
+      message: `${GITHUB_SNAPSHOT_FILE} was not found, so the dashboard will show an empty state.`,
+      hint: 'Configure data/github.json and run "devtrace sync".',
+    });
+  } else {
+    const collect = context.githubConfig?.collect;
+    if (collect?.commitActivity !== true && config.settings.showHeatmap) {
+      findings.push({
+        level: "warning",
+        message:
+          "The commit heatmap and commit activity need collect.commitActivity in data/github.json.",
+        hint: 'Set "collect": { "commitActivity": true } and run "devtrace sync --force".',
+      });
+    }
+  }
+  return {
+    target: "activity",
+    file: DEVELOPER_ACTIVITY_CONFIG_FILE,
+    status: findings.some((finding) => finding.level === "error") ? "invalid" : "valid",
+    summary: [
+      snapshot === undefined
+        ? "Data: no GitHub snapshot yet"
+        : `Data: ${plural(snapshot.repositories.length, "public repository")} in the snapshot (${snapshot.fetchedAt})`,
+      `Look: ${config.settings.theme} theme, ${config.settings.layout ?? "DEFAULT"} layout`,
+      `Will write: ${INDICATORS_DIR}/${DEVELOPER_ACTIVITY_INDICATOR_FILE}`,
+    ],
+    findings,
+  };
+}
+
 function overlaps(include: string, exclude: string): boolean {
   const a = include.toLowerCase();
   const b = exclude.toLowerCase();
@@ -387,6 +428,25 @@ export async function validateProject(
         validateAiEngineeringConfig,
       );
       files.push(loaded.kind === "ok" ? aiReport(loaded.config, context) : loaded.report);
+    } else if (target === "activity") {
+      const read = await readConfigJson(path.join(rootDir, DEVELOPER_ACTIVITY_CONFIG_FILE));
+      if (!read.ok && read.reason === "missing") {
+        files.push({
+          target: "activity",
+          file: DEVELOPER_ACTIVITY_CONFIG_FILE,
+          status: "skipped",
+          summary: ["Not configured. The developer activity indicator is optional."],
+          findings: [],
+        });
+      } else {
+        const loaded = await loadFile(
+          context,
+          "activity",
+          DEVELOPER_ACTIVITY_CONFIG_FILE,
+          validateDeveloperActivityConfig,
+        );
+        files.push(loaded.kind === "ok" ? activityReport(loaded.config, context) : loaded.report);
+      }
     } else if (!githubRead.ok && githubRead.reason === "missing") {
       files.push({
         target: "github",

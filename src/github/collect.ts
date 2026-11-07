@@ -1,8 +1,10 @@
 import type { GitHubConfig, GitHubRepository } from "../core/github-models.js";
 import { DevTraceError } from "../core/result.js";
 import { GitHubApiError, type GitHubClient } from "./client.js";
-import { mapRelease, mapRepository } from "./mapping.js";
+import { mapCommitActivity, mapLanguages, mapRelease, mapRepository } from "./mapping.js";
 import {
+  fetchCommitActivity,
+  fetchLanguages,
   fetchLatestRelease,
   fetchRepository,
   listUserRepositories,
@@ -81,7 +83,23 @@ export async function collectRepositories(
       ? await fetchLatestRelease(client, repository.full_name)
       : undefined;
     const release = rawRelease === undefined ? undefined : mapRelease(rawRelease);
-    result.push(mapRepository(repository, collect, release));
+    const languages =
+      collect.languages === true
+        ? mapLanguages(await fetchLanguages(client, repository.full_name))
+        : undefined;
+    let commitActivity;
+    if (collect.commitActivity === true) {
+      const weeks = await fetchCommitActivity(client, repository.full_name);
+      if (weeks === undefined) {
+        // Not ready or empty: it stays unknown, which is not the same as no commits.
+        warn(
+          `Commit activity of "${repository.full_name}" is not available yet. Run the sync again later.`,
+        );
+      } else {
+        commitActivity = mapCommitActivity(weeks);
+      }
+    }
+    result.push(mapRepository(repository, collect, { release, languages, commitActivity }));
   }
   return result.sort((a, b) => a.fullName.localeCompare(b.fullName));
 }

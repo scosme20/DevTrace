@@ -3,8 +3,8 @@ import { THEMES, type Theme } from "../core/models.js";
 import { UsageError } from "./errors.js";
 import { closestMatch } from "./suggestions.js";
 
-export const GENERATE_TARGETS = ["startup", "ai", "all"] as const;
-export const VALIDATE_TARGETS = ["startup", "ai", "github", "all"] as const;
+export const GENERATE_TARGETS = ["startup", "ai", "activity", "all"] as const;
+export const VALIDATE_TARGETS = ["startup", "ai", "activity", "github", "all"] as const;
 export const COMMAND_NAMES = ["init", "validate", "generate", "sync", "help"] as const;
 
 export type GenerateTarget = (typeof GENERATE_TARGETS)[number];

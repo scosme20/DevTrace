@@ -437,7 +437,8 @@ export function badge(tokens: DesignTokens, data: LabelData, maxWidth = 216): Fr
 export function caption(tokens: DesignTokens, content: string, tone: Tone = "muted"): Builder {
   const { font, visual } = tokens;
   return (width): Fragment => ({
-    body: text(content.toUpperCase(), {
+    // Shortened to the width: a long caption must never run past its panel.
+    body: text(fit(tokens, content.toUpperCase(), width, font.small), {
       x: 0,
       y: font.small,
       fill: visual.tones[tone],

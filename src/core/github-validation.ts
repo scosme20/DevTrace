@@ -36,6 +36,9 @@ const configSchema = z.strictObject({
       stars: z.boolean().default(true),
       forks: z.boolean().default(true),
       releases: z.boolean().default(true),
+      // Opt in: each one costs one more API call per repository.
+      languages: z.boolean().optional(),
+      commitActivity: z.boolean().optional(),
     })
     .prefault({}),
   onUnavailable: enumField("unavailable repository behavior", UNAVAILABLE_BEHAVIORS).default(
@@ -59,6 +62,16 @@ const releaseSchema = z.strictObject({
   publishedAt: isoDate,
 });
 
+const languageSchema = z.strictObject({
+  name: requiredText("language name").max(50),
+  bytes: z.number().int().nonnegative(),
+});
+
+const commitWeekSchema = z.strictObject({
+  weekStart: isoDate,
+  days: z.array(z.number().int().nonnegative()).length(7),
+});
+
 const repositorySchema = z.strictObject({
   fullName: githubRepoFullName,
   name: requiredText("name").max(100),
@@ -74,6 +87,8 @@ const repositorySchema = z.strictObject({
   createdAt: isoDate,
   pushedAt: isoDate.optional(),
   latestRelease: releaseSchema.optional(),
+  languages: z.array(languageSchema).max(100).optional(),
+  commitActivity: z.array(commitWeekSchema).max(53).optional(),
   // A snapshot can only claim observed data; anything else is rejected.
   provenance: z.literal("OBSERVED", { error: "Snapshot data must be OBSERVED." }),
 });

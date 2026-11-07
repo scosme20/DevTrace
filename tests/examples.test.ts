@@ -2,6 +2,7 @@ import { readFile, readdir } from "node:fs/promises";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
 import { validateAiEngineeringConfig } from "../src/core/ai-engineering-validation.js";
+import { validateDeveloperActivityConfig } from "../src/core/developer-activity-validation.js";
 import { validateGitHubConfig } from "../src/core/github-validation.js";
 import { validateStartupConfig } from "../src/core/validation.js";
 
@@ -14,6 +15,7 @@ const validators: Readonly<Record<string, (value: unknown) => { ok: boolean }>> 
   startup: validateStartupConfig,
   "ai-engineering": validateAiEngineeringConfig,
   github: validateGitHubConfig,
+  "developer-activity": validateDeveloperActivityConfig,
 };
 
 const validatorFor = (file: string) =>
