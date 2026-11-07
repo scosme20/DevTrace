@@ -432,3 +432,19 @@ export function badge(tokens: DesignTokens, data: LabelData, maxWidth = 216): Fr
     height,
   };
 }
+
+/** A small muted line used to name a group of content inside a panel. */
+export function caption(tokens: DesignTokens, content: string, tone: Tone = "muted"): Builder {
+  const { font, visual } = tokens;
+  return (width): Fragment => ({
+    body: text(content.toUpperCase(), {
+      x: 0,
+      y: font.small,
+      fill: visual.tones[tone],
+      size: font.small,
+      weight: font.emphasis,
+    }),
+    width,
+    height: font.small + 4,
+  });
+}

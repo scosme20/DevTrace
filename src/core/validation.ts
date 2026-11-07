@@ -62,6 +62,12 @@ const settingsSchema = z.strictObject({
   showProjectList: z.boolean().default(true),
   showLifecycleDistribution: z.boolean().default(true),
   showLinks: z.boolean().default(true),
+  dashboard: z.boolean().optional(),
+  showOperationalStatus: z.boolean().optional(),
+  showPipeline: z.boolean().optional(),
+  showHighlights: z.boolean().optional(),
+  showGitHubInsights: z.boolean().optional(),
+  projectListLimit: z.number().int().min(1).max(20).optional(),
 });
 
 const configSchema = z

@@ -19,6 +19,12 @@ runtime and reject unknown fields.
 | `settings.showProjectList`           | boolean | no       | `true`                |
 | `settings.showLifecycleDistribution` | boolean | no       | `true`                |
 | `settings.showLinks`                 | boolean | no       | `true`                |
+| `settings.dashboard`                 | boolean | no       | `false` (not stored)  |
+| `settings.showOperationalStatus`     | boolean | no       | `true` in dashboard   |
+| `settings.showPipeline`              | boolean | no       | `true` in dashboard   |
+| `settings.showHighlights`            | boolean | no       | `true` in dashboard   |
+| `settings.showGitHubInsights`        | boolean | no       | `true` in dashboard   |
+| `settings.projectListLimit`          | integer | no       | `6` (1 to 20)         |
 | `projects`                           | array   | yes      |                       |
 
 `profile.displayName` must be 1 to 40 characters.

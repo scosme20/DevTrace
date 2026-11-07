@@ -8,6 +8,12 @@ All notable changes to DevTrace are documented here. The format follows
 
 ### Added
 
+- Startup & SaaS Dashboard: a multi-panel version of the Startup indicator (overview metrics,
+  project portfolio, lifecycle stage, operational status, development pipeline, highlights and GitHub
+  development insights), enabled with `settings.dashboard`. Same output file; the card is unchanged.
+  New options: `showOperationalStatus`, `showPipeline`, `showHighlights`, `showGitHubInsights` and
+  `projectListLimit`. Added the `pipeline` component. `caption` and `packPanels` moved to the shared
+  components. See `docs/startup-dashboard.md` and `examples/startup-dashboard.json`.
 - AI Engineering Dashboard: a multi-panel version of the AI indicator (overview metrics, tools and
   providers, foundation models, declared skill levels, projects, activity records and reported
   token usage), enabled with `settings.dashboard`. It reuses the SVG components and writes to the same

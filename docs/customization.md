@@ -187,7 +187,8 @@ narrow. The estimate leans wide, so text is shortened a little early rather than
 
 The options that already existed keep their meaning (see the README):
 
-- Startup: `showProjectList`, `showLifecycleDistribution`, `showLinks`.
+- Startup: `showProjectList`, `showLifecycleDistribution`, `showLinks`, and the dashboard options
+  (see [Startup & SaaS Dashboard](startup-dashboard.md)).
 - AI engineering: `showTools`, `showModels`, `showSkills`, `showProjects`, `showActivity`,
   `showTokenUsage`, `showCost`, `showLinks`, and `dashboard` (see
   [AI Engineering Dashboard](ai-engineering-dashboard.md)).

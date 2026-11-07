@@ -1,0 +1,80 @@
+{
+  "version": 1,
+  "profile": { "displayName": "My Projects" },
+  "settings": {
+    "theme": "DARK",
+    "dashboard": true,
+    "showProjectList": true,
+    "showLifecycleDistribution": true,
+    "showLinks": true,
+    "showOperationalStatus": true,
+    "showPipeline": true,
+    "showHighlights": true,
+    "showGitHubInsights": true,
+    "projectListLimit": 6
+  },
+  "projects": [
+    {
+      "id": "billing-app",
+      "name": "Billing App",
+      "description": "Replace this entry with one of your own projects.",
+      "category": "SaaS",
+      "lifecycleStage": "GROWING",
+      "status": "ACTIVE",
+      "visibility": "PUBLIC",
+      "dataSource": "DECLARED",
+      "websiteUrl": "https://example.com",
+      "createdAt": "2025-06-01",
+      "updatedAt": "2026-03-20"
+    },
+    {
+      "id": "notes-api",
+      "name": "Notes API",
+      "description": "Replace this entry with one of your own projects.",
+      "category": "API",
+      "lifecycleStage": "LAUNCHED",
+      "status": "ACTIVE",
+      "visibility": "PUBLIC",
+      "dataSource": "DECLARED",
+      "repositoryUrl": "https://github.com/your-username/notes-api",
+      "createdAt": "2025-09-10",
+      "updatedAt": "2026-02-14"
+    },
+    {
+      "id": "habit-tracker",
+      "name": "Habit Tracker",
+      "description": "Replace this entry with one of your own projects.",
+      "category": "Mobile App",
+      "lifecycleStage": "DEVELOPMENT",
+      "status": "ACTIVE",
+      "visibility": "PUBLIC",
+      "dataSource": "DECLARED",
+      "createdAt": "2026-01-05",
+      "updatedAt": "2026-03-02"
+    },
+    {
+      "id": "invoice-bot",
+      "name": "Invoice Bot",
+      "description": "Replace this entry with one of your own projects.",
+      "category": "Automation",
+      "lifecycleStage": "MVP",
+      "status": "PAUSED",
+      "visibility": "PUBLIC",
+      "dataSource": "DECLARED",
+      "createdAt": "2026-02-01",
+      "updatedAt": "2026-02-20"
+    },
+    {
+      "id": "idea-board",
+      "name": "Idea Board",
+      "description": "Replace this entry with one of your own projects.",
+      "category": "Web App",
+      "lifecycleStage": "IDEA",
+      "status": "PAUSED",
+      "visibility": "PUBLIC",
+      "dataSource": "DECLARED",
+      "createdAt": "2026-03-01",
+      "updatedAt": "2026-03-01"
+    }
+  ]
+}

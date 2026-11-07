@@ -7,6 +7,7 @@ export * from "./fragment.js";
 export * from "./layout.js";
 export * from "./lists.js";
 export * from "./metrics.js";
+export * from "./pipeline.js";
 
 /**
  * Turns a composed component into a card section, so a dashboard is built with
