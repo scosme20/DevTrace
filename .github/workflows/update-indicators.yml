@@ -1,0 +1,75 @@
+name: Update indicators
+
+on:
+  workflow_dispatch:
+  schedule:
+    # Once a day. GitHub may delay scheduled runs, and disables them after 60
+    # days without repository activity.
+    - cron: "23 4 * * *"
+
+# The job only needs to commit regenerated SVG files.
+permissions:
+  contents: write
+
+concurrency:
+  group: update-indicators
+  cancel-in-progress: false
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v4
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Run tests
+        run: pnpm test
+
+      # The only step that uses the network. The token is read-only public API
+      # access and is passed to this step alone. A failure here must not stop
+      # the SVG files from being regenerated from the previous data.
+      - name: Sync GitHub data
+        id: sync
+        continue-on-error: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: pnpm sync:github
+
+      - name: Generate startup indicator
+        run: pnpm generate:startup
+
+      - name: Generate AI engineering indicator
+        run: pnpm generate:ai
+
+      - name: Commit and push changed indicators
+        env:
+          TARGET_BRANCH: ${{ github.ref_name }}
+        run: |
+          git add --all -- public/indicators
+          if git diff --cached --quiet; then
+            echo "Indicators are up to date. Nothing to commit."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "chore: update indicators"
+          git push origin "HEAD:${TARGET_BRANCH}"
+
+      - name: Fail if the GitHub sync failed
+        if: steps.sync.outcome == 'failure'
+        run: |
+          echo "::error::GitHub sync failed. Indicators were generated from the previous data."
+          exit 1

@@ -1,0 +1,49 @@
+{
+  "version": 1,
+  "profile": { "displayName": "My Projects" },
+  "settings": {
+    "theme": "DARK",
+    "showProjectList": true,
+    "showLifecycleDistribution": true,
+    "showLinks": true
+  },
+  "projects": [
+    {
+      "id": "example-app",
+      "name": "Example App",
+      "description": "Replace this entry with one of your own projects.",
+      "category": "Web App",
+      "lifecycleStage": "DEVELOPMENT",
+      "status": "ACTIVE",
+      "visibility": "PUBLIC",
+      "dataSource": "DECLARED",
+      "repositoryUrl": "https://github.com/your-username/example-app",
+      "createdAt": "2026-01-15",
+      "updatedAt": "2026-03-01"
+    },
+    {
+      "id": "example-library",
+      "name": "Example Library",
+      "description": "A project that is only an idea so far.",
+      "category": "Library",
+      "lifecycleStage": "IDEA",
+      "status": "PAUSED",
+      "visibility": "PUBLIC",
+      "dataSource": "DECLARED",
+      "createdAt": "2026-02-01",
+      "updatedAt": "2026-02-01"
+    },
+    {
+      "id": "private-project",
+      "name": "Private Project",
+      "description": "Private projects are never drawn on the card.",
+      "category": "Internal",
+      "lifecycleStage": "MVP",
+      "status": "ACTIVE",
+      "visibility": "PRIVATE",
+      "dataSource": "DECLARED",
+      "createdAt": "2026-02-10",
+      "updatedAt": "2026-02-10"
+    }
+  ]
+}

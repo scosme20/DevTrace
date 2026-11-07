@@ -1,0 +1,26 @@
+{
+  "version": 1,
+  "profile": {
+    "displayName": "Developer Portfolio"
+  },
+  "settings": {
+    "theme": "DARK",
+    "showProjectList": true,
+    "showLifecycleDistribution": true,
+    "showLinks": true
+  },
+  "projects": [
+    {
+      "id": "devtrace",
+      "name": "DevTrace",
+      "description": "Open-source SVG indicators for GitHub profile READMEs.",
+      "category": "Developer Tools",
+      "lifecycleStage": "DEVELOPMENT",
+      "status": "ACTIVE",
+      "visibility": "PUBLIC",
+      "dataSource": "DECLARED",
+      "createdAt": "2026-11-07",
+      "updatedAt": "2026-11-07"
+    }
+  ]
+}

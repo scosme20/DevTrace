@@ -1,0 +1,71 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+# Read-only: CI never writes to the repository and needs no credentials.
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    name: Node.js ${{ matrix.node }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        node: ["22", "24"]
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v4
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Typecheck
+        run: pnpm typecheck
+
+      - name: Lint
+        run: pnpm lint
+
+      - name: Check formatting
+        run: pnpm format:check
+
+      - name: Test
+        run: pnpm test
+
+      - name: Build
+        run: pnpm build
+
+      - name: Smoke-test the built CLI
+        run: |
+          node dist/index.js --version
+          node dist/index.js validate
+
+      # Generation is deterministic: if the committed SVG files differ from a
+      # fresh run, someone changed the data or the renderer without regenerating.
+      - name: Verify the committed indicators are up to date
+        if: matrix.node == '22'
+        run: |
+          pnpm generate
+          git diff --exit-code -- public/indicators
+
+      - name: Audit production dependencies
+        if: matrix.node == '22'
+        run: pnpm audit --prod
