@@ -1,0 +1,10 @@
+node_modules/
+dist/
+*.log
+.DS_Store
+
+# Local secrets and generated GitHub data
+.env
+.env.*
+data/github-snapshot.json
+data/*.tmp
