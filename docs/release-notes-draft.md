@@ -39,5 +39,5 @@ See `README.md` and `docs/` for configuration, themes and the GitHub Actions wor
 
 ## Contributing
 
-See `CONTRIBUTING.md`. Run `pnpm check` and `pnpm build` before opening a pull request. Report
+See `CONTRIBUTING.md` and `CODE_OF_CONDUCT.md`. Run `pnpm check` and `pnpm build` before opening a pull request. Report
 vulnerabilities privately as described in `SECURITY.md`.

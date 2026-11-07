@@ -20,7 +20,7 @@ All notable changes to DevTrace are documented here. The format follows
 - Documentation in `docs/` and validated example configurations in `examples/`.
 - `CI` workflow: typecheck, lint, format check, tests, build, CLI smoke test, a check that the
   committed indicators are up to date, and a production dependency audit.
-- MIT `LICENSE`, `SECURITY.md`, issue templates, a pull request template and `docs/release.md`.
+- MIT `LICENSE`, `CODE_OF_CONDUCT.md`, `SECURITY.md`, issue templates, a pull request template and `docs/release.md`.
 
 ### Changed
 

@@ -51,7 +51,7 @@ Additional indicators, a library API, more themes and similar work do not block 
 | Security            | Private vulnerability reporting enabled on GitHub  | PENDING |
 | Licensing           | `LICENSE` file (MIT)                               | DONE    |
 | Documentation       | README, docs, CHANGELOG, SECURITY                  | DONE    |
-| Documentation       | `CODE_OF_CONDUCT.md` (needs a contact)             | PENDING |
+| Documentation       | `CODE_OF_CONDUCT.md`                               | DONE    |
 | Distribution        | `repository`, `homepage`, `bugs`, remove `private` | BLOCKED |
 | Release publication | Tag, GitHub Release, `npm publish`                 | PENDING |
 
