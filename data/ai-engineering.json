@@ -1,10 +1,11 @@
 {
   "version": 1,
   "profile": {
-    "displayName": "AI Engineering Profile"
+    "displayName": "Sebastião Cosme"
   },
   "settings": {
     "theme": "DARK",
+    "dashboard": true,
     "showTools": true,
     "showModels": true,
     "showSkills": true,
@@ -14,9 +15,72 @@
     "showCost": false,
     "showLinks": true
   },
-  "tools": [],
+  "tools": [
+    {
+      "id": "claude",
+      "name": "Claude",
+      "provider": "Anthropic",
+      "category": "AI_ASSISTANT",
+      "usageType": "PROFESSIONAL",
+      "visibility": "PUBLIC",
+      "provenance": "DECLARED"
+    },
+    {
+      "id": "github-copilot",
+      "name": "GitHub Copilot",
+      "provider": "GitHub",
+      "category": "IDE_ASSISTANT",
+      "usageType": "PROFESSIONAL",
+      "visibility": "PUBLIC",
+      "provenance": "DECLARED"
+    },
+    {
+      "id": "chatgpt",
+      "name": "ChatGPT",
+      "provider": "OpenAI",
+      "category": "AI_ASSISTANT",
+      "usageType": "PERSONAL",
+      "visibility": "PUBLIC",
+      "provenance": "DECLARED"
+    },
+    {
+      "id": "gemini",
+      "name": "Gemini",
+      "provider": "Google",
+      "category": "AI_ASSISTANT",
+      "usageType": "PERSONAL",
+      "visibility": "PUBLIC",
+      "provenance": "DECLARED"
+    },
+    {
+      "id": "langchain",
+      "name": "LangChain",
+      "provider": "LangChain",
+      "category": "AGENT_FRAMEWORK",
+      "usageType": "PERSONAL",
+      "visibility": "PUBLIC",
+      "provenance": "DECLARED"
+    }
+  ],
   "models": [],
-  "skills": [],
+  "skills": [
+    {
+      "id": "prompt-engineering",
+      "name": "Prompt engineering",
+      "category": "LLM_ENGINEERING",
+      "proficiencyLevel": "PRACTICING",
+      "visibility": "PUBLIC",
+      "provenance": "DECLARED"
+    },
+    {
+      "id": "ai-apis",
+      "name": "AI APIs",
+      "category": "LLM_ENGINEERING",
+      "proficiencyLevel": "LEARNING",
+      "visibility": "PUBLIC",
+      "provenance": "DECLARED"
+    }
+  ],
   "projects": [],
   "activities": [],
   "tokenUsage": []
