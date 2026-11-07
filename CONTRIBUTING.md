@@ -34,6 +34,7 @@ src/core/         Models, validation, configuration loading, results
 src/generators/   One generator per indicator, plus the GitHub sync
 src/github/       GitHub API client, collection, mapping
 src/indicators/   Aggregation of the data an indicator shows
+src/components/   Reusable SVG components: layout, metrics and charts
 src/templates/    Themes, design tokens, SVG layout and rendering
 src/validate/     The `validate` command
 src/shared/       SVG escaping, color and text helpers

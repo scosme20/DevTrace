@@ -91,6 +91,11 @@ through `escapeXml`. Output has no timestamps, scripts or external resources, so
 yields identical SVG. The generator version in the footer comes from `core/version.ts`, which a
 test keeps equal to `package.json`.
 
+## SVG components
+
+`src/components/` holds reusable layout, metric and chart components built on the same design
+tokens. They receive finished data and return SVG; see [SVG components](svg-components.md).
+
 ## Appearance
 
 Appearance flows in one direction, so each step can be tested on its own:

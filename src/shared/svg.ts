@@ -45,7 +45,9 @@ export interface TextOptions {
   readonly anchor?: "start" | "middle" | "end";
 }
 
+/** Empty text draws nothing, so an element with no content is never written. */
 export function text(content: string, options: TextOptions): string {
+  if (content === "") return "";
   return element(
     "text",
     {
