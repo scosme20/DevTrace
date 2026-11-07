@@ -27,8 +27,8 @@ Commands:
   help [command]        Show help for a command
 
 Targets:
-  generate              startup, ai, all
-  validate              startup, ai, github, all
+  generate              startup, ai, activity, all
+  validate              startup, ai, activity, github, all
 
 Options:
   -h, --help            Show help; after a command, help for that command

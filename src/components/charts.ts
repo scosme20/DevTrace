@@ -227,16 +227,19 @@ export interface HeatmapOptions {
   readonly rows?: number;
   /** Draw the "Less ... More" scale under the grid. */
   readonly legend?: boolean;
+  /** One label per row, drawn on the left (empty strings skip a row). */
+  readonly rowLabels?: readonly string[];
 }
 
 /**
  * Values in column-major order: the first `rows` values are the first column.
  * Each value maps to one of four intensity levels relative to the largest value;
- * zero is always the empty level.
+ * zero is always the empty level. A `null` value means "no data" (for example a
+ * day that has not happened yet): it is drawn as an outlined cell, never as zero.
  */
 export function activityHeatmap(
   tokens: DesignTokens,
-  values: readonly number[],
+  values: readonly (number | null)[],
   options: HeatmapOptions = {},
 ): Builder {
   const { palette, font, visual } = tokens;
@@ -244,29 +247,56 @@ export function activityHeatmap(
   return (width) => {
     if (values.length === 0) return emptyState(tokens, width);
     const columns = Math.ceil(values.length / rows);
-    const fitted = Math.floor((width - (columns - 1) * HEAT_GAP) / columns);
+    const labels = options.rowLabels ?? [];
+    const offset =
+      labels.length === 0
+        ? 0
+        : Math.ceil(Math.max(...labels.map((label) => measure(tokens, label, font.small)))) + 6;
+    const fitted = Math.floor((width - offset - (columns - 1) * HEAT_GAP) / columns);
     const cell = Math.max(MIN_CELL, Math.min(MAX_CELL, fitted));
-    const usedWidth = columns * cell + (columns - 1) * HEAT_GAP;
-    const max = Math.max(...values.map(safeAmount));
+    const usedWidth = offset + columns * cell + (columns - 1) * HEAT_GAP;
+    const max = Math.max(0, ...values.map((value) => (value === null ? 0 : safeAmount(value))));
     const levels = visual.heat.length - 1;
 
     const cells = values
       .map((value, index) => {
-        const amount = safeAmount(value);
-        const level = amount === 0 ? 0 : Math.max(1, Math.ceil((amount / max) * levels));
-        return element("rect", {
-          x: Math.floor(index / rows) * (cell + HEAT_GAP),
+        const position = {
+          x: offset + Math.floor(index / rows) * (cell + HEAT_GAP),
           y: (index % rows) * (cell + HEAT_GAP),
           width: cell,
           height: cell,
           rx: Math.min(2, cell / 4),
-          fill: visual.heat[level] ?? palette.track,
-        });
+        };
+        if (value === null) {
+          return element("rect", {
+            ...position,
+            x: position.x + 0.5,
+            y: position.y + 0.5,
+            width: cell - 1,
+            height: cell - 1,
+            fill: "none",
+            stroke: palette.border,
+            "stroke-width": visual.strokeWidth,
+          });
+        }
+        const amount = safeAmount(value);
+        const level = amount === 0 ? 0 : Math.max(1, Math.ceil((amount / max) * levels));
+        return element("rect", { ...position, fill: visual.heat[level] ?? palette.track });
       })
+      .join("");
+    const labelText = labels
+      .map((label, row) =>
+        text(label, {
+          x: 0,
+          y: row * (cell + HEAT_GAP) + Math.round(cell / 2 + font.small * 0.35),
+          fill: palette.mutedText,
+          size: font.small,
+        }),
+      )
       .join("");
     const gridHeight = rows * cell + (rows - 1) * HEAT_GAP;
     if (options.legend !== true) {
-      return { body: cells, width: Math.min(width, usedWidth), height: gridHeight };
+      return { body: labelText + cells, width: Math.min(width, usedWidth), height: gridHeight };
     }
     const lessWidth = measure(tokens, "Less", font.small) + 6;
     const swatches = visual.heat
@@ -297,7 +327,7 @@ export function activityHeatmap(
         size: font.small,
       });
     return {
-      body: cells + scale,
+      body: labelText + cells + scale,
       width: Math.min(width, Math.max(usedWidth, moreX + measure(tokens, "More", font.small))),
       height: gridHeight + 8 + Math.max(cell, font.small + 4),
     };

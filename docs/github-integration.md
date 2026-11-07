@@ -50,17 +50,19 @@ The file is optional. Without it, `pnpm sync:github` prints a message and does n
 }
 ```
 
-| Field                          | Default  | Meaning                                                                                   |
-| ------------------------------ | -------- | ----------------------------------------------------------------------------------------- |
-| `version`                      | required | Must be `1`.                                                                              |
-| `username`                     | required | The GitHub account whose public repositories are read.                                    |
-| `repositories.include`         | `[]`     | `name` or `owner/name`. Empty means all public repositories of `username`.                |
-| `repositories.exclude`         | `[]`     | `name` or `owner/name`, case-insensitive. Exclusion wins over inclusion.                  |
-| `repositories.includeForks`    | `false`  | Applies when `include` is empty. Naming a repository in `include` overrides it.           |
-| `repositories.includeArchived` | `false`  | Applies when `include` is empty. Naming a repository in `include` overrides it.           |
-| `collect.*`                    | all on   | Fields left out are not stored. `releases: false` also saves one API call per repository. |
-| `onUnavailable`                | `SKIP`   | `SKIP` warns and continues, `FAIL` stops the sync. See below.                             |
-| `cacheTtlMinutes`              | `60`     | A snapshot younger than this is reused. `0` disables the cache. Maximum 1440.             |
+| Field                          | Default  | Meaning                                                                                                           |
+| ------------------------------ | -------- | ----------------------------------------------------------------------------------------------------------------- |
+| `version`                      | required | Must be `1`.                                                                                                      |
+| `username`                     | required | The GitHub account whose public repositories are read.                                                            |
+| `repositories.include`         | `[]`     | `name` or `owner/name`. Empty means all public repositories of `username`.                                        |
+| `repositories.exclude`         | `[]`     | `name` or `owner/name`, case-insensitive. Exclusion wins over inclusion.                                          |
+| `repositories.includeForks`    | `false`  | Applies when `include` is empty. Naming a repository in `include` overrides it.                                   |
+| `repositories.includeArchived` | `false`  | Applies when `include` is empty. Naming a repository in `include` overrides it.                                   |
+| `collect.*`                    | all on   | Fields left out are not stored. `releases: false` also saves one API call per repository.                         |
+| `collect.languages`            | off      | Bytes of code per language: one more request per repository. Used by the developer activity dashboard.            |
+| `collect.commitActivity`       | off      | Commits per day for the last 52 weeks: one more request per repository. Used by the developer activity dashboard. |
+| `onUnavailable`                | `SKIP`   | `SKIP` warns and continues, `FAIL` stops the sync. See below.                                                     |
+| `cacheTtlMinutes`              | `60`     | A snapshot younger than this is reused. `0` disables the cache. Maximum 1440.                                     |
 
 The file never contains credentials, and a `token` field is rejected as an unknown field.
 
@@ -137,7 +139,11 @@ The number of requests is small and predictable:
 
 - listing mode: 1 request per 100 repositories, plus 1 per repository for its latest release;
 - `include` mode: 1 request per repository, plus 1 per repository for its latest release;
-- `collect.releases: false` removes the release request.
+- `collect.releases: false` removes the release request;
+- `collect.languages` and `collect.commitActivity` are off by default. Each adds one request per
+  repository. GitHub computes commit statistics on demand and may answer that they are not ready:
+  DevTrace then warns, stores nothing for that repository (unknown is not zero) and a later
+  `pnpm sync:github --force` picks them up.
 
 To save requests, DevTrace reuses a snapshot younger than `cacheTtlMinutes` (use
 `pnpm sync:github --force` to refresh anyway).

@@ -1,4 +1,9 @@
+import { access } from "node:fs/promises";
 import path from "node:path";
+import {
+  DEVELOPER_ACTIVITY_CONFIG_FILE,
+  generateDeveloperActivity,
+} from "../generators/developer-activity.js";
 import { generateAiEngineeringStats } from "../generators/ai-engineering.js";
 import { syncGitHubSnapshot } from "../generators/github.js";
 import { generateStartupStats, type GenerateOptions } from "../generators/startup.js";
@@ -25,6 +30,11 @@ const GENERATORS = {
     run: (rootDir: string, options: GenerateOptions) =>
       generateAiEngineeringStats(rootDir, options),
   },
+  activity: {
+    start: "Generating developer activity indicator...",
+    done: "Developer activity indicator written to",
+    run: (rootDir: string, options: GenerateOptions) => generateDeveloperActivity(rootDir, options),
+  },
 } as const;
 
 const relative = (io: CliIo, text: string): string => text.replaceAll(io.rootDir + path.sep, "");
@@ -39,13 +49,29 @@ export function runVersion(io: CliIo): number {
   return EXIT.OK;
 }
 
+/** The developer activity indicator is optional: "all" includes it only when it is configured. */
+async function activityConfigured(rootDir: string): Promise<boolean> {
+  try {
+    await access(path.join(rootDir, DEVELOPER_ACTIVITY_CONFIG_FILE));
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 export async function runGenerate(
   invocation: GenerateInvocation,
   io: CliIo,
   verbose: boolean,
 ): Promise<number> {
   const targets: readonly (keyof typeof GENERATORS)[] =
-    invocation.target === "all" ? ["startup", "ai"] : [invocation.target];
+    invocation.target === "all"
+      ? [
+          "startup",
+          "ai",
+          ...((await activityConfigured(io.rootDir)) ? (["activity"] as const) : []),
+        ]
+      : [invocation.target];
   let failures = 0;
   for (const target of targets) {
     const generator = GENERATORS[target];
@@ -85,8 +111,9 @@ export async function runSync(force: boolean, io: CliIo): Promise<number> {
 const VALIDATE_TARGETS: Readonly<Record<ValidateTarget, readonly ValidationTarget[]>> = {
   startup: ["startup"],
   ai: ["ai"],
+  activity: ["activity"],
   github: ["github"],
-  all: ["startup", "ai", "github"],
+  all: ["startup", "ai", "activity", "github"],
 };
 
 export async function runValidate(target: ValidateTarget, io: CliIo): Promise<number> {

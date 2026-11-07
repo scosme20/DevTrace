@@ -1,0 +1,21 @@
+{
+  "version": 1,
+  "username": "your-github-username",
+  "repositories": {
+    "include": [],
+    "exclude": ["your-github-username"],
+    "includeForks": false,
+    "includeArchived": false
+  },
+  "collect": {
+    "description": true,
+    "language": true,
+    "stars": true,
+    "forks": true,
+    "releases": true,
+    "languages": true,
+    "commitActivity": true
+  },
+  "onUnavailable": "SKIP",
+  "cacheTtlMinutes": 60
+}

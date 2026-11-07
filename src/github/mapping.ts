@@ -1,9 +1,11 @@
 import type {
+  CommitWeek,
   GitHubCollectSettings,
   GitHubRelease,
   GitHubRepository,
+  RepositoryLanguage,
 } from "../core/github-models.js";
-import type { ReleaseResponse, RepositoryResponse } from "./repositories.js";
+import type { CommitActivityWeek, ReleaseResponse, RepositoryResponse } from "./repositories.js";
 
 // eslint-disable-next-line no-control-regex
 const CONTROL_CHARS = /[\x00-\x1F\x7F-\x9F]/g;
@@ -29,11 +31,39 @@ export function mapRelease(raw: ReleaseResponse): GitHubRelease | undefined {
  * Maps a validated API response to the domain model. Only the fields enabled
  * in `collect` are kept, and the URL is rebuilt instead of trusting the API.
  */
+/** Languages by bytes, largest first, then by name so the order never changes. */
+export function mapLanguages(raw: Readonly<Record<string, number>>): RepositoryLanguage[] {
+  return Object.entries(raw)
+    .flatMap(([name, bytes]) => {
+      const clean = sanitizeText(name, 50);
+      return clean === undefined ? [] : [{ name: clean, bytes }];
+    })
+    .sort((a, b) => b.bytes - a.bytes || a.name.localeCompare(b.name))
+    .slice(0, 100);
+}
+
+export function mapCommitActivity(raw: readonly CommitActivityWeek[]): CommitWeek[] {
+  return raw
+    .map((week) => ({
+      weekStart: new Date(week.week * 1000).toISOString().slice(0, 10),
+      days: week.days,
+    }))
+    .sort((a, b) => a.weekStart.localeCompare(b.weekStart))
+    .slice(-53);
+}
+
+export interface ExtraData {
+  readonly release?: GitHubRelease | undefined;
+  readonly languages?: readonly RepositoryLanguage[] | undefined;
+  readonly commitActivity?: readonly CommitWeek[] | undefined;
+}
+
 export function mapRepository(
   raw: RepositoryResponse,
   collect: GitHubCollectSettings,
-  release?: GitHubRelease,
+  extra: ExtraData = {},
 ): GitHubRepository {
+  const { release, languages, commitActivity } = extra;
   const description =
     collect.description && raw.description != null ? sanitizeText(raw.description, 200) : undefined;
   const language =
@@ -51,6 +81,8 @@ export function mapRepository(
     createdAt: raw.created_at,
     ...(raw.pushed_at == null ? {} : { pushedAt: raw.pushed_at }),
     ...(collect.releases && release !== undefined ? { latestRelease: release } : {}),
+    ...(languages === undefined || languages.length === 0 ? {} : { languages }),
+    ...(commitActivity === undefined ? {} : { commitActivity }),
     provenance: "OBSERVED",
   };
 }

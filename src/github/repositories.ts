@@ -25,6 +25,15 @@ const releaseResponse = z.object({
   draft: z.boolean().optional(),
 });
 
+const languagesResponse = z.record(z.string(), z.number().int().nonnegative());
+
+const commitActivityResponse = z.array(
+  z.object({
+    week: z.number().int().nonnegative(),
+    days: z.array(z.number().int().nonnegative()).length(7),
+  }),
+);
+
 export type RepositoryResponse = z.infer<typeof repositoryResponse>;
 export type ReleaseResponse = z.infer<typeof releaseResponse>;
 
@@ -81,6 +90,40 @@ export async function fetchLatestRelease(
     return parseResponse(releaseResponse, body, `latest release of ${fullName}`);
   } catch (error) {
     if (error instanceof GitHubApiError && error.kind === "not_found") return undefined;
+    throw error;
+  }
+}
+
+/** Bytes of code per language, as GitHub reports them. An empty repository answers {}. */
+export async function fetchLanguages(
+  client: GitHubClient,
+  fullName: string,
+): Promise<Record<string, number>> {
+  const body = await client.getJson(`${repositoryPath(fullName)}/languages`);
+  return parseResponse(languagesResponse, body, `languages of ${fullName}`);
+}
+
+export interface CommitActivityWeek {
+  readonly week: number;
+  readonly days: readonly number[];
+}
+
+/**
+ * Commits per day for the last 52 weeks. GitHub computes this on demand: while
+ * it does, it answers 202 with an empty body, which is returned as undefined
+ * ("not ready"), never as zero activity.
+ */
+export async function fetchCommitActivity(
+  client: GitHubClient,
+  fullName: string,
+): Promise<CommitActivityWeek[] | undefined> {
+  try {
+    const body = await client.getJson(`${repositoryPath(fullName)}/stats/commit_activity`);
+    if (!Array.isArray(body)) return undefined;
+    return parseResponse(commitActivityResponse, body, `commit activity of ${fullName}`);
+  } catch (error) {
+    // 204 (an empty repository) is an empty body and reaches here as invalid JSON.
+    if (error instanceof GitHubApiError && error.kind === "invalid_response") return undefined;
     throw error;
   }
 }
