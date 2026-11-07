@@ -82,8 +82,28 @@ export interface BoxTokens {
   readonly markRadius: number;
 }
 
+/** Roles a component can be tinted with. Components never accept a raw color. */
+export type Tone = "primary" | "success" | "warning" | "error" | "muted";
+
+/** What the SVG components need beyond the card tokens, derived once from them. */
+export interface VisualTokens {
+  readonly tones: Readonly<Record<Tone, string>>;
+  /** Categorical colors for the series of a chart, in a fixed order. */
+  readonly series: readonly string[];
+  /** Five intensity levels for a heatmap; index 0 is the empty cell. */
+  readonly heat: readonly string[];
+  /** A second surface for nested elements; the track color of the theme. */
+  readonly surfaceSecondary: string;
+  readonly strokeWidth: number;
+  readonly panelPadding: number;
+  /** Space between the parts of a component and between neighbors in a grid. */
+  readonly gap: number;
+  readonly panelHeadingHeight: number;
+}
+
 export interface DesignTokens {
   readonly palette: Palette;
+  readonly visual: VisualTokens;
   readonly font: FontTokens;
   readonly box: BoxTokens;
   readonly layout: LayoutTokens;
@@ -181,6 +201,43 @@ const LAYOUT_PRESETS: Readonly<Record<Layout, LayoutPreset>> = {
   },
 };
 
+const HEAT_LEVELS = 5;
+
+/** Mixes only real colors: a transparent paint cannot be mixed, so the target color is used. */
+function blend(from: string, to: string, amount: number): string {
+  return from === NO_PAINT || to === NO_PAINT ? to : mixColors(from, to, amount);
+}
+
+function resolveVisual(palette: Palette, tileGap: number, font: FontTokens): VisualTokens {
+  return {
+    tones: {
+      primary: palette.primary,
+      success: palette.success,
+      warning: palette.warning,
+      error: palette.error,
+      muted: palette.mutedText,
+    },
+    series: [
+      palette.primary,
+      palette.success,
+      palette.warning,
+      palette.error,
+      blend(palette.primary, palette.text, 0.5),
+      palette.mutedText,
+    ],
+    heat: Array.from({ length: HEAT_LEVELS }, (_, level) =>
+      level === 0
+        ? palette.track
+        : blend(palette.track, palette.primary, level / (HEAT_LEVELS - 1)),
+    ),
+    surfaceSecondary: palette.track,
+    strokeWidth: 1,
+    panelPadding: tileGap + 4,
+    gap: tileGap,
+    panelHeadingHeight: font.small + 14,
+  };
+}
+
 type ColorOverrides = NonNullable<AppearanceSettings["colors"]>;
 
 function resolvePalette(base: Palette, overrides: ColorOverrides): Palette {
@@ -247,21 +304,25 @@ export function resolveDesignTokens(settings: AppearanceSettings): Result<Design
   const emphasis = typography.fontWeight ?? 600;
   const family = typography.fontFamily ?? "SYSTEM";
 
+  const palette = resolvePalette(theme.palette, settings.colors ?? {});
+  const font: FontTokens = {
+    family: FONT_STACKS[family],
+    title,
+    body,
+    label,
+    small: label - 1,
+    number: Math.round(title * 1.4),
+    brand: body + 1,
+    emphasis,
+    strong: emphasis >= 700 ? 800 : emphasis + 100,
+  };
+
   return {
     ok: true,
     value: {
-      palette: resolvePalette(theme.palette, settings.colors ?? {}),
-      font: {
-        family: FONT_STACKS[family],
-        title,
-        body,
-        label,
-        small: label - 1,
-        number: Math.round(title * 1.4),
-        brand: body + 1,
-        emphasis,
-        strong: emphasis >= 700 ? 800 : emphasis + 100,
-      },
+      palette,
+      visual: resolveVisual(palette, Math.round(spacing / 2), font),
+      font,
       box: {
         width,
         padding,

@@ -67,6 +67,7 @@ DevTrace reads `data/startup.json`, `data/ai-engineering.json` and, optionally,
 
 - [Configuration overview](docs/configuration.md): files, examples, precedence, privacy.
 - [Data model](docs/data-model.md): every field, its type, whether it is required and its default.
+- [SVG components](docs/svg-components.md): the reusable chart, metric and layout components for contributors.
 - [`examples/`](examples): complete files for startup, AI engineering, `LIGHT` with `COMPACT`,
   custom colors and GitHub. A test validates each of them.
 
