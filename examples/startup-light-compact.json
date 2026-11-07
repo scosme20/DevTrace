@@ -1,0 +1,23 @@
+{
+  "version": 1,
+  "profile": { "displayName": "My Projects" },
+  "settings": {
+    "theme": "LIGHT",
+    "layout": "COMPACT",
+    "showLinks": false
+  },
+  "projects": [
+    {
+      "id": "example-app",
+      "name": "Example App",
+      "description": "Replace this entry with one of your own projects.",
+      "category": "Web App",
+      "lifecycleStage": "LAUNCHED",
+      "status": "ACTIVE",
+      "visibility": "PUBLIC",
+      "dataSource": "DECLARED",
+      "createdAt": "2026-01-15",
+      "updatedAt": "2026-03-01"
+    }
+  ]
+}

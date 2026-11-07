@@ -1,0 +1,60 @@
+{
+  "version": 1,
+  "profile": { "displayName": "AI Engineering" },
+  "settings": {
+    "theme": "DARK",
+    "showTools": true,
+    "showModels": true,
+    "showSkills": true,
+    "showProjects": true,
+    "showActivity": false,
+    "showTokenUsage": false,
+    "showCost": false
+  },
+  "tools": [
+    {
+      "id": "example-assistant",
+      "name": "Example Assistant",
+      "provider": "Example Provider",
+      "category": "AI_ASSISTANT",
+      "usageType": "PERSONAL",
+      "visibility": "PUBLIC",
+      "provenance": "DECLARED"
+    }
+  ],
+  "models": [
+    {
+      "id": "example-model",
+      "name": "Example Model 1",
+      "provider": "Example Provider",
+      "modelFamily": "Example",
+      "visibility": "PUBLIC",
+      "provenance": "DECLARED"
+    }
+  ],
+  "skills": [
+    {
+      "id": "rag",
+      "name": "Retrieval-augmented generation",
+      "category": "RETRIEVAL_KNOWLEDGE",
+      "proficiencyLevel": "PRACTICING",
+      "visibility": "PUBLIC",
+      "provenance": "DECLARED"
+    }
+  ],
+  "projects": [
+    {
+      "id": "example-ai-project",
+      "name": "Example AI Project",
+      "description": "Replace this entry with one of your own projects.",
+      "category": "Assistant",
+      "status": "ACTIVE",
+      "techniques": ["RAG", "TOOL_USE"],
+      "tools": ["example-assistant"],
+      "visibility": "PUBLIC",
+      "provenance": "DECLARED"
+    }
+  ],
+  "activities": [],
+  "tokenUsage": []
+}

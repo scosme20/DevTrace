@@ -1,0 +1,78 @@
+{
+  "name": "devtrace",
+  "version": "0.6.0",
+  "description": "Generate SVG indicators for GitHub profile READMEs: startup projects and AI engineering work, from a small JSON configuration.",
+  "keywords": [
+    "github",
+    "github-profile",
+    "readme",
+    "svg",
+    "profile-readme",
+    "stats",
+    "generator",
+    "cli"
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/scosme20/DevTrace.git"
+  },
+  "homepage": "https://github.com/scosme20/DevTrace#readme",
+  "bugs": {
+    "url": "https://github.com/scosme20/DevTrace/issues"
+  },
+  "type": "module",
+  "private": true,
+  "bin": {
+    "devtrace": "dist/index.js"
+  },
+  "files": [
+    "dist",
+    "!dist/**/*.map",
+    "docs",
+    "examples",
+    "README.md",
+    "CONTRIBUTING.md"
+  ],
+  "engines": {
+    "node": ">=22"
+  },
+  "packageManager": "pnpm@9.2.0",
+  "scripts": {
+    "dev": "tsx src/index.ts",
+    "validate": "tsx src/index.ts validate",
+    "generate": "tsx src/index.ts generate all",
+    "generate:startup": "tsx src/index.ts generate startup",
+    "generate:ai": "tsx src/index.ts generate ai",
+    "sync:github": "tsx src/index.ts sync",
+    "build": "node -e \"require(\\\"node:fs\\\").rmSync(\\\"dist\\\",{recursive:true,force:true})\" && tsc -p tsconfig.build.json",
+    "start": "node dist/index.js",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint .",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "check": "pnpm typecheck && pnpm lint && pnpm test && pnpm format:check",
+    "prepack": "pnpm build"
+  },
+  "dependencies": {
+    "zod": "^4.6.7"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@types/node": "^26.6.6",
+    "eslint": "^10.14.0",
+    "prettier": "^3.9.10",
+    "tsx": "^4.23.15",
+    "typescript": "^6.0.3",
+    "typescript-eslint": "^8.72.1",
+    "vitest": "^5.1.0",
+    "yaml": "^2.9.1"
+  },
+  "pnpm": {
+    "overrides": {
+      "minimatch": "^11.0.1"
+    }
+  }
+}
