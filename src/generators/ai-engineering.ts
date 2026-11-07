@@ -6,6 +6,7 @@ import { DevTraceError } from "../core/result.js";
 import { DEVTRACE_VERSION } from "../core/version.js";
 import { computeAiEngineeringStats } from "../indicators/ai-engineering/stats.js";
 import { linkGitHubRepositories } from "../indicators/github-link.js";
+import { renderAiEngineeringDashboard } from "../templates/ai-engineering-dashboard.js";
 import { renderAiEngineeringStats } from "../templates/ai-engineering-stats.js";
 import { contrastWarnings } from "../templates/design-tokens.js";
 import { GITHUB_SNAPSHOT_FILE, INDICATORS_DIR, type GenerateOptions } from "./startup.js";
@@ -30,7 +31,10 @@ export async function generateAiEngineeringStats(
     const settings = applyAppearanceOverrides(config.settings, options);
     contrastWarnings(settings).forEach((warning) => options.warn?.(warning));
 
-    const svg = renderAiEngineeringStats(computeAiEngineeringStats(config, links.byProjectId), {
+    const stats = computeAiEngineeringStats(config, links.byProjectId);
+    const render =
+      settings.dashboard === true ? renderAiEngineeringDashboard : renderAiEngineeringStats;
+    const svg = render(stats, {
       profile: config.profile,
       settings,
       generatorVersion: DEVTRACE_VERSION,

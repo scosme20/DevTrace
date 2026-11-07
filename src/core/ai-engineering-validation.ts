@@ -146,6 +146,7 @@ const settingsSchema = z.strictObject({
   showTokenUsage: z.boolean().default(false),
   showCost: z.boolean().default(false),
   showLinks: z.boolean().default(true),
+  dashboard: z.boolean().optional(),
 });
 
 const configSchema = z

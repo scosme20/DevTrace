@@ -171,6 +171,8 @@ export interface AiEngineeringSettings extends AppearanceSettings {
   /** Costs are financial data: hidden unless explicitly enabled. */
   readonly showCost: boolean;
   readonly showLinks: boolean;
+  /** Draw the multi-panel dashboard instead of the single-column card. Default `false`. */
+  readonly dashboard?: boolean | undefined;
 }
 
 export interface AiEngineeringConfig {

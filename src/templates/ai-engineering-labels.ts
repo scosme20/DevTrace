@@ -6,6 +6,7 @@ import type {
   SkillCategory,
   TokenMetricKind,
   ToolCategory,
+  UsageType,
 } from "../core/ai-engineering-models.js";
 
 // Display text for enum values. Records are exhaustive, so adding an enum
@@ -67,4 +68,11 @@ export const TOKEN_KIND_LABELS: Readonly<Record<TokenMetricKind, string>> = {
   OUTPUT_TOKENS: "Output tokens",
   TOTAL_TOKENS: "Total tokens",
   ESTIMATED_COST: "Estimated cost",
+};
+
+export const USAGE_TYPE_LABELS: Readonly<Record<UsageType, string>> = {
+  PERSONAL: "Personal",
+  PROFESSIONAL: "Professional",
+  OPEN_SOURCE: "Open source",
+  ACADEMIC: "Academic",
 };

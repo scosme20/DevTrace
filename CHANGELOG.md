@@ -8,6 +8,12 @@ All notable changes to DevTrace are documented here. The format follows
 
 ### Added
 
+- AI Engineering Dashboard: a multi-panel version of the AI indicator (overview metrics, tools and
+  providers, foundation models, declared skill levels, projects, activity records and reported
+  token usage), enabled with `settings.dashboard`. It reuses the SVG components and writes to the same
+  output file. `entryList` and `badgeRow` components were added for it. See
+  `docs/ai-engineering-dashboard.md`.
+- `examples/ai-engineering-dashboard.json`.
 - SVG component system in `src/components/`: layout (`row`, `grid`, `stack`, `panel`, `divider`),
   metrics (`metricCard`, `compactMetric`, `progressBar`, `distributionBar`, `rankingList`,
   `statusIndicator`, `badge`) and charts (horizontal and vertical bars, donut, activity heatmap,

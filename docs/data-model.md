@@ -125,6 +125,7 @@ and six optional lists (default `[]`): `tools`, `models`, `skills`, `projects`, 
 | `settings.showTokenUsage` | boolean | `false`                  |
 | `settings.showCost`       | boolean | `false`                  |
 | `settings.showLinks`      | boolean | `true`                   |
+| `settings.dashboard`      | boolean | `false` (not stored)     |
 
 ### Fields common to every entity
 
