@@ -38,6 +38,10 @@ jobs:
       - name: Run tests
         run: pnpm test
 
+      # Stops the run, before anything is generated, when a configuration is invalid.
+      - name: Validate the configuration
+        run: pnpm validate
+
       # The only step that uses the network. The token is read-only public API
       # access and is passed to this step alone. A failure here must not stop
       # the SVG files from being regenerated from the previous data.
@@ -48,11 +52,10 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: pnpm sync:github
 
-      - name: Generate startup indicator
-        run: pnpm generate:startup
-
-      - name: Generate AI engineering indicator
-        run: pnpm generate:ai
+      # Startup and AI engineering, plus the developer activity dashboard when
+      # data/developer-activity.json exists.
+      - name: Generate the indicators
+        run: pnpm generate
 
       - name: Commit and push changed indicators
         env:

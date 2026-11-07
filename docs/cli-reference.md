@@ -103,6 +103,7 @@ Reads public repository data as configured in `data/github.json`. `--force` igno
 | `pnpm generate`            | `devtrace generate all`           |
 | `pnpm generate:startup`    | `devtrace generate startup`       |
 | `pnpm generate:ai`         | `devtrace generate ai`            |
+| `pnpm generate:activity`   | `devtrace generate activity`      |
 | `pnpm sync:github`         | `devtrace sync`                   |
 | `pnpm build`, `pnpm start` | Compile to `dist/`, run the build |
 

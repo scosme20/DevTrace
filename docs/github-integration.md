@@ -9,12 +9,14 @@ indicators.
 ```
 data/github.json ──> pnpm sync:github ──> data/github-snapshot.json ──┐
                      (the only step that                              ├─> pnpm generate:startup
-                      uses the network)                               └─> pnpm generate:ai
+                      uses the network)                               ├─> pnpm generate:ai
+                                                                      └─> pnpm generate:activity
 ```
 
 1. **Sync.** `pnpm sync:github` reads `data/github.json`, calls the GitHub API and writes a
    validated snapshot to `data/github-snapshot.json`.
-2. **Generate.** `pnpm generate:startup` and `pnpm generate:ai` read the snapshot from disk. They
+2. **Generate.** `pnpm generate:startup`, `pnpm generate:ai` and `pnpm generate:activity` read the
+   snapshot from disk. They
    never use the network, so generation is fast, offline and deterministic: the same snapshot
    always produces the same SVG.
 
@@ -188,8 +190,9 @@ change.
 | `workflow_dispatch` | Run it manually from the **Actions** tab of the repository.  |
 | `schedule`          | Daily at 04:23 UTC. Edit the `cron` expression to change it. |
 
-Steps: install with `pnpm install --frozen-lockfile` on Node.js 22, run `pnpm test`, sync GitHub
-data, run `pnpm generate:startup` and `pnpm generate:ai`, then commit and push only if something
+Steps: install with `pnpm install --frozen-lockfile` on Node.js 22, run `pnpm test`, validate the
+configuration (`pnpm validate`), sync GitHub data, run `pnpm generate` (the startup and AI
+indicators, plus the developer activity dashboard when `data/developer-activity.json` exists), then commit and push only if something
 under `public/indicators` changed (no empty commits). It does not deploy or publish anywhere.
 
 ### Setup

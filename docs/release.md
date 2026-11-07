@@ -43,16 +43,16 @@ Additional indicators, a library API, more themes and similar work do not block 
 
 ## Status of the first release
 
-| Area                | Item                                               | State   |
-| ------------------- | -------------------------------------------------- | ------- |
-| Technical           | Typecheck, lint, format, tests, build              | DONE    |
-| Technical           | CI workflow                                        | DONE    |
-| Security            | Dependency audit clean, no secrets, SVG escaping   | DONE    |
-| Security            | Private vulnerability reporting enabled on GitHub  | PENDING |
-| Licensing           | `LICENSE` file (MIT)                               | DONE    |
-| Documentation       | README, docs, CHANGELOG, SECURITY                  | DONE    |
-| Documentation       | `CODE_OF_CONDUCT.md`                               | DONE    |
-| Distribution        | `repository`, `homepage`, `bugs`, remove `private` | BLOCKED |
-| Release publication | Tag, GitHub Release, `npm publish`                 | PENDING |
+| Area                | Item                                                   | State   |
+| ------------------- | ------------------------------------------------------ | ------- |
+| Technical           | Typecheck, lint, format, tests, build                  | DONE    |
+| Technical           | CI workflow                                            | DONE    |
+| Security            | Dependency audit clean, no secrets, SVG escaping       | DONE    |
+| Security            | Private vulnerability reporting enabled on GitHub      | PENDING |
+| Licensing           | `LICENSE` file (MIT)                                   | DONE    |
+| Documentation       | README, docs, CHANGELOG, SECURITY                      | DONE    |
+| Documentation       | `CODE_OF_CONDUCT.md`                                   | DONE    |
+| Distribution        | `repository`, `homepage`, `bugs` set; remove `private` | PENDING |
+| Release publication | Tag, GitHub Release, `npm publish`                     | PENDING |
 
 The repository URL depends on a decision by the maintainer.

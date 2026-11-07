@@ -19,13 +19,15 @@ entries are never drawn, and the same input always produces the same SVG.
 
 ## Features
 
-- Two indicators: **Startup & SaaS Statistics** and **AI Engineering Statistics**, each also as a
-  multi-panel dashboard (`"dashboard": true`).
+- Three indicators, each a complete static SVG: **Startup & SaaS**, **AI Engineering** and
+  **Developer Activity**. The first two are also single-column cards; all three share one visual
+  identity and can be used alone or together.
 - Five themes (`DARK`, `LIGHT`, `MIDNIGHT`, `MINIMAL`, `TRANSPARENT`), three layouts, custom
   colors, fonts and dimensions.
 - A `validate` command that names the file, the field and a fix for every problem, and changes
   nothing.
-- Optional, read-only GitHub integration for public repository data.
+- Optional, read-only GitHub integration for public repository data: metadata, releases, languages
+  and commit activity.
 - An optional GitHub Actions workflow that regenerates and commits the SVGs.
 - Private entries are removed before any statistic is computed.
 - Static SVGs with no scripts, no remote resources and escaped text.
@@ -64,12 +66,13 @@ it is distributed that way, but nothing is published.
 ## Configuration
 
 DevTrace reads `data/startup.json`, `data/ai-engineering.json` and, optionally,
-`data/github.json`. Every file rejects unknown fields and is validated before anything is written.
+`data/developer-activity.json` and `data/github.json`. Every file rejects unknown fields and is validated before anything is written.
 
 - [Configuration overview](docs/configuration.md): files, examples, precedence, privacy.
 - [Data model](docs/data-model.md): every field, its type, whether it is required and its default.
 - [Developer Activity Dashboard](docs/developer-activity-dashboard.md): commit heatmap, languages and releases from the GitHub data.
 - [Startup & SaaS Dashboard](docs/startup-dashboard.md): the multi-panel version of the Startup indicator.
+- [Using the SVGs in your profile](docs/github-profile.md): embedding, updating, tokens, problems.
 - [AI Engineering Dashboard](docs/ai-engineering-dashboard.md): the multi-panel version of the AI indicator.
 - [SVG components](docs/svg-components.md): the reusable chart, metric and layout components for contributors.
 - [`examples/`](examples): complete files for startup, AI engineering, `LIGHT` with `COMPACT`,
@@ -89,17 +92,21 @@ Environment variables: only `GITHUB_TOKEN`, optional, read by `sync` and never s
 
 Exit codes: `0` success, `1` failure, `2` usage error. In this repository run it with
 `pnpm dev <command>`, or with the scripts `pnpm validate`, `pnpm generate`,
-`pnpm generate:startup`, `pnpm generate:ai` and `pnpm sync:github`. Full reference:
+`pnpm generate:startup`, `pnpm generate:ai`, `pnpm generate:activity` and `pnpm sync:github`. Full reference:
 [docs/cli-reference.md](docs/cli-reference.md).
 
 ## Available indicators
 
-| Indicator                 | File                                         | Shows                                                                     |
-| ------------------------- | -------------------------------------------- | ------------------------------------------------------------------------- |
-| Startup & SaaS Statistics | `public/indicators/startup-stats.svg`        | Project totals, lifecycle distribution, status, links                     |
-| AI Engineering Statistics | `public/indicators/ai-engineering-stats.svg` | Tools, models, skills, AI projects; activity and token usage when enabled |
+| Indicator          | File                                         | Shows                                                                                               |
+| ------------------ | -------------------------------------------- | --------------------------------------------------------------------------------------------------- |
+| Startup & SaaS     | `public/indicators/startup-stats.svg`        | Card: totals, lifecycle, status, links. Dashboard: portfolio, pipeline, highlights, GitHub insights |
+| AI Engineering     | `public/indicators/ai-engineering-stats.svg` | Card or dashboard: tools, providers, models, declared skills, projects, activity, token usage       |
+| Developer Activity | `public/indicators/developer-activity.svg`   | Commit heatmap, commits per month, repositories, languages, releases (from the GitHub data)         |
 
-Details and definitions: [docs/indicators.md](docs/indicators.md).
+The first two write the single-column card by default and the multi-panel dashboard with
+`"dashboard": true`. Developer Activity is written only when `data/developer-activity.json` exists.
+Details and definitions: [docs/indicators.md](docs/indicators.md), and one page per dashboard
+(linked above).
 
 ## Themes and customization
 
@@ -137,45 +144,35 @@ Link a project with `"githubRepository": "owner/name"`. Details, rate limits and
 
 `.github/workflows/update-indicators.yml` runs on demand (**Actions → Update indicators → Run
 workflow**) and once a day. It installs with pnpm on Node.js 22, runs the tests, syncs GitHub data,
-generates both SVGs and commits them only when they changed. It requests `contents: write`, uses
+validates the configuration, generates every configured SVG and commits them only when they changed. It requests `contents: write`, uses
 the built-in `GITHUB_TOKEN` and publishes nowhere. See
 [docs/github-integration.md](docs/github-integration.md#github-actions) for caveats such as
 protected branches.
 
 ## Using the SVGs in your profile README
 
-Commit the generated SVGs, then reference them. Replace `<username>` and `<repository>`; `HEAD`
-points to the default branch, so no branch name is assumed.
-
-```markdown
-![Startup & SaaS Statistics](https://raw.githubusercontent.com/<username>/<repository>/HEAD/public/indicators/startup-stats.svg)
-```
-
-To show a light or a dark card depending on the viewer's GitHub theme, generate two files and use a
-`<picture>` element:
+Commit the generated SVGs and reference them. Replace `<username>` and `<repository>`; `HEAD` points
+to the default branch.
 
 ```html
-<picture>
-  <source
-    media="(prefers-color-scheme: dark)"
-    srcset="
-      https://raw.githubusercontent.com/<username>/<repository>/HEAD/public/indicators/startup-dark.svg
-    "
-  />
-  <img
-    src="https://raw.githubusercontent.com/<username>/<repository>/HEAD/public/indicators/startup-light.svg"
-    alt="Startup & SaaS Statistics"
-    width="560"
-  />
-</picture>
+<img
+  src="https://raw.githubusercontent.com/<username>/<repository>/HEAD/public/indicators/startup-stats.svg"
+  alt="Startup & SaaS Dashboard"
+/>
+<img
+  src="https://raw.githubusercontent.com/<username>/<repository>/HEAD/public/indicators/ai-engineering-stats.svg"
+  alt="AI Engineering Dashboard"
+/>
+<img
+  src="https://raw.githubusercontent.com/<username>/<repository>/HEAD/public/indicators/developer-activity.svg"
+  alt="Developer Activity Dashboard"
+/>
 ```
 
-```bash
-pnpm dev generate startup --theme DARK --output startup-dark.svg
-pnpm dev generate startup --theme LIGHT --output startup-light.svg
-```
-
-GitHub caches README images, so a new version can take a few minutes to appear.
+Use one, two or all three. The profile repository (`<username>/<username>`) can be a different
+repository from the one that runs DevTrace, and DevTrace never writes to another repository: either
+point the README at the files where they are generated, or copy them. Light and dark versions,
+updating, tokens and common problems are in [docs/github-profile.md](docs/github-profile.md).
 
 ## Data privacy and provenance
 
@@ -200,15 +197,35 @@ Common messages and fixes are in [docs/troubleshooting.md](docs/troubleshooting.
 
 ## Current limitations
 
-- Not published to npm; the repository metadata (`repository`, `homepage`, `bugs`) is not set yet.
+- Not published to npm: the package is `private`, so it is used from a clone.
 - GitHub is the only integration. AI tools, models, skills, activity and token usage are entered by
   hand, so only GitHub data is `OBSERVED`.
-- GitHub data covers public repositories only: stars, forks, language, description and the latest
-  release. There are no commit, pull request or contribution metrics.
-- Cards have a configurable width but no pagination, so long lists make a tall card.
+- GitHub data covers the public repositories you select. Commits come from the weekly statistics
+  GitHub keeps for the default branch; pull requests, issues and the contributions calendar are not
+  collected. Every Developer Activity number says it covers the monitored repositories only.
+- Lists have limits and end with "+N more", but dashboards are still tall (about 1,100 to 1,500
+  pixels for the examples).
 - Fonts are four system stacks and text width is estimated. Colors are solid hexadecimal values.
   See [customization](docs/customization.md#limitations).
 - Scheduled workflows are disabled by GitHub after 60 days without repository activity.
+
+## Project structure
+
+```text
+src/cli/          Command line
+src/core/         Models, validation, configuration loading
+src/github/       GitHub API client and collection
+src/indicators/   Aggregation: what each indicator shows
+src/components/   Reusable SVG components (layout, metrics, charts)
+src/templates/    Design tokens, themes, cards and dashboards
+src/generators/   Load, compute, render, write
+tests/            Vitest tests
+docs/             Documentation
+examples/         Complete configuration files
+```
+
+Built with TypeScript (strict), Node.js 22+, pnpm, Zod for validation and Vitest. The only runtime
+dependency is Zod. See [docs/architecture.md](docs/architecture.md).
 
 ## Contributing
 

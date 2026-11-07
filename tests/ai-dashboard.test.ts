@@ -349,7 +349,7 @@ describe("provenance", () => {
       ],
     });
     const stroke = (label: string) =>
-      new RegExp(`stroke="(#[0-9a-f]{6})" stroke-width="1"/><text [^>]*>${label}<`).exec(svg)?.[1];
+      new RegExp(`stroke="(#[0-9a-f]{6})"/><text [^>]*>${label}<`).exec(svg)?.[1];
     expect(stroke("Observed")).toBeDefined();
     expect(stroke("Observed")).not.toBe(stroke("Estimated"));
   });

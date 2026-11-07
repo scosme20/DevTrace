@@ -1,27 +1,23 @@
-import { displayFlags } from "../core/appearance.js";
 import type { DeveloperActivitySettings } from "../core/developer-activity-models.js";
 import type { StartupProfile } from "../core/models.js";
 import {
   activityHeatmap,
   caption,
   compactMetric,
-  dashboardSection,
   entryList,
-  grid,
   horizontalBarChart,
-  metricCard,
-  packPanels,
   panel,
   progressBar,
   stack,
   timeline,
   verticalBarChart,
   type Builder,
+  type MetricCardData,
   type EntryItem,
-  type PanelSlot,
 } from "../components/index.js";
 import type { ActivityStats } from "../indicators/developer-activity/stats.js";
-import { composeCard, renderEmptyState } from "./card.js";
+import { composeDashboard } from "./dashboard.js";
+
 import { requireDashboardTokens, type DesignTokens } from "./design-tokens.js";
 
 // The Developer Activity dashboard: a grid of panels built from the shared SVG
@@ -32,7 +28,6 @@ import { requireDashboardTokens, type DesignTokens } from "./design-tokens.js";
 const TITLE = "Developer Activity Dashboard";
 const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 const WEEKDAY_LABELS = ["", "Mon", "", "Wed", "", "Fri", ""];
-const MIN_METRIC_WIDTH = 120;
 const MONTH_CHART_HEIGHT = 110;
 
 export interface DeveloperActivityOptions {
@@ -47,42 +42,25 @@ function repositories(count: number, kind = ""): string {
   return `${String(count)} ${kind}${count === 1 ? "repository" : "repositories"}`;
 }
 
-function metricsStrip(stats: ActivityStats, tokens: DesignTokens): Builder {
-  const cards: Builder[] = [
-    metricCard(tokens, { label: "Public Repositories", value: stats.repositoryCount }),
+function metricCards(stats: ActivityStats): MetricCardData[] {
+  return [
+    { label: "Public Repositories", value: stats.repositoryCount },
     ...(stats.commits === undefined
       ? []
       : [
-          metricCard(tokens, {
+          {
             label: "Commits",
             value: stats.commits.total.toLocaleString("en-US"),
             caption: `${String(stats.commits.weeks)} weeks`,
-          }),
+          },
         ]),
     ...(stats.withRelease === 0
       ? []
-      : [
-          metricCard(tokens, {
-            label: "With a Release",
-            value: stats.withRelease,
-            tone: "success",
-          }),
-        ]),
+      : [{ label: "With a Release", value: stats.withRelease, tone: "success" as const }]),
     ...(stats.lastPush === undefined
       ? []
-      : [metricCard(tokens, { label: "Last Push", value: day(stats.lastPush), tone: "muted" })]),
+      : [{ label: "Last Push", value: day(stats.lastPush), tone: "muted" as const }]),
   ];
-  const fitsInOneLine = Math.floor(
-    (tokens.box.contentWidth + tokens.visual.gap) / (MIN_METRIC_WIDTH + tokens.visual.gap),
-  );
-  const columns = Math.max(1, Math.min(cards.length, fitsInOneLine));
-  return grid(
-    {
-      columns: Math.ceil(cards.length / Math.ceil(cards.length / columns)),
-      gap: tokens.visual.gap,
-    },
-    cards,
-  );
 }
 
 function heatmapPanel(stats: ActivityStats, tokens: DesignTokens): Builder | undefined {
@@ -253,45 +231,31 @@ export function renderDeveloperActivityDashboard(
 ): string {
   const { profile, settings, generatorVersion } = options;
   const tokens = requireDashboardTokens(settings);
-  const display = displayFlags(settings);
+  const hasData = stats.repositoryCount > 0;
 
-  const candidates: { build: Builder | undefined; span: 1 | 2 }[] = [
-    { build: settings.showHeatmap ? heatmapPanel(stats, tokens) : undefined, span: 2 },
-    { build: settings.showCommitActivity ? commitPanel(stats, tokens) : undefined, span: 1 },
-    { build: settings.showRepositories ? repositoriesPanel(stats, tokens) : undefined, span: 1 },
-    { build: settings.showLanguages ? languagesPanel(stats, tokens) : undefined, span: 1 },
-    { build: settings.showReleases ? releasesPanel(stats, tokens) : undefined, span: 1 },
-  ];
-  const slots: PanelSlot[] = candidates.flatMap((slot) =>
-    slot.build === undefined ? [] : [{ build: slot.build, span: slot.span }],
-  );
-
-  const parts: Builder[] = [];
-  if (stats.repositoryCount > 0) {
-    if (display.summary) parts.push(metricsStrip(stats, tokens));
-    // The scope of every number below, stated once.
-    parts.push(
-      caption(
-        tokens,
-        `Observed on ${repositories(stats.repositoryCount, "monitored public ")} · snapshot of ${day(stats.observedAt ?? "")} · not all GitHub activity`,
-      ),
-    );
-    parts.push(...packPanels(slots, tokens.visual.gap));
-  }
-
-  const sections =
-    stats.repositoryCount === 0
-      ? [renderEmptyState('No GitHub data yet. Run "devtrace sync" first.', tokens)]
-      : [dashboardSection(stack({ gap: tokens.visual.gap }, parts), tokens)];
-
-  return composeCard({
+  return composeDashboard({
     title: TITLE,
     description: `${profile.displayName}: activity observed on ${repositories(stats.repositoryCount, "public ")} (GitHub snapshot).`,
     displayName: profile.displayName,
     generatorVersion,
-    tokens,
-    display: { ...display, summary: false },
-    summary: [],
-    sections,
+    settings,
+    metrics: hasData ? metricCards(stats) : [],
+    // The scope of every number below, stated once.
+    notice: hasData
+      ? `Observed on ${repositories(stats.repositoryCount, "monitored public ")} · snapshot of ${day(stats.observedAt ?? "")} · not all GitHub activity`
+      : undefined,
+    panels: hasData
+      ? [
+          { build: settings.showHeatmap ? heatmapPanel(stats, tokens) : undefined, span: 2 },
+          { build: settings.showCommitActivity ? commitPanel(stats, tokens) : undefined, span: 1 },
+          {
+            build: settings.showRepositories ? repositoriesPanel(stats, tokens) : undefined,
+            span: 1,
+          },
+          { build: settings.showLanguages ? languagesPanel(stats, tokens) : undefined, span: 1 },
+          { build: settings.showReleases ? releasesPanel(stats, tokens) : undefined, span: 1 },
+        ]
+      : [],
+    emptyMessage: 'No GitHub data yet. Run "devtrace sync" first.',
   });
 }

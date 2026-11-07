@@ -9,20 +9,16 @@ import type {
 import {
   caption,
   compactMetric,
-  dashboardSection,
   donutChart,
   entryList,
-  grid,
   horizontalBarChart,
-  metricCard,
-  packPanels,
   panel,
   pipeline,
   stack,
   type BadgeSpec,
   type Builder,
+  type MetricCardData,
   type EntryItem,
-  type PanelSlot,
 } from "../components/index.js";
 import {
   IN_PROGRESS_STAGES,
@@ -31,7 +27,8 @@ import {
   type StartupDashboardModel,
 } from "../indicators/startup/dashboard.js";
 import type { StartupStats } from "../indicators/startup/stats.js";
-import { composeCard, label, pluralize, renderEmptyState } from "./card.js";
+import { composeDashboard } from "./dashboard.js";
+import { label, pluralize } from "./card.js";
 import { requireDashboardTokens, type DesignTokens, type Tone } from "./design-tokens.js";
 import { formatGitHubLine } from "./github.js";
 
@@ -45,8 +42,6 @@ import { formatGitHubLine } from "./github.js";
 // customers or growth figures, so none is shown or inferred.
 
 const TITLE = "Startup & SaaS Dashboard";
-const MAX_METRIC_COLUMNS = 5;
-const MIN_METRIC_WIDTH = 120;
 
 export interface StartupDashboardOptions {
   readonly profile: StartupProfile;
@@ -98,27 +93,12 @@ function linkKinds(project: StartupProject, hasGitHubData: boolean): string {
     .join(" · ");
 }
 
-function metricsStrip(model: StartupDashboardModel, tokens: DesignTokens): Builder | undefined {
-  if (model.metrics.length === 0) return undefined;
-  const cards = model.metrics.map((metric): Builder =>
-    metricCard(tokens, {
-      label: METRIC_LABELS[metric.key],
-      value: metric.value,
-      tone: METRIC_TONES[metric.key],
-    }),
-  );
-  const fitsInOneLine = Math.floor(
-    (tokens.box.contentWidth + tokens.visual.gap) / (MIN_METRIC_WIDTH + tokens.visual.gap),
-  );
-  const columns = Math.max(1, Math.min(cards.length, MAX_METRIC_COLUMNS, fitsInOneLine));
-  // With more tiles than columns, balance the lines instead of leaving one orphan.
-  return grid(
-    {
-      columns: Math.ceil(cards.length / Math.ceil(cards.length / columns)),
-      gap: tokens.visual.gap,
-    },
-    cards,
-  );
+function metricCards(model: StartupDashboardModel): MetricCardData[] {
+  return model.metrics.map((metric) => ({
+    label: METRIC_LABELS[metric.key],
+    value: metric.value,
+    tone: METRIC_TONES[metric.key],
+  }));
 }
 
 function portfolioPanel(
@@ -287,37 +267,22 @@ export function renderStartupDashboard(
   const display = displayFlags(settings);
   const model = buildStartupDashboardModel(stats, settings);
 
-  const candidates: { build: Builder | undefined; span: 1 | 2 }[] = [
-    { build: portfolioPanel(model, stats, settings, display.descriptions, tokens), span: 2 },
-    { build: lifecyclePanel(model, tokens), span: 1 },
-    { build: statusPanel(model, tokens), span: 1 },
-    { build: pipelinePanel(model, tokens), span: 2 },
-    { build: highlightsPanel(model, tokens), span: 1 },
-    { build: githubPanel(model, tokens), span: 1 },
-  ];
-  const slots: PanelSlot[] = candidates.flatMap((slot) =>
-    slot.build === undefined ? [] : [{ build: slot.build, span: slot.span }],
-  );
-
-  const strip = display.summary ? metricsStrip(model, tokens) : undefined;
-  const parts = [...(strip === undefined ? [] : [strip]), ...packPanels(slots, tokens.visual.gap)];
-
-  const sections =
-    stats.totalProjects === 0
-      ? [renderEmptyState("No public projects configured.", tokens)]
-      : parts.length === 0
-        ? [renderEmptyState("Nothing to display.", tokens)]
-        : [dashboardSection(stack({ gap: tokens.visual.gap }, parts), tokens)];
-
-  return composeCard({
+  return composeDashboard({
     title: TITLE,
     description: `${profile.displayName}: ${pluralize(stats.totalProjects, "public project")}, ${String(stats.activeProjects)} active, ${String(stats.launchedProjects)} launched.`,
     displayName: profile.displayName,
     generatorVersion,
-    tokens,
-    // The metrics strip replaces the card's summary tiles.
-    display: { ...display, summary: false },
-    summary: [],
-    sections,
+    settings,
+    metrics: metricCards(model),
+    panels: [
+      { build: portfolioPanel(model, stats, settings, display.descriptions, tokens), span: 2 },
+      { build: lifecyclePanel(model, tokens), span: 1 },
+      { build: statusPanel(model, tokens), span: 1 },
+      { build: pipelinePanel(model, tokens), span: 2 },
+      { build: highlightsPanel(model, tokens), span: 1 },
+      { build: githubPanel(model, tokens), span: 1 },
+    ],
+    emptyMessage:
+      stats.totalProjects === 0 ? "No public projects configured." : "Nothing to display.",
   });
 }

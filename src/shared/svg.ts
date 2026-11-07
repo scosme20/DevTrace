@@ -24,10 +24,14 @@ export function truncate(value: string, maxLength: number): string {
 export type SvgAttributes = Readonly<Record<string, string | number | undefined>>;
 
 function formatAttributes(attributes: SvgAttributes): string {
-  return Object.entries(attributes)
-    .filter((entry): entry is [string, string | number] => entry[1] !== undefined)
-    .map(([name, value]) => ` ${name}="${escapeXml(String(value))}"`)
-    .join("");
+  return (
+    Object.entries(attributes)
+      .filter((entry): entry is [string, string | number] => entry[1] !== undefined)
+      // 1 is the SVG default stroke width, so writing it adds bytes and nothing else.
+      .filter(([name, value]) => !(name === "stroke-width" && String(value) === "1"))
+      .map(([name, value]) => ` ${name}="${escapeXml(String(value))}"`)
+      .join("")
+  );
 }
 
 /** Builds an element. `children` must already be escaped or built by this module. */

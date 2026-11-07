@@ -35,7 +35,7 @@ that `data/github.json` selects). The dashboard says so in a line under the metr
 4. Generate the SVG:
 
    ```bash
-   pnpm exec tsx src/index.ts generate activity
+   pnpm generate:activity
    ```
 
 It is written to `public/indicators/developer-activity.svg`. `devtrace generate` (target `all`)

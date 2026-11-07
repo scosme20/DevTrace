@@ -393,7 +393,7 @@ describe("provenance", () => {
     ]);
     for (const word of ["Observed", "Estimated", "Declared"]) expect(svg).toContain(`>${word}<`);
     const stroke = (word: string) =>
-      new RegExp(`stroke="(#[0-9a-f]{6})" stroke-width="1"/><text [^>]*>${word}<`).exec(svg)?.[1];
+      new RegExp(`stroke="(#[0-9a-f]{6})"/><text [^>]*>${word}<`).exec(svg)?.[1];
     expect(stroke("Observed")).not.toBe(stroke("Estimated"));
   });
 });
