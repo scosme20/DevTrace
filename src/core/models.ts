@@ -56,6 +56,15 @@ export interface StartupSettings extends AppearanceSettings {
   readonly showProjectList: boolean;
   readonly showLifecycleDistribution: boolean;
   readonly showLinks: boolean;
+  /** Draw the multi-panel dashboard instead of the single-column card. Default `false`. */
+  readonly dashboard?: boolean | undefined;
+  /** Dashboard only. Each panel below is shown unless set to `false`. */
+  readonly showOperationalStatus?: boolean | undefined;
+  readonly showPipeline?: boolean | undefined;
+  readonly showHighlights?: boolean | undefined;
+  readonly showGitHubInsights?: boolean | undefined;
+  /** Dashboard only: most projects listed in the portfolio panel. Default 6. */
+  readonly projectListLimit?: number | undefined;
 }
 
 export interface StartupConfig {

@@ -4,26 +4,26 @@ import {
   type Provenance,
   type TokenUsageMetric,
 } from "../core/ai-engineering-models.js";
-import type { Layout } from "../core/appearance.js";
 import { displayFlags } from "../core/appearance.js";
 import type { ProjectStatus, StartupProfile } from "../core/models.js";
 import {
   badgeRow,
+  caption,
   dashboardSection,
   distributionBar,
   entryList,
   grid,
   horizontalBarChart,
   metricCard,
+  packPanels,
   panel,
   progressBar,
-  row,
   stack,
   type BadgeSpec,
   type Builder,
   type EntryItem,
-  type Fragment,
   type MetricCardData,
+  type PanelSlot,
 } from "../components/index.js";
 import {
   buildAiDashboardModel,
@@ -32,7 +32,6 @@ import {
   type MetricKey,
 } from "../indicators/ai-engineering/dashboard.js";
 import type { AiEngineeringStats } from "../indicators/ai-engineering/stats.js";
-import { text } from "../shared/svg.js";
 import {
   ACTIVITY_LABELS,
   INVOLVEMENT_LABELS,
@@ -44,19 +43,12 @@ import {
   USAGE_TYPE_LABELS,
 } from "./ai-engineering-labels.js";
 import { composeCard, label, pluralize, renderEmptyState } from "./card.js";
-import { requireDesignTokens, type DesignTokens, type Tone } from "./design-tokens.js";
+import { requireDashboardTokens, type DesignTokens, type Tone } from "./design-tokens.js";
 import { formatGitHubLine } from "./github.js";
 
 // The AI Engineering Dashboard: a grid of independent panels built from the
 // shared SVG components. A panel whose data is missing or switched off is not
 // drawn, and the remaining panels are packed so no gap is left behind.
-
-/** A dashboard needs more room than the single-column card of the same layout. */
-const DASHBOARD_WIDTH: Readonly<Record<Layout, number>> = {
-  COMPACT: 720,
-  DEFAULT: 880,
-  EXPANDED: 960,
-};
 
 const TITLE = "AI Engineering Dashboard";
 const MAX_METRIC_COLUMNS = 6;
@@ -111,22 +103,6 @@ const INVOLVEMENT_TONES = {
 
 function provenanceBadge(provenance: Provenance): BadgeSpec {
   return { label: label(provenance), tone: PROVENANCE_TONES[provenance] };
-}
-
-/** A small muted line used to name a group of content inside a panel. */
-function caption(tokens: DesignTokens, content: string, tone: Tone = "muted"): Builder {
-  const { font, visual } = tokens;
-  return (width): Fragment => ({
-    body: text(content.toUpperCase(), {
-      x: 0,
-      y: font.small,
-      fill: visual.tones[tone],
-      size: font.small,
-      weight: font.emphasis,
-    }),
-    width,
-    height: font.small + 4,
-  });
 }
 
 function formatMetricValue(metric: TokenUsageMetric): string {
@@ -376,44 +352,12 @@ function tokenPanel(model: AiDashboardModel, tokens: DesignTokens): Builder | un
   });
 }
 
-interface PanelSlot {
-  readonly build: Builder;
-  /** 2 means the panel takes the whole row. */
-  readonly span: 1 | 2;
-}
-
-/**
- * Packs panels into rows: two narrow panels share a row, a wide one takes a
- * row alone, and a narrow panel without a partner is widened to the full row,
- * so a missing panel never leaves an empty cell.
- */
-export function packPanels(slots: readonly PanelSlot[], gap: number): Builder[] {
-  const rows: Builder[] = [];
-  let index = 0;
-  while (index < slots.length) {
-    const slot = slots[index];
-    const next = slots[index + 1];
-    if (slot === undefined) break;
-    if (slot.span === 1 && next?.span === 1) {
-      rows.push(row({ gap }, [slot.build, next.build]));
-      index += 2;
-    } else {
-      rows.push(slot.build);
-      index += 1;
-    }
-  }
-  return rows;
-}
-
 export function renderAiEngineeringDashboard(
   stats: AiEngineeringStats,
   options: AiEngineeringDashboardOptions,
 ): string {
   const { profile, settings, generatorVersion } = options;
-  const tokens = requireDesignTokens({
-    ...settings,
-    dimensions: { width: DASHBOARD_WIDTH[settings.layout ?? "DEFAULT"], ...settings.dimensions },
-  });
+  const tokens = requireDashboardTokens(settings);
   const display = displayFlags(settings);
   const model = buildAiDashboardModel(stats, settings);
 

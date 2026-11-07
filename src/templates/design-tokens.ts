@@ -340,6 +340,21 @@ export function resolveDesignTokens(settings: AppearanceSettings): Result<Design
   };
 }
 
+/** A dashboard needs more room than the single-column card of the same layout. */
+const DASHBOARD_WIDTH: Readonly<Record<Layout, number>> = {
+  COMPACT: 720,
+  DEFAULT: 880,
+  EXPANDED: 960,
+};
+
+/** Tokens for a dashboard: the card tokens, with a wider default width. */
+export function requireDashboardTokens(settings: AppearanceSettings): DesignTokens {
+  return requireDesignTokens({
+    ...settings,
+    dimensions: { width: DASHBOARD_WIDTH[settings.layout ?? "DEFAULT"], ...settings.dimensions },
+  });
+}
+
 /** Like `resolveDesignTokens`, for callers that have already validated the settings. */
 export function requireDesignTokens(settings: AppearanceSettings): DesignTokens {
   const resolved = resolveDesignTokens(settings);
