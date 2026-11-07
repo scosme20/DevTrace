@@ -410,10 +410,10 @@ export function statusIndicator(tokens: DesignTokens, data: LabelData): Fragment
 }
 
 /** A small outlined pill with a label, for a category or a version. */
-export function badge(tokens: DesignTokens, data: LabelData): Fragment {
+export function badge(tokens: DesignTokens, data: LabelData, maxWidth = 216): Fragment {
   const { font, visual } = tokens;
   const color = visual.tones[data.tone ?? "muted"];
-  const label = fit(tokens, data.label, 200, font.small);
+  const label = fit(tokens, data.label, Math.max(0, maxWidth - 16), font.small);
   const width = Math.ceil(measure(tokens, label, font.small)) + 16;
   const height = font.small + 8;
   return {

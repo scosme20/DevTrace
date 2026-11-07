@@ -189,7 +189,8 @@ The options that already existed keep their meaning (see the README):
 
 - Startup: `showProjectList`, `showLifecycleDistribution`, `showLinks`.
 - AI engineering: `showTools`, `showModels`, `showSkills`, `showProjects`, `showActivity`,
-  `showTokenUsage`, `showCost`, `showLinks`.
+  `showTokenUsage`, `showCost`, `showLinks`, and `dashboard` (see
+  [AI Engineering Dashboard](ai-engineering-dashboard.md)).
 
 Four options are shared by every card. They are optional and have no stored default:
 

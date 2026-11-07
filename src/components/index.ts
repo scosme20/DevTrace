@@ -5,6 +5,7 @@ import { place, type Builder } from "./fragment.js";
 export * from "./charts.js";
 export * from "./fragment.js";
 export * from "./layout.js";
+export * from "./lists.js";
 export * from "./metrics.js";
 
 /**

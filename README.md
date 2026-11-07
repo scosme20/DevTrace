@@ -19,7 +19,8 @@ entries are never drawn, and the same input always produces the same SVG.
 
 ## Features
 
-- Two indicators: **Startup & SaaS Statistics** and **AI Engineering Statistics**.
+- Two indicators: **Startup & SaaS Statistics** and **AI Engineering Statistics**, the latter also
+  as a multi-panel **AI Engineering Dashboard** (`"dashboard": true`).
 - Five themes (`DARK`, `LIGHT`, `MIDNIGHT`, `MINIMAL`, `TRANSPARENT`), three layouts, custom
   colors, fonts and dimensions.
 - A `validate` command that names the file, the field and a fix for every problem, and changes
@@ -67,6 +68,7 @@ DevTrace reads `data/startup.json`, `data/ai-engineering.json` and, optionally,
 
 - [Configuration overview](docs/configuration.md): files, examples, precedence, privacy.
 - [Data model](docs/data-model.md): every field, its type, whether it is required and its default.
+- [AI Engineering Dashboard](docs/ai-engineering-dashboard.md): the multi-panel version of the AI indicator.
 - [SVG components](docs/svg-components.md): the reusable chart, metric and layout components for contributors.
 - [`examples/`](examples): complete files for startup, AI engineering, `LIGHT` with `COMPACT`,
   custom colors and GitHub. A test validates each of them.

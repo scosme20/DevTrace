@@ -1,0 +1,177 @@
+{
+  "version": 1,
+  "profile": { "displayName": "AI Engineering" },
+  "settings": {
+    "theme": "DARK",
+    "dashboard": true,
+    "showTools": true,
+    "showModels": true,
+    "showSkills": true,
+    "showProjects": true,
+    "showActivity": true,
+    "showTokenUsage": true,
+    "showCost": false,
+    "showLinks": true
+  },
+  "tools": [
+    {
+      "id": "assistant",
+      "name": "Example Assistant",
+      "provider": "Example Provider A",
+      "category": "AI_ASSISTANT",
+      "usageType": "PROFESSIONAL",
+      "experienceLevel": "PROFICIENT",
+      "visibility": "PUBLIC",
+      "provenance": "DECLARED"
+    },
+    {
+      "id": "ide-helper",
+      "name": "Example IDE Helper",
+      "provider": "Example Provider B",
+      "category": "IDE_ASSISTANT",
+      "usageType": "PERSONAL",
+      "visibility": "PUBLIC",
+      "provenance": "DECLARED"
+    },
+    {
+      "id": "agent-kit",
+      "name": "Example Agent Kit",
+      "provider": "Example Provider B",
+      "category": "AGENT_FRAMEWORK",
+      "usageType": "OPEN_SOURCE",
+      "experienceLevel": "PRACTICING",
+      "visibility": "PUBLIC",
+      "provenance": "DECLARED"
+    }
+  ],
+  "models": [
+    {
+      "id": "model-large",
+      "name": "Example Large 1",
+      "provider": "Example Provider A",
+      "modelFamily": "Example Large",
+      "usageContext": "Production",
+      "visibility": "PUBLIC",
+      "provenance": "DECLARED"
+    },
+    {
+      "id": "model-small",
+      "name": "Example Small 1",
+      "provider": "Example Provider B",
+      "modelFamily": "Example Small",
+      "usageContext": "Prototyping",
+      "visibility": "PUBLIC",
+      "provenance": "DECLARED"
+    }
+  ],
+  "skills": [
+    {
+      "id": "prompting",
+      "name": "Prompt engineering",
+      "category": "LLM_ENGINEERING",
+      "proficiencyLevel": "PROFICIENT",
+      "visibility": "PUBLIC",
+      "provenance": "DECLARED"
+    },
+    {
+      "id": "function-calling",
+      "name": "Function calling",
+      "category": "LLM_ENGINEERING",
+      "proficiencyLevel": "PRACTICING",
+      "visibility": "PUBLIC",
+      "provenance": "DECLARED"
+    },
+    {
+      "id": "agents",
+      "name": "AI agents",
+      "category": "AI_AGENTS",
+      "proficiencyLevel": "PRACTICING",
+      "visibility": "PUBLIC",
+      "provenance": "DECLARED"
+    },
+    {
+      "id": "rag",
+      "name": "RAG",
+      "category": "RETRIEVAL_KNOWLEDGE",
+      "proficiencyLevel": "PROFICIENT",
+      "visibility": "PUBLIC",
+      "provenance": "DECLARED"
+    },
+    {
+      "id": "evaluation",
+      "name": "LLM evaluation",
+      "category": "AI_SYSTEM_DESIGN",
+      "proficiencyLevel": "LEARNING",
+      "visibility": "PUBLIC",
+      "provenance": "DECLARED"
+    }
+  ],
+  "projects": [
+    {
+      "id": "support-assistant",
+      "name": "Support Assistant",
+      "description": "Replace this entry with one of your own projects.",
+      "category": "Assistant",
+      "status": "ACTIVE",
+      "techniques": ["RAG", "TOOL_USE"],
+      "tools": ["assistant", "agent-kit"],
+      "websiteUrl": "https://example.com",
+      "visibility": "PUBLIC",
+      "provenance": "DECLARED"
+    },
+    {
+      "id": "doc-search",
+      "name": "Doc Search",
+      "description": "Replace this entry with one of your own projects.",
+      "category": "Search",
+      "status": "PAUSED",
+      "techniques": ["VECTOR_SEARCH", "LLM_INTEGRATION"],
+      "tools": [],
+      "visibility": "PUBLIC",
+      "provenance": "DECLARED"
+    }
+  ],
+  "activities": [
+    {
+      "id": "a1",
+      "activityType": "AI_ASSISTED_CODING",
+      "involvement": "AI_ASSISTED",
+      "description": "Built the retrieval pipeline with an assistant.",
+      "projectId": "support-assistant",
+      "date": "2026-03-10",
+      "visibility": "PUBLIC",
+      "provenance": "DECLARED"
+    },
+    {
+      "id": "a2",
+      "activityType": "TEST_GENERATION",
+      "involvement": "AI_GENERATED",
+      "description": "Generated a first set of tests, then reviewed them.",
+      "date": "2026-04-02",
+      "visibility": "PUBLIC",
+      "provenance": "DECLARED"
+    },
+    {
+      "id": "a3",
+      "activityType": "AGENT_DEVELOPMENT",
+      "involvement": "AI_RELATED_ENGINEERING",
+      "description": "Designed the tool interface of an agent.",
+      "date": "2026-04-20",
+      "visibility": "PUBLIC",
+      "provenance": "DECLARED"
+    }
+  ],
+  "tokenUsage": [
+    {
+      "id": "t1",
+      "modelId": "model-large",
+      "kind": "TOTAL_TOKENS",
+      "value": 1200000,
+      "unit": "TOKENS",
+      "period": { "start": "2026-04-01", "end": "2026-04-30" },
+      "source": "Provider usage page",
+      "visibility": "PUBLIC",
+      "provenance": "DECLARED"
+    }
+  ]
+}
