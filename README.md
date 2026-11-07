@@ -68,6 +68,7 @@ DevTrace reads `data/startup.json`, `data/ai-engineering.json` and, optionally,
 
 - [Configuration overview](docs/configuration.md): files, examples, precedence, privacy.
 - [Data model](docs/data-model.md): every field, its type, whether it is required and its default.
+- [Developer Activity Dashboard](docs/developer-activity-dashboard.md): commit heatmap, languages and releases from the GitHub data.
 - [Startup & SaaS Dashboard](docs/startup-dashboard.md): the multi-panel version of the Startup indicator.
 - [AI Engineering Dashboard](docs/ai-engineering-dashboard.md): the multi-panel version of the AI indicator.
 - [SVG components](docs/svg-components.md): the reusable chart, metric and layout components for contributors.

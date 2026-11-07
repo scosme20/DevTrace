@@ -50,7 +50,7 @@ describe("sanitizeText", () => {
 
 describe("mapRepository", () => {
   it("maps every collected field and marks the data as OBSERVED", () => {
-    expect(mapRepository(repo(), everything, mapRelease(release()))).toEqual({
+    expect(mapRepository(repo(), everything, { release: mapRelease(release()) })).toEqual({
       fullName: "octo/app",
       name: "app",
       url: "https://github.com/octo/app",
@@ -80,7 +80,7 @@ describe("mapRepository", () => {
     const mapped = mapRepository(
       repo(),
       { description: false, language: false, stars: false, forks: false, releases: false },
-      mapRelease(release()),
+      { release: mapRelease(release()) },
     );
     expect(mapped).not.toHaveProperty("description");
     expect(mapped).not.toHaveProperty("language");

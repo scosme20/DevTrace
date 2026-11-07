@@ -8,6 +8,15 @@ All notable changes to DevTrace are documented here. The format follows
 
 ### Added
 
+- Developer Activity Dashboard (`generate activity`, `data/developer-activity.json`): commit heatmap,
+  commit activity by month, repository activity, languages by reported bytes and releases, built from
+  the GitHub snapshot. Optional: `generate` includes it only when its configuration exists. See
+  `docs/developer-activity-dashboard.md`.
+- GitHub collection options `collect.languages` and `collect.commitActivity` (off by default), stored
+  in the snapshot as optional fields; statistics that GitHub has not computed yet stay unknown.
+- `validate activity`, and the `activity` target of `generate`.
+- The heatmap component accepts "no data" cells and weekday labels. Captions are shortened to fit.
+
 - Startup & SaaS Dashboard: a multi-panel version of the Startup indicator (overview metrics,
   project portfolio, lifecycle stage, operational status, development pipeline, highlights and GitHub
   development insights), enabled with `settings.dashboard`. Same output file; the card is unchanged.

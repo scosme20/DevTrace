@@ -10,7 +10,7 @@ export interface Finding {
 export type Status = "valid" | "invalid" | "skipped";
 
 export interface FileReport {
-  readonly target: "startup" | "ai" | "github";
+  readonly target: "startup" | "ai" | "activity" | "github";
   /** Path relative to the project directory. */
   readonly file: string;
   readonly status: Status;
