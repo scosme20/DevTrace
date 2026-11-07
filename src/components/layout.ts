@@ -189,3 +189,32 @@ export function panel(tokens: DesignTokens, options: PanelOptions): Builder {
   };
   return (width) => render(width, options.minHeight ?? 0);
 }
+
+export interface PanelSlot {
+  readonly build: Builder;
+  /** 2 means the panel takes the whole row. */
+  readonly span: 1 | 2;
+}
+
+/**
+ * Packs panels into rows: two narrow panels share a row, a wide one takes a
+ * row alone, and a narrow panel without a partner is widened to the full row,
+ * so a missing panel never leaves an empty cell.
+ */
+export function packPanels(slots: readonly PanelSlot[], gap: number): Builder[] {
+  const rows: Builder[] = [];
+  let index = 0;
+  while (index < slots.length) {
+    const slot = slots[index];
+    const next = slots[index + 1];
+    if (slot === undefined) break;
+    if (slot.span === 1 && next?.span === 1) {
+      rows.push(row({ gap }, [slot.build, next.build]));
+      index += 2;
+    } else {
+      rows.push(slot.build);
+      index += 1;
+    }
+  }
+  return rows;
+}

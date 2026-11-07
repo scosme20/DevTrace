@@ -7,10 +7,8 @@ import { validateAiEngineeringConfig } from "../src/core/ai-engineering-validati
 import { THEMES } from "../src/core/models.js";
 import { generateAiEngineeringStats } from "../src/generators/ai-engineering.js";
 import { computeAiEngineeringStats } from "../src/indicators/ai-engineering/stats.js";
-import {
-  packPanels,
-  renderAiEngineeringDashboard,
-} from "../src/templates/ai-engineering-dashboard.js";
+import { packPanels } from "../src/components/index.js";
+import { renderAiEngineeringDashboard } from "../src/templates/ai-engineering-dashboard.js";
 import { renderAiEngineeringStats } from "../src/templates/ai-engineering-stats.js";
 import {
   makeActivity,

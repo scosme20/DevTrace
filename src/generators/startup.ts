@@ -8,6 +8,7 @@ import { DEVTRACE_VERSION } from "../core/version.js";
 import { linkGitHubRepositories } from "../indicators/github-link.js";
 import { computeStartupStats } from "../indicators/startup/stats.js";
 import { contrastWarnings } from "../templates/design-tokens.js";
+import { renderStartupDashboard } from "../templates/startup-dashboard.js";
 import { renderStartupStats } from "../templates/startup-stats.js";
 
 export const STARTUP_CONFIG_FILE = "data/startup.json";
@@ -43,7 +44,9 @@ export async function generateStartupStats(
     const settings = applyAppearanceOverrides(config.settings, options);
     contrastWarnings(settings).forEach((warning) => options.warn?.(warning));
 
-    const svg = renderStartupStats(computeStartupStats(config.projects, links.byProjectId), {
+    const stats = computeStartupStats(config.projects, links.byProjectId);
+    const render = settings.dashboard === true ? renderStartupDashboard : renderStartupStats;
+    const svg = render(stats, {
       profile: config.profile,
       settings,
       generatorVersion: DEVTRACE_VERSION,
