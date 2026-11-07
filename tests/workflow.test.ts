@@ -91,14 +91,14 @@ describe("update-indicators workflow", () => {
     }
   });
 
-  it("tests, syncs, generates both indicators and only then commits", async () => {
+  it("tests, validates, syncs, generates every indicator and only then commits", async () => {
     const { steps } = await loadWorkflow();
     const order = [
       runs("pnpm install --frozen-lockfile"),
       runs("pnpm test"),
+      runs("pnpm validate"),
       runs("pnpm sync:github"),
-      runs("pnpm generate:startup"),
-      runs("pnpm generate:ai"),
+      runs("pnpm generate"),
       (step: Step) => step.run?.includes("git commit") === true,
     ].map((predicate) => stepIndex(steps, predicate));
     expect(order.every((index) => index >= 0)).toBe(true);

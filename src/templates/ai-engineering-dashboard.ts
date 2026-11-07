@@ -9,13 +9,10 @@ import type { ProjectStatus, StartupProfile } from "../core/models.js";
 import {
   badgeRow,
   caption,
-  dashboardSection,
   distributionBar,
   entryList,
   grid,
   horizontalBarChart,
-  metricCard,
-  packPanels,
   panel,
   progressBar,
   stack,
@@ -23,7 +20,6 @@ import {
   type Builder,
   type EntryItem,
   type MetricCardData,
-  type PanelSlot,
 } from "../components/index.js";
 import {
   buildAiDashboardModel,
@@ -42,7 +38,8 @@ import {
   TOOL_CATEGORY_LABELS,
   USAGE_TYPE_LABELS,
 } from "./ai-engineering-labels.js";
-import { composeCard, label, pluralize, renderEmptyState } from "./card.js";
+import { composeDashboard } from "./dashboard.js";
+import { label, pluralize } from "./card.js";
 import { requireDashboardTokens, type DesignTokens, type Tone } from "./design-tokens.js";
 import { formatGitHubLine } from "./github.js";
 
@@ -51,8 +48,6 @@ import { formatGitHubLine } from "./github.js";
 // drawn, and the remaining panels are packed so no gap is left behind.
 
 const TITLE = "AI Engineering Dashboard";
-const MAX_METRIC_COLUMNS = 6;
-const MIN_METRIC_WIDTH = 110;
 const MIN_TWO_COLUMN_SKILLS = 520;
 
 export interface AiEngineeringDashboardOptions {
@@ -114,25 +109,12 @@ function formatMetricValue(metric: TokenUsageMetric): string {
   return `${new Intl.NumberFormat("en-US").format(metric.value)} tokens`;
 }
 
-function metricsStrip(
-  metrics: readonly DashboardMetric[],
-  tokens: DesignTokens,
-): Builder | undefined {
-  if (metrics.length === 0) return undefined;
-  const cards = metrics.map((metric): Builder =>
-    metricCard(tokens, {
-      label: METRIC_LABELS[metric.key],
-      value: metric.value,
-      tone: METRIC_TONES[metric.key],
-    } satisfies MetricCardData),
-  );
-  const fitsInOneLine = Math.floor(
-    (tokens.box.contentWidth + tokens.visual.gap) / (MIN_METRIC_WIDTH + tokens.visual.gap),
-  );
-  const columns = Math.max(1, Math.min(metrics.length, MAX_METRIC_COLUMNS, fitsInOneLine));
-  // With more tiles than columns, balance the lines instead of leaving one orphan.
-  const balanced = Math.ceil(metrics.length / Math.ceil(metrics.length / columns));
-  return grid({ columns: balanced, gap: tokens.visual.gap }, cards);
+function metricCards(metrics: readonly DashboardMetric[]): MetricCardData[] {
+  return metrics.map((metric) => ({
+    label: METRIC_LABELS[metric.key],
+    value: metric.value,
+    tone: METRIC_TONES[metric.key],
+  }));
 }
 
 function providersBlock(model: AiDashboardModel, tokens: DesignTokens): Builder {
@@ -361,37 +343,22 @@ export function renderAiEngineeringDashboard(
   const display = displayFlags(settings);
   const model = buildAiDashboardModel(stats, settings);
 
-  // Providers are listed once: with the tools if they are shown, else with the models.
-  const providersWithTools = model.tools !== undefined;
-  const slots: PanelSlot[] = [
-    { build: toolsPanel(model, tokens), span: 1 as const },
-    { build: modelsPanel(model, tokens, !providersWithTools), span: 1 as const },
-    { build: skillsPanel(model, tokens), span: 2 as const },
-    {
-      build: projectsPanel(model, settings, display.descriptions, tokens),
-      span: 1 as const,
-    },
-    { build: activityPanel(model, tokens), span: 1 as const },
-    { build: tokenPanel(model, tokens), span: 2 as const },
-  ].flatMap((slot) => (slot.build === undefined ? [] : [{ ...slot, build: slot.build }]));
-
-  const strip = display.summary ? metricsStrip(model.metrics, tokens) : undefined;
-  const parts = [...(strip === undefined ? [] : [strip]), ...packPanels(slots, tokens.visual.gap)];
-
-  const sections =
-    parts.length === 0
-      ? [renderEmptyState("No AI engineering data to display.", tokens)]
-      : [dashboardSection(stack({ gap: tokens.visual.gap }, parts), tokens)];
-
-  return composeCard({
+  return composeDashboard({
     title: TITLE,
     description: `${profile.displayName}: ${pluralize(stats.totalTools, "tool")}, ${pluralize(stats.totalModels, "model")}, ${pluralize(stats.totalSkills, "skill")}, ${pluralize(stats.totalProjects, "project")} (public data only).`,
     displayName: profile.displayName,
     generatorVersion,
-    tokens,
-    // The metrics strip replaces the card's summary tiles.
-    display: { ...display, summary: false },
-    summary: [],
-    sections,
+    settings,
+    metrics: metricCards(model.metrics),
+    panels: [
+      { build: toolsPanel(model, tokens), span: 1 },
+      // Providers are listed once: with the tools if they are shown, else with the models.
+      { build: modelsPanel(model, tokens, model.tools === undefined), span: 1 },
+      { build: skillsPanel(model, tokens), span: 2 },
+      { build: projectsPanel(model, settings, display.descriptions, tokens), span: 1 },
+      { build: activityPanel(model, tokens), span: 1 },
+      { build: tokenPanel(model, tokens), span: 2 },
+    ],
+    emptyMessage: "No AI engineering data to display.",
   });
 }

@@ -33,6 +33,8 @@ export function ratio(value: number, total: number): number {
 }
 
 export function place(fragment: Fragment, x: number, y: number): string {
+  // A group that moves nothing is not written.
+  if (round(x) === 0 && round(y) === 0) return fragment.body;
   return element(
     "g",
     { transform: `translate(${String(round(x))} ${String(round(y))})` },

@@ -38,6 +38,8 @@ const NO_BOUNDS_ARC = 0;
 export function parseBoxes(svg: string, metrics: FontMetrics): Box[] {
   const boxes: Box[] = [];
   const offsets: [number, number][] = [[0, 0]];
+  // Cells of a heatmap take their fill from the group that holds them.
+  const groupFills: (string | undefined)[] = [];
   const open: string[] = [];
   const tag = /<(\/?)([a-zA-Z]+)([^>]*?)(\/?)>|([^<]+)/g;
   let pendingText: { attrs: Record<string, string>; ox: number; oy: number } | undefined;
@@ -79,7 +81,10 @@ export function parseBoxes(svg: string, metrics: FontMetrics): Box[] {
       const expected = open.pop();
       if (expected !== name)
         throw new Error(`Unbalanced SVG: </${name}> closes <${expected ?? "nothing"}>.`);
-      if (name === "g") offsets.pop();
+      if (name === "g") {
+        offsets.pop();
+        groupFills.pop();
+      }
       continue;
     }
     if (!selfClosing) open.push(name);
@@ -87,15 +92,20 @@ export function parseBoxes(svg: string, metrics: FontMetrics): Box[] {
     if (name === "g") {
       const shift = /translate\((-?[\d.]+) (-?[\d.]+)\)/.exec(attrs["transform"] ?? "");
       offsets.push([ox + num(shift?.[1]), oy + num(shift?.[2])]);
-      if (selfClosing) offsets.pop();
+      groupFills.push(attrs["fill"]);
+      if (selfClosing) {
+        offsets.pop();
+        groupFills.pop();
+      }
     } else if (name === "rect") {
+      const fill = attrs["fill"] ?? groupFills.findLast((value) => value !== undefined);
       boxes.push({
         kind: "rect",
         x0: ox + num(attrs["x"]),
         x1: ox + num(attrs["x"]) + num(attrs["width"]),
         y0: oy + num(attrs["y"]),
         y1: oy + num(attrs["y"]) + num(attrs["height"]),
-        ...(attrs["fill"] === undefined ? {} : { fill: attrs["fill"] }),
+        ...(fill === undefined ? {} : { fill }),
       });
     } else if (name === "circle") {
       const r = num(attrs["r"]);

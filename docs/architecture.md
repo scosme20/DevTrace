@@ -91,6 +91,15 @@ through `escapeXml`. Output has no timestamps, scripts or external resources, so
 yields identical SVG. The generator version in the footer comes from `core/version.ts`, which a
 test keeps equal to `package.json`.
 
+## Dashboards
+
+The three dashboards (Startup & SaaS, AI Engineering, Developer Activity) share one frame,
+`src/templates/dashboard.ts`: the card header and footer, a strip of metric cards, an optional
+notice about the scope of the data, and a grid of panels packed by `packPanels`. Each dashboard
+supplies only its metrics and panels, built from the shared components and the design tokens, and
+its own aggregation in `src/indicators/`. A test (`tests/dashboards-consistency.test.ts`) keeps their
+width, header, footer, frame and colors identical in every theme and layout.
+
 ## SVG components
 
 `src/components/` holds reusable layout, metric and chart components built on the same design

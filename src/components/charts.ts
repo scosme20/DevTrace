@@ -258,32 +258,33 @@ export function activityHeatmap(
     const max = Math.max(0, ...values.map((value) => (value === null ? 0 : safeAmount(value))));
     const levels = visual.heat.length - 1;
 
-    const cells = values
-      .map((value, index) => {
-        const position = {
-          x: offset + Math.floor(index / rows) * (cell + HEAT_GAP),
-          y: (index % rows) * (cell + HEAT_GAP),
-          width: cell,
-          height: cell,
-          rx: Math.min(2, cell / 4),
-        };
-        if (value === null) {
-          return element("rect", {
-            ...position,
-            x: position.x + 0.5,
-            y: position.y + 0.5,
-            width: cell - 1,
-            height: cell - 1,
-            fill: "none",
-            stroke: palette.border,
-            "stroke-width": visual.strokeWidth,
-          });
-        }
-        const amount = safeAmount(value);
-        const level = amount === 0 ? 0 : Math.max(1, Math.ceil((amount / max) * levels));
-        return element("rect", { ...position, fill: visual.heat[level] ?? palette.track });
-      })
-      .join("");
+    // Cells of one intensity share a group that carries the fill, which keeps a
+    // year of days small. The order follows the first appearance of each fill.
+    const byFill = new Map<string, string[]>();
+    const outlined: string[] = [];
+    values.forEach((value, index) => {
+      const x = offset + Math.floor(index / rows) * (cell + HEAT_GAP);
+      const y = (index % rows) * (cell + HEAT_GAP);
+      const rx = Math.min(2, cell / 4);
+      if (value === null) {
+        outlined.push(
+          element("rect", { x: x + 0.5, y: y + 0.5, width: cell - 1, height: cell - 1, rx }),
+        );
+        return;
+      }
+      const amount = safeAmount(value);
+      const level = amount === 0 ? 0 : Math.max(1, Math.ceil((amount / max) * levels));
+      const fill = visual.heat[level] ?? palette.track;
+      byFill.set(fill, [
+        ...(byFill.get(fill) ?? []),
+        element("rect", { x, y, width: cell, height: cell, rx }),
+      ]);
+    });
+    const cells =
+      [...byFill].map(([fill, rects]) => element("g", { fill }, rects.join(""))).join("") +
+      (outlined.length === 0
+        ? ""
+        : element("g", { fill: "none", stroke: palette.border }, outlined.join("")));
     const labelText = labels
       .map((label, row) =>
         text(label, {

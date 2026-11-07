@@ -8,6 +8,13 @@ All notable changes to DevTrace are documented here. The format follows
 
 ### Added
 
+- Final composition (M12): the three dashboards are drawn by one shared frame
+  (`src/templates/dashboard.ts`) and a test keeps their width, header, footer, frame and colors
+  identical in every theme and layout. `docs/github-profile.md` explains embedding, updating, tokens
+  and common problems. `pnpm generate:activity` was added, and the workflow now validates the
+  configuration and runs `pnpm generate`, which includes the developer activity dashboard when it
+  is configured.
+
 - Developer Activity Dashboard (`generate activity`, `data/developer-activity.json`): commit heatmap,
   commit activity by month, repository activity, languages by reported bytes and releases, built from
   the GitHub snapshot. Optional: `generate` includes it only when its configuration exists. See
@@ -48,6 +55,9 @@ All notable changes to DevTrace are documented here. The format follows
 - MIT `LICENSE`, `CODE_OF_CONDUCT.md`, `SECURITY.md`, issue templates, a pull request template and `docs/release.md`.
 
 ### Changed
+
+- Dashboard SVGs are smaller: a group that moves nothing and the default `stroke-width="1"` are no
+  longer written, and heatmap cells share a group per intensity. Output stays deterministic.
 
 - Added `visual` design tokens (tones, chart series colors, heatmap levels, spacing) derived from the
   existing palette. Existing themes, colors and configuration are unchanged.

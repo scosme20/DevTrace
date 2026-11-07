@@ -408,7 +408,8 @@ describe("Developer Activity Dashboard", () => {
     expect(svg).toContain(">Less<");
     expect(svg).toContain(">More<");
     // The two days that had not happened yet are outlined, not filled as zero.
-    expect(svg.match(/<rect [^>]*fill="none" stroke="#30363d"/g)).toHaveLength(2);
+    const outlined = /<g fill="none" stroke="#30363d">((?:<rect [^>]*\/>)+)<\/g>/.exec(svg);
+    expect(outlined?.[1]?.match(/<rect /g)).toHaveLength(2);
   });
 
   it("claims no pull requests, issues, contributions, productivity or score", () => {

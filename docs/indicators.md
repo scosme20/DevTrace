@@ -3,6 +3,10 @@
 DevTrace generates two indicators. Each is a single, static SVG card built from a JSON file; see
 [configuration](configuration.md) for the files and [customization](customization.md) for the look.
 
+> Each indicator also has a multi-panel dashboard: see [Startup & SaaS](startup-dashboard.md),
+> [AI Engineering](ai-engineering-dashboard.md) and [Developer Activity](developer-activity-dashboard.md).
+> To use the files in your profile, see [github-profile.md](github-profile.md).
+
 ## Startup & SaaS Statistics
 
 ### What the indicator displays
