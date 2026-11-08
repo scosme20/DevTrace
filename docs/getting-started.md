@@ -29,6 +29,9 @@ pnpm install
 pnpm dev init
 ```
 
+If you started from a copy of this repository, the `data/` folder holds the author's own data:
+replace those files first (delete them, then run `init`, or copy from `examples/`).
+
 This writes `data/startup.json` and `data/ai-engineering.json`. The files are valid and hold no
 projects: nothing is invented for you, and existing files are never overwritten.
 

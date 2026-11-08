@@ -324,7 +324,7 @@ export function parseArgs(argv: readonly string[]): ParsedArgs {
           );
         }
         if (typeof label !== "string") {
-          throw new UsageError("Missing --label.", 'Use --label "BuildFlow", the name to show.');
+          throw new UsageError("Missing --label.", 'Use --label "Private App", the name to show.');
         }
         expectNoMore(2);
         return done({

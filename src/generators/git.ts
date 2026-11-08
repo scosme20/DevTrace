@@ -27,7 +27,7 @@ export async function importGit(rootDir: string, options: ImportGitOptions): Pro
   const label = options.label.trim();
   if (label === "" || label.length > 60) {
     throw new DevTraceError("The label must have 1 to 60 characters.", {
-      hint: 'Use --label "BuildFlow", the name that should be shown.',
+      hint: 'Use --label "Private App", the name that should be shown.',
     });
   }
   const collected = await collectGit(options.git ?? gitRunner(options.repositoryPath), {

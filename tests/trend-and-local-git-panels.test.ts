@@ -137,7 +137,7 @@ const gitSnapshot = {
   kind: "LOCAL_GIT",
   repositories: [
     {
-      label: "BuildFlow",
+      label: "Private App",
       commits: 240,
       firstCommit: "2026-06-26",
       lastCommit: "2026-11-07",
@@ -163,7 +163,7 @@ describe("the local repositories panel", () => {
       await generateDeveloperActivity(root, { warn: (m) => warnings.push(m) }),
       "utf8",
     );
-    expect(svg).not.toContain("BuildFlow");
+    expect(svg).not.toContain("Private App");
   });
 
   it("lists the repository by its label with counts only", async () => {
@@ -173,7 +173,7 @@ describe("the local repositories panel", () => {
     });
     const svg = await readFile(await generateDeveloperActivity(root), "utf8");
     expect(svg).toMatch(/local repositories/i);
-    expect(svg).toContain("BuildFlow");
+    expect(svg).toContain("Private App");
     expect(svg).toContain("240 commits");
     expect(svg).toContain("2 months with activity");
   });

@@ -7,3 +7,6 @@ dist/
 .env
 .env.*
 data/*.tmp
+
+# Commit counts of a private repository, from `devtrace import git`. Kept on your machine.
+data/git-snapshot.json

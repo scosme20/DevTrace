@@ -121,11 +121,12 @@ describe("devtrace import git arguments", () => {
     expect(() => parseArgs(["import", "git"])).toThrow("folder");
     expect(() => parseArgs(["import", "git", "../x"])).toThrow("--label");
     expect(
-      parseArgs(["import", "git", "../x", "--label", "BuildFlow", "--author", "a@b.c"]).invocation,
+      parseArgs(["import", "git", "../x", "--label", "Private App", "--author", "a@b.c"])
+        .invocation,
     ).toEqual({
       kind: "importGit",
       repositoryPath: "../x",
-      label: "BuildFlow",
+      label: "Private App",
       author: "a@b.c",
     });
   });

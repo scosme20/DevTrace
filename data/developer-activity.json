@@ -2,7 +2,6 @@
   "version": 1,
   "settings": {
     "theme": "TERMINAL",
-    "showLocalGit": true,
     "showContributions": true
   }
 }

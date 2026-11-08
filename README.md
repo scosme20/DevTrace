@@ -2,7 +2,8 @@
 
 Generate SVG indicators for your GitHub profile README from a small JSON configuration.
 
-> Version 0.6.0. DevTrace is not published to npm yet: you run it from a clone of this repository.
+> Version 0.8.0. DevTrace is not published to npm yet: use it as a GitHub Action (see
+> [GitHub Actions](#github-actions)) or run it from a clone of this repository.
 
 ## Project overview
 
@@ -59,6 +60,9 @@ pnpm dev init          # creates data/startup.json and data/ai-engineering.json
 pnpm validate          # checks the files, writes nothing
 pnpm generate          # writes public/indicators/*.svg
 ```
+
+> The `data/` folder of this repository holds the author's own profile data. In your copy, replace
+> it: run `pnpm dev init` for empty files, or copy a file from `examples/`.
 
 The full walkthrough is in [docs/getting-started.md](docs/getting-started.md).
 
@@ -159,6 +163,33 @@ the built-in `GITHUB_TOKEN` and publishes nowhere. See
 [docs/github-integration.md](docs/github-integration.md#github-actions) for caveats such as
 protected branches.
 
+### Use it as an action
+
+The simplest setup needs no copy of DevTrace: keep your `data/` files in your profile repository and
+add this workflow (`.github/workflows/devtrace.yml`). It reads public GitHub data, generates the
+SVGs and commits them when they changed.
+
+```yaml
+name: DevTrace
+on:
+  schedule:
+    - cron: "0 6 * * *"
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  indicators:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: scosme20/DevTrace@v0.8.0
+```
+
+Inputs: `target` (`startup`, `ai`, `activity` or `all`), `sync`, `commit` and `github-token`. The action
+builds the DevTrace version of the tag you select, so `@v0.8.0` always runs that exact code. Local
+imports (`devtrace import usage` and `devtrace import git`) read your own machine, so run them
+yourself and commit only the `data/usage-snapshot.json` you want to publish.
+
 ## Using the SVGs in your profile README
 
 Commit the generated SVGs and reference them. Replace `<username>` and `<repository>`; `HEAD` points
@@ -208,11 +239,12 @@ Common messages and fixes are in [docs/troubleshooting.md](docs/troubleshooting.
 ## Current limitations
 
 - Not published to npm: the package is `private`, so it is used from a clone.
-- GitHub is the only integration. AI tools, models, skills, activity and token usage are entered by
-  hand, so only GitHub data is `OBSERVED`.
+- GitHub is the only network integration. AI tools, models, skills and activity are entered by hand
+  (`DECLARED`). Token usage can be imported from the local logs of Claude Code and Codex, and commit
+  counts of a private clone with `devtrace import git`; both are read on your machine, never sent.
 - GitHub data covers the public repositories you select. Commits come from the weekly statistics
-  GitHub keeps for the default branch; pull requests, issues and the contributions calendar are not
-  collected. Every Developer Activity number says it covers the monitored repositories only.
+  GitHub keeps for the default branch. Pull requests opened in other owners' public repositories can
+  be collected as an option; issues and the contributions calendar are not. Every Developer Activity number says it covers the monitored repositories only.
 - Lists have limits and end with "+N more", but dashboards are still tall (about 1,100 to 1,500
   pixels for the examples).
 - Fonts are four system stacks and text width is estimated. Colors are solid hexadecimal values.
