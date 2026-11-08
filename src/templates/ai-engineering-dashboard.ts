@@ -451,6 +451,14 @@ function tokenPanel(model: AiDashboardModel, tokens: DesignTokens): Builder | un
   });
 }
 
+/** 936455213 becomes `936M`; small numbers stay as they are. */
+function compactTokens(value: number): string {
+  if (value >= 1e9) return `${String(Math.round(value / 1e8) / 10)}B`;
+  if (value >= 1e6) return `${String(Math.round(value / 1e6))}M`;
+  if (value >= 1e3) return `${String(Math.round(value / 1e3))}K`;
+  return String(value);
+}
+
 const WEEK_LABEL = (iso: string): string => iso.slice(5);
 
 /** Weekly tokens as columns. Weeks cut by the period are gray, and the change needs complete weeks. */
@@ -489,6 +497,7 @@ function trendPanel(
         weeks.map((week) => ({
           label: WEEK_LABEL(week.weekStart),
           value: week.tokens,
+          valueText: compactTokens(week.tokens),
           tone: week.partial ? "muted" : "primary",
         })),
         110,

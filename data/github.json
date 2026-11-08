@@ -16,7 +16,8 @@
     "languages": true,
     "commitActivity": true,
     "releaseHistory": true,
-    "aiSignals": true
+    "aiSignals": true,
+    "contributions": true
   },
   "onUnavailable": "SKIP",
   "cacheTtlMinutes": 60

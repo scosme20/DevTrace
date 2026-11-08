@@ -8,7 +8,7 @@
   "sources": [
     {
       "label": "Claude Code local logs",
-      "files": 115
+      "files": 117
     },
     {
       "label": "Codex local logs",
@@ -21,9 +21,9 @@
       "provider": "Anthropic",
       "modelFamily": "Claude",
       "sources": ["Claude Code local logs"],
-      "inputTokens": 3239714283,
-      "cachedInputTokens": 3165604382,
-      "outputTokens": 8373499
+      "inputTokens": 3368144175,
+      "cachedInputTokens": 3293016365,
+      "outputTokens": 8624405
     },
     {
       "name": "claude-opus-5-5",
@@ -51,6 +51,146 @@
       "inputTokens": 184699,
       "cachedInputTokens": 2816,
       "outputTokens": 87
+    }
+  ],
+  "days": [
+    {
+      "date": "2026-10-11",
+      "tokens": 130870154
+    },
+    {
+      "date": "2026-10-12",
+      "tokens": 156294602
+    },
+    {
+      "date": "2026-10-13",
+      "tokens": 85239859
+    },
+    {
+      "date": "2026-10-14",
+      "tokens": 114685612
+    },
+    {
+      "date": "2026-10-15",
+      "tokens": 128723883
+    },
+    {
+      "date": "2026-10-16",
+      "tokens": 6112302
+    },
+    {
+      "date": "2026-10-17",
+      "tokens": 27199726
+    },
+    {
+      "date": "2026-10-18",
+      "tokens": 55034488
+    },
+    {
+      "date": "2026-10-19",
+      "tokens": 71317182
+    },
+    {
+      "date": "2026-10-20",
+      "tokens": 179305310
+    },
+    {
+      "date": "2026-10-21",
+      "tokens": 93205863
+    },
+    {
+      "date": "2026-10-22",
+      "tokens": 265551309
+    },
+    {
+      "date": "2026-10-23",
+      "tokens": 12510163
+    },
+    {
+      "date": "2026-10-24",
+      "tokens": 52912618
+    },
+    {
+      "date": "2026-10-25",
+      "tokens": 261652768
+    },
+    {
+      "date": "2026-10-26",
+      "tokens": 194898058
+    },
+    {
+      "date": "2026-10-27",
+      "tokens": 197079463
+    },
+    {
+      "date": "2026-10-28",
+      "tokens": 85884387
+    },
+    {
+      "date": "2026-10-29",
+      "tokens": 68158164
+    },
+    {
+      "date": "2026-10-30",
+      "tokens": 177306127
+    },
+    {
+      "date": "2026-10-31",
+      "tokens": 164709432
+    },
+    {
+      "date": "2026-11-01",
+      "tokens": 225260146
+    },
+    {
+      "date": "2026-11-02",
+      "tokens": 84285624
+    },
+    {
+      "date": "2026-11-03",
+      "tokens": 84701272
+    },
+    {
+      "date": "2026-11-04",
+      "tokens": 118385764
+    },
+    {
+      "date": "2026-11-05",
+      "tokens": 40584776
+    },
+    {
+      "date": "2026-11-06",
+      "tokens": 40779188
+    },
+    {
+      "date": "2026-11-07",
+      "tokens": 315371114
+    },
+    {
+      "date": "2026-11-08",
+      "tokens": 135038378
+    }
+  ],
+  "weekly": [
+    {
+      "weekStart": "2026-10-05",
+      "tokens": 130870154
+    },
+    {
+      "weekStart": "2026-10-12",
+      "tokens": 573290472
+    },
+    {
+      "weekStart": "2026-10-19",
+      "tokens": 936455213
+    },
+    {
+      "weekStart": "2026-10-26",
+      "tokens": 1113295777
+    },
+    {
+      "weekStart": "2026-11-02",
+      "tokens": 819146116
     }
   ]
 }

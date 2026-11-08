@@ -16,7 +16,8 @@
     "showLinks": true,
     "usageSnapshot": true,
     "githubSignals": true,
-    "showMilestones": true
+    "showMilestones": true,
+    "showTokenTrend": true
   },
   "tools": [
     {
