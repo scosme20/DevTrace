@@ -42,6 +42,27 @@ It is written to `public/indicators/developer-activity.svg`. `devtrace generate`
 includes it only when `data/developer-activity.json` exists, so existing projects are unaffected.
 `devtrace validate activity` checks the file.
 
+## Heatmap mode: tokens per commit
+
+`settings.heatmapMode` is `COMMITS` by default. With `TOKEN_EFFICIENCY` the heatmap is replaced by a
+panel that colors each day by the tokens spent per commit, so a day with fewer tokens for its commits
+is brighter.
+
+- **Where the numbers come from:** tokens from `data/usage-snapshot.json` (run `devtrace import usage`;
+  input plus output tokens of all models for the day) and commits from the GitHub snapshot.
+- **What a color means:** the day's tokens per commit, ranked against your own other days in four steps.
+  It says nothing about other people, and a day is never "good" in absolute terms.
+- **Unknown, not bad:** a day with no commits, no tokens or that has not happened is gray. The grid is
+  drawn only when at least 8 days have both; before that the panel says how many it found.
+- **It is an estimate** and is tagged so. The tokens come from all your work, including private
+  repositories, while the commits are the public ones. A day with many tokens and no public commit is
+  not an unproductive day. A big commit counts the same as a small one. Read it as a measure of use, not
+  of quality or productivity.
+
+```json
+{ "version": 1, "settings": { "heatmapMode": "TOKEN_EFFICIENCY" } }
+```
+
 ## Panels
 
 A panel is drawn only when its data exists. Nothing is estimated to fill a gap.

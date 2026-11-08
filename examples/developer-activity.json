@@ -4,6 +4,7 @@
   "settings": {
     "theme": "DARK",
     "showHeatmap": true,
+    "heatmapMode": "COMMITS",
     "showCommitActivity": true,
     "showRepositories": true,
     "showLanguages": true,
