@@ -27,6 +27,7 @@ export async function generateAiEngineeringStats(
   try {
     const declared = await loadAiEngineeringConfig(path.join(rootDir, AI_ENGINEERING_CONFIG_FILE));
     let config = declared;
+    let usageSnapshot;
     if (declared.settings.usageSnapshot === true) {
       const usage = await loadUsageSnapshot(path.join(rootDir, USAGE_SNAPSHOT_FILE));
       if (usage === undefined) {
@@ -35,6 +36,7 @@ export async function generateAiEngineeringStats(
         );
       } else {
         config = mergeUsageSnapshot(declared, usage);
+        usageSnapshot = usage;
       }
     }
     const snapshot = await loadGitHubSnapshot(path.join(rootDir, GITHUB_SNAPSHOT_FILE));
@@ -60,6 +62,8 @@ export async function generateAiEngineeringStats(
       profile: config.profile,
       settings,
       generatorVersion: DEVTRACE_VERSION,
+      weeklyTokens: usageSnapshot?.weekly,
+      weeklyPeriod: usageSnapshot?.period,
     });
     return await writeIndicator(
       path.join(rootDir, INDICATORS_DIR),

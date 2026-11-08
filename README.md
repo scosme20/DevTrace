@@ -29,6 +29,9 @@ entries are never drawn, and the same input always produces the same SVG.
 - Optional, read-only GitHub integration for public repository data: metadata, releases, languages
   and commit activity. Opt-in signals for the AI dashboard: releases as milestones, assistant
   configuration files, AI topics and commits that name an AI co-author.
+- Local repositories without exposing them: `devtrace import git` keeps only counts and dates of a
+  private clone. Open source contributions, a weekly token trend, `devtrace snippet` for the README
+  and a reusable GitHub Action.
 - Optional local import of token usage from Claude Code and Codex logs (`devtrace import usage`):
   model, time and token counts only, no text or paths, no network.
 - An optional GitHub Actions workflow that regenerates and commits the SVGs.
@@ -93,6 +96,8 @@ Environment variables: only `GITHUB_TOKEN`, optional, read by `sync` and never s
 | `devtrace generate [target]`   | Write the SVGs. Options: `--theme`, `--layout`, `--output`       |
 | `devtrace sync [--force]`      | Read public GitHub data (the only command that uses the network) |
 | `devtrace import usage`        | Read token usage from local Claude Code and Codex logs           |
+| `devtrace import git <folder>` | Count the commits of a local clone, even a private one           |
+| `devtrace snippet`             | Print the Markdown that shows the generated SVGs                 |
 | `devtrace --help`, `--version` | Help and version                                                 |
 
 Exit codes: `0` success, `1` failure, `2` usage error. In this repository run it with

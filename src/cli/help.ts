@@ -9,11 +9,13 @@ Usage:
   devtrace <command> [options]
 
 Commands:
-  init                  Create starter configuration files in data/
+  init [options]        Create starter configuration files in data/
   validate [target]     Check the configuration without writing anything
   generate [target]     Generate the SVG indicators (default target: all)
   sync                  Read public GitHub data into data/github-snapshot.json
   import usage          Read token usage from local Claude Code and Codex logs
+  import git <folder>   Count the commits of a local clone, even a private one
+  snippet               Print the Markdown that shows the generated SVGs
   help [command]        Show help for a command
 
 Targets:
@@ -40,11 +42,18 @@ Exit codes:
 DevTrace reads data/*.json and writes public/indicators/*.svg in the current directory.`;
 
 const COMMAND_HELP: Readonly<Record<CommandName, string>> = {
-  init: `devtrace init
+  init: `devtrace init [--name <name>] [--github <user>] [--theme <theme>] [--workflow]
 
 Creates the starter configuration files:
   data/startup.json
   data/ai-engineering.json
+
+Options fill them in, so the first run already looks like you:
+  --name <name>      The name shown on the indicators
+  --github <user>    Also creates data/github.json and data/developer-activity.json
+  --theme <theme>    DARK, LIGHT, MIDNIGHT, MINIMAL, TRANSPARENT or TERMINAL
+  --workflow         Also writes .github/workflows/update-indicators.yml, which runs the
+                     DevTrace action every day
 
 Existing files are never overwritten: they are skipped and left as they are.
 The files are valid and contain no projects, so nothing is shown on a card until
@@ -103,6 +112,7 @@ for public data, and is never stored or printed. If the sync fails, the previous
 snapshot is left untouched.`,
 
   import: `devtrace import usage [options]
+       devtrace import git <folder> --label <name> [--author <email>]
 
 Reads the token usage that Claude Code and Codex keep in their local log files and
 writes the totals of one period, per model, to data/usage-snapshot.json. It reads
@@ -117,11 +127,31 @@ Options:
 
 The tools' folders are ~/.claude and ~/.codex; CLAUDE_CONFIG_DIR and CODEX_HOME
 change them. To show the numbers, set settings.usageSnapshot and
-settings.showTokenUsage to true in data/ai-engineering.json.`,
+settings.showTokenUsage to true in data/ai-engineering.json.
+
+"import git" counts the commits of a local clone, so a private repository can be
+shown without exposing it. It runs "git log" and "git ls-files" and keeps only
+counts, dates and file extensions under the --label you chose: never messages,
+author names, file names, paths or hashes. It uses no network. --author counts only
+the commits of that e-mail. Set settings.showLocalGit to true in
+data/developer-activity.json to show it.`,
+
+  snippet: `devtrace snippet --repo <owner/name> [--branch <name>] [--pair]
+
+Prints the Markdown that puts the generated SVGs in a README, one block for each file
+that exists in public/indicators. It writes nothing.
+
+Options:
+  --repo <owner/name>   The repository that holds the SVGs (GITHUB_REPOSITORY is the default)
+  --branch <name>       Branch or tag in the links (default: HEAD, the default branch)
+  --pair                Dark and light: a <picture> that picks the file by the viewer's theme
+
+The light file of "x.svg" is "x-light.svg". Create it with, for example:
+  devtrace generate startup --theme LIGHT --output startup-stats-light.svg`,
 
   help: `devtrace help [command]
 
-Shows the help of a command: init, validate, generate, sync, import or help.
+Shows the help of a command: init, validate, generate, sync, import, snippet or help.
 "devtrace <command> --help" does the same.`,
 };
 

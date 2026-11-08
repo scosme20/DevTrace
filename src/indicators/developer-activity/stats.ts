@@ -1,4 +1,9 @@
-import type { GitHubRepository, GitHubSnapshot } from "../../core/github-models.js";
+import type {
+  GitHubRepository,
+  GitHubSnapshot,
+  OpenSourceContribution,
+} from "../../core/github-models.js";
+import type { GitRepositorySummary, GitSnapshot } from "../../core/git-snapshot.js";
 import type { DeveloperActivitySettings } from "../../core/developer-activity-models.js";
 
 // What the Developer Activity dashboard shows, computed from the GitHub
@@ -75,6 +80,11 @@ export interface ActivityStats {
   readonly primaryLanguages: readonly { readonly name: string; readonly repositories: number }[];
   readonly releases: readonly ReleaseEntry[];
   readonly hiddenReleases: number;
+  /** Repositories imported from local clones, by label. Empty when none was imported. */
+  readonly localGit: readonly GitRepositorySummary[];
+  /** Pull requests in other owners' public repositories. Empty when not collected or not asked for. */
+  readonly contributions: readonly OpenSourceContribution[];
+  readonly contributionsTruncated: boolean;
 }
 
 function addDays(day: string, amount: number): string {
@@ -219,6 +229,7 @@ function computeLanguages(repositories: readonly GitHubRepository[]): LanguageSt
 export function computeActivityStats(
   snapshot: GitHubSnapshot | undefined,
   settings: DeveloperActivitySettings,
+  gitSnapshot?: GitSnapshot,
 ): ActivityStats {
   const repositories = [...(snapshot?.repositories ?? [])].sort(newestFirst);
   const fetchedDay = snapshot?.fetchedAt.slice(0, 10) ?? "";
@@ -268,5 +279,8 @@ export function computeActivityStats(
         : [],
     releases: releases.slice(0, settings.releaseLimit),
     hiddenReleases: Math.max(0, releases.length - settings.releaseLimit),
+    localGit: settings.showLocalGit ? [...(gitSnapshot?.repositories ?? [])] : [],
+    contributions: settings.showContributions ? [...(snapshot?.contributions ?? [])] : [],
+    contributionsTruncated: settings.showContributions && snapshot?.contributionsTruncated === true,
   };
 }

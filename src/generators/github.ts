@@ -2,6 +2,7 @@ import path from "node:path";
 import { loadGitHubConfig, loadGitHubSnapshot } from "../core/config.js";
 import type { GitHubSnapshot } from "../core/github-models.js";
 import { DevTraceError } from "../core/result.js";
+import { collectContributions } from "../github/contributions.js";
 import { writeGitHubSnapshot } from "../core/snapshot-output.js";
 import { DEVTRACE_VERSION } from "../core/version.js";
 import { createGitHubClient, type GitHubClientOptions } from "../github/client.js";
@@ -65,12 +66,26 @@ export async function syncGitHubSnapshot(
     });
     const repositories = await collectRepositories(client, config, warn);
 
+    const contributed =
+      config.collect.contributions === true
+        ? await collectContributions(client, config.username)
+        : undefined;
+    if (contributed?.truncated === true) {
+      warn("More pull requests exist than were read: the 100 most recently updated are counted.");
+    }
+
     await writeGitHubSnapshot(snapshotPath, {
       version: 1,
       source: "GitHub REST API",
       username: config.username,
       fetchedAt: now().toISOString(),
       repositories,
+      ...(contributed === undefined
+        ? {}
+        : {
+            contributions: contributed.contributions,
+            contributionsTruncated: contributed.truncated,
+          }),
     });
     return `GitHub snapshot written to ${snapshotPath} (${String(repositories.length)} repositories).`;
   } catch (cause) {

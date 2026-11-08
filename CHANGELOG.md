@@ -6,6 +6,20 @@ All notable changes to DevTrace are documented here. The format follows
 
 ## [Unreleased]
 
+### Added
+
+- `devtrace import git <folder> --label <name>`: counts the commits of a local clone, so a private
+  repository can be shown without exposing it. Only counts, dates and file extensions are kept. The
+  Developer Activity dashboard gets a "Local repositories" panel (`settings.showLocalGit`).
+- Token trend panel in the AI dashboard (`settings.showTokenTrend`): tokens per week from the usage
+  import. The usage snapshot now holds the weekly totals. A change is shown only with 8 complete weeks.
+- Open source contributions panel in the Developer Activity dashboard (`settings.showContributions`),
+  from the new opt-in `collect.contributions`: pull requests in other owners' public repositories.
+- `devtrace snippet --repo <owner/name> [--pair]`: prints the Markdown for the generated SVGs, with a
+  dark and light `<picture>`.
+- `devtrace init` takes `--name`, `--github`, `--theme` and `--workflow`.
+- A reusable GitHub Action (`action.yml`): `uses: scosme20/DevTrace@<tag>`.
+
 ## [0.7.0] - 2026-11-07
 
 ### Added

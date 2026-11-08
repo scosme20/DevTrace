@@ -46,14 +46,38 @@ includes it only when `data/developer-activity.json` exists, so existing project
 
 A panel is drawn only when its data exists. Nothing is estimated to fill a gap.
 
-| Panel                 | Setting              | Source and meaning                                                                                                            |
-| --------------------- | -------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
-| Metrics               | `showSummary`        | Public repositories, commits in the window, repositories with a release, last push                                            |
-| Commit heatmap        | `showHeatmap`        | Commits per day on the default branch, summed over the repositories that reported them (`collect.commitActivity`)             |
-| Commit activity       | `showCommitActivity` | Commits per month, two equal periods of 13 complete weeks (when comparable), commits by repository                            |
-| Repository activity   | `showRepositories`   | Most recently pushed repositories, with language, stars and forks as reported by GitHub (`repositoryLimit`, default 6)        |
-| Programming languages | `showLanguages`      | Share of the code bytes GitHub reports (`collect.languages`); without them, the primary language of each repository as counts |
-| Releases              | `showReleases`       | The latest published release of each repository, newest first (`releaseLimit`, default 5)                                     |
+| Panel                     | Setting              | Source and meaning                                                                                                                                          |
+| ------------------------- | -------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Metrics                   | `showSummary`        | Public repositories, commits in the window, repositories with a release, last push                                                                          |
+| Commit heatmap            | `showHeatmap`        | Commits per day on the default branch, summed over the repositories that reported them (`collect.commitActivity`)                                           |
+| Commit activity           | `showCommitActivity` | Commits per month, two equal periods of 13 complete weeks (when comparable), commits by repository                                                          |
+| Repository activity       | `showRepositories`   | Most recently pushed repositories, with language, stars and forks as reported by GitHub (`repositoryLimit`, default 6)                                      |
+| Programming languages     | `showLanguages`      | Share of the code bytes GitHub reports (`collect.languages`); without them, the primary language of each repository as counts                               |
+| Releases                  | `showReleases`       | The latest published release of each repository, newest first (`releaseLimit`, default 5)                                                                   |
+| Local repositories        | `showLocalGit`       | Repositories imported from local clones with `devtrace import git`: commits, first and last day, months with activity and the main language. Off by default |
+| Open source contributions | `showContributions`  | Pull requests you opened in other owners' public repositories, merged, open and closed (`collect.contributions`). Off by default                            |
+
+### Local repositories
+
+A private repository can be shown without exposing it. Run it on a local clone and give it the name
+that should appear:
+
+```bash
+devtrace import git ../my-private-repo --label "BuildFlow" --author me@example.com
+```
+
+It runs `git log` and `git ls-files` and keeps only counts, dates and file extensions under that
+label in `data/git-snapshot.json`: never messages, author names, file names, paths or hashes. It uses
+no network. `--author` counts only the commits of that e-mail. Importing the same label again
+replaces it. Then set `"showLocalGit": true` in `data/developer-activity.json`. The language is the
+extension that most tracked files have, not the share of code.
+
+### Open source contributions
+
+Set `collect.contributions` to `true` in `data/github.json` and run `devtrace sync`. One search
+call reads the pull requests you opened in other owners' public repositories (the 100 most recently
+updated; the panel says so when there are more). Only the repository, the state and one date of each
+pull request are kept, never titles or code.
 
 The options `showTitle`, `showSummary` and `showFooter`, the themes, layouts, colors and dimensions
 work as for the other indicators. The dashboard is 720, 880 or 960 pixels wide by layout.

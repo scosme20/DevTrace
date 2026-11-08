@@ -24,6 +24,14 @@ export interface UsageSnapshot {
   readonly period: { readonly start: string; readonly end: string };
   readonly sources: readonly { readonly label: string; readonly files: number }[];
   readonly models: readonly UsageModel[];
+  /** Input plus output tokens of every model, per week. Absent in snapshots made before 0.8. */
+  readonly weekly?: readonly UsageWeek[] | undefined;
+}
+
+export interface UsageWeek {
+  /** The Monday that starts the week, `YYYY-MM-DD`. */
+  readonly weekStart: string;
+  readonly tokens: number;
 }
 
 const tokens = z.number().int().nonnegative();
@@ -51,6 +59,10 @@ const snapshotSchema = z
       .array(z.strictObject({ label: requiredText("label").max(60), files: tokens }))
       .max(4),
     models: z.array(modelSchema).max(200),
+    weekly: z
+      .array(z.strictObject({ weekStart: isoDate, tokens }))
+      .max(60)
+      .optional(),
   })
   .refine((snapshot) => snapshot.period.end >= snapshot.period.start, {
     message: "The period ends before it starts.",

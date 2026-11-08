@@ -6,10 +6,12 @@ import {
 } from "../core/ai-engineering-models.js";
 import { displayFlags } from "../core/appearance.js";
 import type { ProjectStatus, StartupProfile } from "../core/models.js";
+import type { UsageWeek } from "../core/usage-snapshot.js";
 import {
   badgeRow,
   caption,
   chipStrip,
+  compactMetric,
   distributionBar,
   entryList,
   grid,
@@ -18,6 +20,7 @@ import {
   panel,
   progressBar,
   stack,
+  verticalBarChart,
   type BadgeSpec,
   type Builder,
   type Chip,
@@ -59,6 +62,10 @@ export interface AiEngineeringDashboardOptions {
   readonly profile: StartupProfile;
   readonly settings: AiEngineeringSettings;
   readonly generatorVersion: string;
+  /** Tokens per week from the usage import. Only drawn with `settings.showTokenTrend`. */
+  readonly weeklyTokens?: readonly UsageWeek[] | undefined;
+  /** The period of the usage import; weeks that stick out of it are partial. */
+  readonly weeklyPeriod?: { readonly start: string; readonly end: string } | undefined;
 }
 
 const METRIC_LABELS: Readonly<Record<MetricKey, string>> = {
@@ -444,6 +451,60 @@ function tokenPanel(model: AiDashboardModel, tokens: DesignTokens): Builder | un
   });
 }
 
+const WEEK_LABEL = (iso: string): string => iso.slice(5);
+
+/** Weekly tokens as columns. Weeks cut by the period are gray, and the change needs complete weeks. */
+function trendPanel(
+  options: AiEngineeringDashboardOptions,
+  tokens: DesignTokens,
+): Builder | undefined {
+  const { weeklyTokens, weeklyPeriod } = options;
+  if (options.settings.showTokenTrend !== true || weeklyTokens === undefined) return undefined;
+  if (weeklyTokens.length < 2 || weeklyPeriod === undefined) return undefined;
+  const weeks = weeklyTokens.map((week) => {
+    const end = new Date(`${week.weekStart}T00:00:00Z`);
+    end.setUTCDate(end.getUTCDate() + 6);
+    return {
+      ...week,
+      partial:
+        week.weekStart < weeklyPeriod.start || end.toISOString().slice(0, 10) > weeklyPeriod.end,
+    };
+  });
+  const complete = weeks.filter((week) => !week.partial);
+  const sum = (items: readonly { tokens: number }[]): number =>
+    items.reduce((total, week) => total + week.tokens, 0);
+  const recent = complete.slice(-4);
+  const earlier = complete.slice(-8, -4);
+  const change =
+    complete.length >= 8 && sum(earlier) > 0
+      ? Math.round(((sum(recent) - sum(earlier)) / sum(earlier)) * 100)
+      : undefined;
+  return panel(tokens, {
+    title: "Token trend · tokens per week",
+    tag: { label: "Observed", tone: "success" },
+    content: stack({ gap: tokens.visual.gap }, [
+      caption(tokens, "Input plus output, all models · gray weeks are partial"),
+      verticalBarChart(
+        tokens,
+        weeks.map((week) => ({
+          label: WEEK_LABEL(week.weekStart),
+          value: week.tokens,
+          tone: week.partial ? "muted" : "primary",
+        })),
+        110,
+      ),
+      ...(change === undefined
+        ? [caption(tokens, "A change needs 8 complete weeks of data.")]
+        : [
+            compactMetric(tokens, {
+              label: "Last 4 weeks vs the 4 before",
+              value: `${change > 0 ? "+" : ""}${String(change)}%`,
+            }),
+          ]),
+    ]),
+  });
+}
+
 function foundPanel(model: AiDashboardModel, tokens: DesignTokens): Builder | undefined {
   const { found } = model;
   if (found === undefined || found.repositories.length === 0) return undefined;
@@ -541,6 +602,7 @@ export function renderAiEngineeringDashboard(
       { build: activityPanel(model, tokens, display.descriptions), span: 1 },
       { build: foundPanel(model, tokens), span: 1 },
       { build: tokenPanel(model, tokens), span: 1 },
+      { build: trendPanel(options, tokens), span: 1 },
       { build: milestonesPanel(model, tokens), span: 1 },
     ],
     emptyMessage: "No AI engineering data to display.",
