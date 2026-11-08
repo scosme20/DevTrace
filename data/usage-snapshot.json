@@ -1,0 +1,56 @@
+{
+  "version": 1,
+  "kind": "LOCAL_USAGE",
+  "period": {
+    "start": "2026-10-10",
+    "end": "2026-11-08"
+  },
+  "sources": [
+    {
+      "label": "Claude Code local logs",
+      "files": 115
+    },
+    {
+      "label": "Codex local logs",
+      "files": 1
+    }
+  ],
+  "models": [
+    {
+      "name": "claude-sonnet-5-5",
+      "provider": "Anthropic",
+      "modelFamily": "Claude",
+      "sources": ["Claude Code local logs"],
+      "inputTokens": 3239714283,
+      "cachedInputTokens": 3165604382,
+      "outputTokens": 8373499
+    },
+    {
+      "name": "claude-opus-5-5",
+      "provider": "Anthropic",
+      "modelFamily": "Claude",
+      "sources": ["Claude Code local logs"],
+      "inputTokens": 188789840,
+      "cachedInputTokens": 184488329,
+      "outputTokens": 501358
+    },
+    {
+      "name": "gpt-6-luna",
+      "provider": "OpenAI",
+      "modelFamily": "GPT",
+      "sources": ["Codex local logs"],
+      "inputTokens": 6808739,
+      "cachedInputTokens": 4419712,
+      "outputTokens": 4429
+    },
+    {
+      "name": "gpt-5.6-terra",
+      "provider": "OpenAI",
+      "modelFamily": "GPT",
+      "sources": ["Codex local logs"],
+      "inputTokens": 184699,
+      "cachedInputTokens": 2816,
+      "outputTokens": 87
+    }
+  ]
+}

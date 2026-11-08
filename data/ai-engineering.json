@@ -11,9 +11,14 @@
     "showSkills": true,
     "showProjects": true,
     "showActivity": false,
-    "showTokenUsage": false,
+    "showTokenUsage": true,
     "showCost": false,
-    "showLinks": true
+    "showLinks": true,
+    "colors": {
+      "primary": "#3fb950"
+    },
+    "usageSnapshot": true,
+    "githubSignals": true
   },
   "tools": [
     {
