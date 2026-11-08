@@ -84,7 +84,7 @@ A private repository can be shown without exposing it. Run it on a local clone a
 that should appear:
 
 ```bash
-devtrace import git ../my-private-repo --label "BuildFlow" --author me@example.com
+devtrace import git ../my-private-repo --label "Private App" --author me@example.com
 ```
 
 It runs `git log` and `git ls-files` and keeps only counts, dates and file extensions under that

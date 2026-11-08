@@ -6,6 +6,8 @@ All notable changes to DevTrace are documented here. The format follows
 
 ## [Unreleased]
 
+## [0.8.0] - 2026-11-08
+
 ### Added
 
 - `settings.heatmapMode: "TOKEN_EFFICIENCY"` for the Developer Activity dashboard: the heatmap colors each
@@ -22,7 +24,12 @@ All notable changes to DevTrace are documented here. The format follows
 - `devtrace snippet --repo <owner/name> [--pair]`: prints the Markdown for the generated SVGs, with a
   dark and light `<picture>`.
 - `devtrace init` takes `--name`, `--github`, `--theme` and `--workflow`.
-- A reusable GitHub Action (`action.yml`): `uses: scosme20/DevTrace@<tag>`.
+- A reusable GitHub Action (`action.yml`): `uses: scosme20/DevTrace@v0.8.0`. Documented in the README.
+
+### Changed
+
+- The local git snapshot (`data/git-snapshot.json`) is now ignored by git and is not published. The README
+  and the getting-started guide say that `data/` holds the author's own data in a copy of the repository.
 
 ## [0.7.0] - 2026-11-07
 
