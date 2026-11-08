@@ -33,8 +33,9 @@ not depend on the real `data/` contents.
   tested against an in-memory GitHub. Keep it that way.
 - To try the integration for real, create `data/github.json` and run `pnpm sync:github`.
   `GITHUB_TOKEN` is optional; never put it in a file that is committed.
-- `data/github-snapshot.json` is generated and ignored by git. Delete it to see the cards
-  without GitHub data.
+- `data/github-snapshot.json` is generated and committed, because CI regenerates the SVG files from it
+  and compares them with the committed ones. Rerun `pnpm sync:github --force` and `pnpm generate`, and commit
+  both, when the GitHub data should change. Delete it locally to see the cards without GitHub data.
 - `pnpm sync:github --force` ignores the snapshot cache.
 
 ## Contribution guidelines

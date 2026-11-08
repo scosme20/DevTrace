@@ -56,7 +56,9 @@ describe("credentials", () => {
     const ignore = (await readFile(path.join(root, ".gitignore"), "utf8")).split("\n");
     expect(ignore).toContain(".env");
     expect(ignore).toContain(".env.*");
-    expect(ignore).toContain("data/github-snapshot.json");
+    // The GitHub snapshot is committed on purpose, so the SVG files can be reproduced from
+    // what is in the repository. It holds public data only, and the credential scan covers it.
+    expect(ignore).not.toContain("data/github-snapshot.json");
   });
 
   it("are only read from the environment by the client code", async () => {

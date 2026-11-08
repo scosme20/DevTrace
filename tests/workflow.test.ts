@@ -145,6 +145,13 @@ describe("update-indicators workflow", () => {
     expect(script).toContain("git diff --cached --quiet");
     expect(script.indexOf("git diff --cached --quiet")).toBeLessThan(script.indexOf("git commit"));
     expect(script).toContain("exit 0");
+    // The snapshot is committed only together with changed SVG files, never on its own.
+    expect(script.indexOf("git add -- data/github-snapshot.json")).toBeGreaterThan(
+      script.indexOf("git diff --cached --quiet"),
+    );
+    expect(script.indexOf("git add -- data/github-snapshot.json")).toBeLessThan(
+      script.indexOf("git commit"),
+    );
     expect(script).not.toContain("--allow-empty");
     expect(script).not.toMatch(/--force|-f\b/);
   });

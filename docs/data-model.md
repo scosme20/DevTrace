@@ -228,9 +228,10 @@ behavior; this section lists the fields.
 in the integration guide. Repository entries are `name` or `owner/name`. Unknown fields are
 rejected, so a credential cannot be stored here.
 
-### `data/github-snapshot.json` (generated, not committed)
+### `data/github-snapshot.json` (generated, committed)
 
-Written only by `pnpm sync:github`.
+Written only by `pnpm sync:github`. It is committed so the SVG files can be reproduced from what is in the
+repository; it holds public data only.
 
 | Field          | Notes                                                      |
 | -------------- | ---------------------------------------------------------- |

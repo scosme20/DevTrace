@@ -24,7 +24,9 @@ Because the steps are separate, a GitHub outage can never produce a broken or ha
 if the sync fails, the previous snapshot is left exactly as it was and the existing SVG files are
 not touched.
 
-The snapshot is generated data. It is listed in `.gitignore` and is not committed.
+The snapshot is generated data, but it is **committed**: the SVG files are made from it, and CI
+regenerates them to check that they are up to date. It holds public data only. The scheduled workflow
+commits it together with the SVG files, and only when those changed.
 
 ## Configuration: `data/github.json`
 
