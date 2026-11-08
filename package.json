@@ -1,6 +1,6 @@
 {
   "name": "devtrace",
-  "version": "0.6.0",
+  "version": "0.7.0",
   "description": "Generate SVG indicators for GitHub profile READMEs: startup projects and AI engineering work, from a small JSON configuration.",
   "keywords": [
     "github",

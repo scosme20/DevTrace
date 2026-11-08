@@ -2,9 +2,11 @@
 
 All notable changes to DevTrace are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project follows
-[Semantic Versioning](https://semver.org/). No version has been published yet.
+[Semantic Versioning](https://semver.org/). Versions are published as GitHub releases; the package is not on npm.
 
 ## [Unreleased]
+
+## [0.7.0] - 2026-11-07
 
 ### Added
 
