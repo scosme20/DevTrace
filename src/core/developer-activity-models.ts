@@ -19,6 +19,10 @@ export interface DeveloperActivitySettings extends AppearanceSettings {
   readonly showRepositories: boolean;
   readonly showLanguages: boolean;
   readonly showReleases: boolean;
+  /** Repositories imported from local clones (`devtrace import git`). */
+  readonly showLocalGit: boolean;
+  /** Pull requests in other people's public repositories (`collect.contributions`). */
+  readonly showContributions: boolean;
   /** Most repositories listed in the repository panel. */
   readonly repositoryLimit: number;
   /** Most releases listed in the releases panel. */

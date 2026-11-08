@@ -5,9 +5,17 @@ import { closestMatch } from "./suggestions.js";
 
 export const GENERATE_TARGETS = ["startup", "ai", "activity", "all"] as const;
 export const VALIDATE_TARGETS = ["startup", "ai", "activity", "github", "all"] as const;
-export const IMPORT_TARGETS = ["usage"] as const;
+export const IMPORT_TARGETS = ["usage", "git"] as const;
 export const USAGE_SOURCES = ["CLAUDE", "CODEX", "ALL"] as const;
-export const COMMAND_NAMES = ["init", "validate", "generate", "sync", "import", "help"] as const;
+export const COMMAND_NAMES = [
+  "init",
+  "validate",
+  "generate",
+  "sync",
+  "import",
+  "snippet",
+  "help",
+] as const;
 
 export type GenerateTarget = (typeof GENERATE_TARGETS)[number];
 export type ValidateTarget = (typeof VALIDATE_TARGETS)[number];
@@ -27,6 +35,12 @@ export type Invocation =
     }
   | { readonly kind: "sync"; readonly force: boolean }
   | {
+      readonly kind: "importGit";
+      readonly repositoryPath: string;
+      readonly label: string;
+      readonly author?: string | undefined;
+    }
+  | {
       readonly kind: "import";
       readonly source: UsageSourceChoice;
       readonly days?: number | undefined;
@@ -34,7 +48,19 @@ export type Invocation =
       readonly until?: string | undefined;
     }
   | { readonly kind: "validate"; readonly target: ValidateTarget }
-  | { readonly kind: "init" };
+  | {
+      readonly kind: "snippet";
+      readonly repository: string | undefined;
+      readonly branch?: string | undefined;
+      readonly pair: boolean;
+    }
+  | {
+      readonly kind: "init";
+      readonly name?: string | undefined;
+      readonly github?: string | undefined;
+      readonly theme?: Theme | undefined;
+      readonly workflow: boolean;
+    };
 
 export interface ParsedArgs {
   readonly invocation: Invocation;
@@ -45,11 +71,12 @@ export interface ParsedArgs {
 const LEGACY_ALIASES = { startup: "generate startup", ai: "generate ai", github: "sync" } as const;
 
 const OPTIONS_BY_COMMAND: Readonly<Record<CommandName, readonly string[]>> = {
-  init: [],
+  init: ["--name", "--github", "--theme", "--workflow"],
   validate: [],
   generate: ["--theme", "--layout", "--output"],
   sync: ["--force"],
-  import: ["--source", "--days", "--since", "--until"],
+  import: ["--source", "--days", "--since", "--until", "--label", "--author"],
+  snippet: ["--repo", "--branch", "--pair"],
   help: [],
 };
 
@@ -61,8 +88,14 @@ const VALUE_OPTIONS = [
   "--days",
   "--since",
   "--until",
+  "--label",
+  "--author",
+  "--repo",
+  "--branch",
+  "--name",
+  "--github",
 ];
-const FLAG_OPTIONS = ["--force"];
+const FLAG_OPTIONS = ["--force", "--pair", "--workflow"];
 const INDICATORS_PREFIX = "public/indicators/";
 
 /**
@@ -242,15 +275,71 @@ export function parseArgs(argv: readonly string[]): ParsedArgs {
       if (topic === undefined) return done({ kind: "help" });
       return done({ kind: "help", topic: resolveCommand(topic).command });
     }
-    case "init":
+    case "init": {
       expectNoMore(0);
-      return done({ kind: "init" });
+      const name = tokens.options.get("--name");
+      const github = tokens.options.get("--github");
+      const theme = tokens.options.get("--theme");
+      if (
+        typeof github === "string" &&
+        !/^[A-Za-z0-9](?:[A-Za-z0-9]|-(?=[A-Za-z0-9])){0,38}$/.test(github)
+      ) {
+        throw new UsageError(`Invalid --github value: "${github}". Expected a GitHub username.`);
+      }
+      if (typeof name === "string" && (name.trim() === "" || name.length > 40)) {
+        throw new UsageError("Invalid --name: use 1 to 40 characters.");
+      }
+      return done({
+        kind: "init",
+        name: typeof name === "string" ? name.trim() : undefined,
+        github: typeof github === "string" ? github : undefined,
+        theme: typeof theme === "string" ? choice("--theme", theme, THEMES) : undefined,
+        workflow: tokens.options.has("--workflow"),
+      });
+    }
     case "sync":
       expectNoMore(0);
       return done({ kind: "sync", force: tokens.options.has("--force") });
+    case "snippet": {
+      expectNoMore(0);
+      const repo = tokens.options.get("--repo");
+      const branch = tokens.options.get("--branch");
+      return done({
+        kind: "snippet",
+        repository: typeof repo === "string" ? repo : undefined,
+        branch: typeof branch === "string" ? branch : undefined,
+        pair: tokens.options.has("--pair"),
+      });
+    }
     case "import": {
-      target("import", positionals[0] ?? "", IMPORT_TARGETS);
+      const what = target("import", positionals[0] ?? "", IMPORT_TARGETS);
+      if (what === "git") {
+        const repositoryPath = positionals[1];
+        const label = tokens.options.get("--label");
+        const author = tokens.options.get("--author");
+        if (repositoryPath === undefined) {
+          throw new UsageError(
+            "Missing the folder of the repository.",
+            'Use: devtrace import git <folder> --label "Name".',
+          );
+        }
+        if (typeof label !== "string") {
+          throw new UsageError("Missing --label.", 'Use --label "BuildFlow", the name to show.');
+        }
+        expectNoMore(2);
+        return done({
+          kind: "importGit",
+          repositoryPath,
+          label,
+          author: typeof author === "string" ? author : undefined,
+        });
+      }
       expectNoMore(1);
+      for (const name of ["--label", "--author"]) {
+        if (tokens.options.has(name)) {
+          throw new UsageError(`Option ${name} applies only to "import git".`);
+        }
+      }
       const source = tokens.options.get("--source");
       const days = tokens.options.get("--days");
       const since = tokens.options.get("--since");

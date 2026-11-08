@@ -19,6 +19,8 @@ export interface GitHubCollectSettings {
   readonly releaseHistory?: boolean | undefined;
   /** AI signals: assistant configuration files, AI topics and co-author trailers (two extra calls per repository). Off unless set. */
   readonly aiSignals?: boolean | undefined;
+  /** Pull requests opened in other owners' public repositories (one search call). Off unless set. */
+  readonly contributions?: boolean | undefined;
 }
 
 export interface GitHubRepositorySelection {
@@ -107,6 +109,19 @@ export interface GitHubRepository {
   readonly provenance: "OBSERVED";
 }
 
+/** The pull requests the user opened in one public repository of another owner. */
+export interface OpenSourceContribution {
+  /** `owner/name`. */
+  readonly repository: string;
+  readonly merged: number;
+  /** Still open. */
+  readonly open: number;
+  /** Closed without being merged. */
+  readonly closed: number;
+  /** The last update of any of them. */
+  readonly lastActivity: string;
+}
+
 /** Contents of `data/github-snapshot.json`, written only by `pnpm sync:github`. */
 export interface GitHubSnapshot {
   readonly version: 1;
@@ -114,4 +129,8 @@ export interface GitHubSnapshot {
   readonly username: string;
   readonly fetchedAt: string;
   readonly repositories: readonly GitHubRepository[];
+  /** Present only when `collect.contributions` was on. Public repositories of other owners only. */
+  readonly contributions?: readonly OpenSourceContribution[] | undefined;
+  /** More pull requests exist than the contributions list covers. */
+  readonly contributionsTruncated?: boolean | undefined;
 }

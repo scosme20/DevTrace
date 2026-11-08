@@ -23,17 +23,18 @@ placeholders: replace them with your own data.
 A panel is drawn only when its section is enabled and has public data. Missing panels leave no gap:
 two narrow panels share a row, and a narrow panel without a partner takes the whole row.
 
-| Panel                     | Setting          | What it shows                                                                                                      |
-| ------------------------- | ---------------- | ------------------------------------------------------------------------------------------------------------------ |
-| Metrics strip             | `showSummary`    | Counts of tools, providers, models, skills, projects and activity records (only for sections with data)            |
-| Chips                     | `showSummary`    | The AI stack (the first tools), the top model by reported tokens and the cache hit, each only when its data exists |
-| AI tools & providers      | `showTools`      | Tools by category, the providers, and each tool with its provider, category and declared level                     |
-| AI foundation models      | `showModels`     | Each model with provider, family, capability and context window; its share of the reported tokens                  |
-| AI engineering skills     | `showSkills`     | Skills grouped by category, with the level and, if declared, how often you use them                                |
-| AI projects               | `showProjects`   | Public projects: status, category, techniques, public tools used, link kinds (`showLinks`)                         |
-| AI contributions          | `showActivity`   | Declared records by involvement and by type, and the most recent records                                           |
-| Token economics           | `showTokenUsage` | The measurements you reported, one row each, and the cache hit; costs only with `showCost`                         |
-| AI engineering milestones | `showMilestones` | Dated steps you declare, newest first. No levels, tiers or badges                                                  |
+| Panel                     | Setting          | What it shows                                                                                                                                         |
+| ------------------------- | ---------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Metrics strip             | `showSummary`    | Counts of tools, providers, models, skills, projects and activity records (only for sections with data)                                               |
+| Chips                     | `showSummary`    | The AI stack (the first tools), the top model by reported tokens and the cache hit, each only when its data exists                                    |
+| AI tools & providers      | `showTools`      | Tools by category, the providers, and each tool with its provider, category and declared level                                                        |
+| AI foundation models      | `showModels`     | Each model with provider, family, capability and context window; its share of the reported tokens                                                     |
+| AI engineering skills     | `showSkills`     | Skills grouped by category, with the level and, if declared, how often you use them                                                                   |
+| AI projects               | `showProjects`   | Public projects: status, category, techniques, public tools used, link kinds (`showLinks`)                                                            |
+| AI contributions          | `showActivity`   | Declared records by involvement and by type, and the most recent records                                                                              |
+| Token economics           | `showTokenUsage` | The measurements you reported, one row each, and the cache hit; costs only with `showCost`                                                            |
+| Token trend               | `showTokenTrend` | Tokens per week from `devtrace import usage` (input plus output, all models). Off by default. Gray weeks are partial; a change needs 8 complete weeks |
+| AI engineering milestones | `showMilestones` | Dated steps you declare, newest first. No levels, tiers or badges                                                                                     |
 
 Every panel has a small tag in its header with where its data comes from (`Declared`, `Observed`,
 `Estimated`, or `Mixed` when the records differ). With a uniform source the rows do not repeat it;

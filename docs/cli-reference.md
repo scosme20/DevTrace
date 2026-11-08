@@ -20,11 +20,13 @@ Usage:
   devtrace <command> [options]
 
 Commands:
-  init                  Create starter configuration files in data/
+  init [options]        Create starter configuration files in data/
   validate [target]     Check the configuration without writing anything
   generate [target]     Generate the SVG indicators (default target: all)
   sync                  Read public GitHub data into data/github-snapshot.json
   import usage          Read token usage from local Claude Code and Codex logs
+  import git <folder>   Count the commits of a local clone, even a private one
+  snippet               Print the Markdown that shows the generated SVGs
   help [command]        Show help for a command
 
 Targets:
@@ -94,6 +96,45 @@ point at things that are valid but probably not intended, and do not. See
 Reads public repository data as configured in `data/github.json`. `--force` ignores the cache.
 `GITHUB_TOKEN` is optional and only raises the rate limit. See
 [GitHub integration](github-integration.md).
+
+### `init`
+
+`devtrace init` creates the starter files. `--name`, `--github`, `--theme` and `--workflow` fill them
+in: the name shown on the indicators, a GitHub username (which also creates `data/github.json` and
+`data/developer-activity.json`), a theme, and a workflow that runs the DevTrace action every day.
+Existing files are never overwritten.
+
+### `import`
+
+`devtrace import usage` reads token usage from the local logs of Claude Code and Codex
+([usage import](usage-import.md)). `devtrace import git <folder> --label <name> [--author <email>]`
+counts the commits of a local clone, even a private one, keeping only counts and dates
+([local repositories](developer-activity-dashboard.md#local-repositories)).
+
+### `snippet`
+
+`devtrace snippet --repo <owner/name> [--branch <name>] [--pair]` prints the Markdown that shows the
+generated SVGs, with an optional dark and light pair. It writes nothing
+([embedding](github-profile.md#a-light-and-a-dark-version)).
+
+## The GitHub Action
+
+The repository is also a reusable action. A workflow in your own repository can run it instead of
+installing DevTrace:
+
+```yaml
+- uses: actions/checkout@v4
+- uses: scosme20/DevTrace@v0.8.0
+  with:
+    target: all # startup, ai, activity or all
+    sync: "true" # read public GitHub data first
+    commit: "true" # commit the changed SVGs and the snapshot
+```
+
+The action builds the version you selected, validates, syncs (the only step with the token),
+generates and commits only `public/indicators` and `data/github-snapshot.json`. It publishes
+nowhere. The job needs `permissions: contents: write`. `devtrace init --workflow` writes this
+workflow for you.
 
 ## Package scripts
 

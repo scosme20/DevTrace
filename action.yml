@@ -1,0 +1,89 @@
+name: DevTrace indicators
+description: Generate DevTrace SVG indicators from the data/ folder of your repository, and optionally commit them.
+author: scosme20
+
+branding:
+  icon: bar-chart-2
+  color: blue
+
+inputs:
+  target:
+    description: "What to generate: startup, ai, activity or all."
+    required: false
+    default: all
+  sync:
+    description: 'Read public GitHub data first ("true" or "false"). It is the only step that uses the network.'
+    required: false
+    default: "true"
+  github-token:
+    description: Token for the GitHub API. Used by the sync step only and never printed.
+    required: false
+    default: ${{ github.token }}
+  commit:
+    description: 'Commit the SVGs and the GitHub snapshot to the current branch when they changed ("true" or "false").'
+    required: false
+    default: "true"
+
+runs:
+  using: composite
+  steps:
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: "22"
+
+    # DevTrace is built from the version of this action that was selected, so a
+    # tag such as @v0.8.0 always runs that exact code.
+    - name: Build DevTrace
+      shell: bash
+      working-directory: ${{ github.action_path }}
+      run: |
+        corepack enable
+        pnpm install --frozen-lockfile
+        pnpm build
+
+    - name: Validate the configuration
+      shell: bash
+      run: node "${GITHUB_ACTION_PATH}/dist/index.js" validate
+
+    # The only step that uses the network, and the only one that gets the token.
+    - name: Sync GitHub data
+      id: sync
+      if: inputs.sync == 'true'
+      continue-on-error: true
+      shell: bash
+      env:
+        GITHUB_TOKEN: ${{ inputs.github-token }}
+      run: node "${GITHUB_ACTION_PATH}/dist/index.js" sync
+
+    - name: Generate the indicators
+      shell: bash
+      env:
+        DEVTRACE_TARGET: ${{ inputs.target }}
+      run: node "${GITHUB_ACTION_PATH}/dist/index.js" generate "${DEVTRACE_TARGET}"
+
+    - name: Commit and push changed indicators
+      if: inputs.commit == 'true'
+      shell: bash
+      env:
+        TARGET_BRANCH: ${{ github.ref_name }}
+      run: |
+        git add --all -- public/indicators
+        if git diff --cached --quiet; then
+          echo "Indicators are up to date. Nothing to commit."
+          exit 0
+        fi
+        if [ -e data/github-snapshot.json ]; then
+          git add -- data/github-snapshot.json
+        fi
+        git config user.name "github-actions[bot]"
+        git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+        git commit -m "chore: update indicators"
+        git push origin "HEAD:${TARGET_BRANCH}"
+
+    - name: Fail if the GitHub sync failed
+      if: steps.sync.outcome == 'failure'
+      shell: bash
+      run: |
+        echo "::error::GitHub sync failed. Indicators were generated from the previous data."
+        exit 1

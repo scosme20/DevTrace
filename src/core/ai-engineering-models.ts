@@ -198,6 +198,8 @@ export interface AiEngineeringSettings extends AppearanceSettings {
   readonly githubSignals?: boolean | undefined;
   /** Add the token usage read by `devtrace import usage` (data/usage-snapshot.json). Default `false`. */
   readonly usageSnapshot?: boolean | undefined;
+  /** Dashboard only: tokens per week, from the usage import. Default `false`. */
+  readonly showTokenTrend?: boolean | undefined;
   /** Dashboard only: the milestones panel. Shown unless set to `false`. */
   readonly showMilestones?: boolean | undefined;
   /** Draw the multi-panel dashboard instead of the single-column card. Default `false`. */

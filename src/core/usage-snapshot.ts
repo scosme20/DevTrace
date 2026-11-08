@@ -33,6 +33,14 @@ export interface UsageSnapshot {
   readonly models: readonly UsageModel[];
   /** Tokens per day, oldest first. Absent in files made before this was recorded. */
   readonly days?: readonly UsageDay[] | undefined;
+  /** Input plus output tokens of every model, per week. Absent in snapshots made before 0.8. */
+  readonly weekly?: readonly UsageWeek[] | undefined;
+}
+
+export interface UsageWeek {
+  /** The Monday that starts the week, `YYYY-MM-DD`. */
+  readonly weekStart: string;
+  readonly tokens: number;
 }
 
 const tokens = z.number().int().nonnegative();
@@ -63,6 +71,10 @@ const snapshotSchema = z
     days: z
       .array(z.strictObject({ date: isoDate, tokens }))
       .max(800)
+      .optional(),
+    weekly: z
+      .array(z.strictObject({ weekStart: isoDate, tokens }))
+      .max(60)
       .optional(),
   })
   .refine((snapshot) => snapshot.period.end >= snapshot.period.start, {

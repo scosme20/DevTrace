@@ -41,6 +41,7 @@ const configSchema = z.strictObject({
       commitActivity: z.boolean().optional(),
       releaseHistory: z.boolean().optional(),
       aiSignals: z.boolean().optional(),
+      contributions: z.boolean().optional(),
     })
     .prefault({}),
   onUnavailable: enumField("unavailable repository behavior", UNAVAILABLE_BEHAVIORS).default(
@@ -126,6 +127,19 @@ const snapshotSchema = z
     username: githubUsername,
     fetchedAt: isoDate,
     repositories: z.array(repositorySchema),
+    contributions: z
+      .array(
+        z.strictObject({
+          repository: githubRepoFullName,
+          merged: z.number().int().nonnegative(),
+          open: z.number().int().nonnegative(),
+          closed: z.number().int().nonnegative(),
+          lastActivity: isoDate,
+        }),
+      )
+      .max(200)
+      .optional(),
+    contributionsTruncated: z.boolean().optional(),
   })
   .superRefine((snapshot, ctx) => {
     const seen = new Set<string>();

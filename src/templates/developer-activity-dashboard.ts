@@ -44,7 +44,12 @@ function repositories(count: number, kind = ""): string {
 
 function metricCards(stats: ActivityStats): MetricCardData[] {
   return [
-    { label: "Public Repositories", value: stats.repositoryCount },
+    ...(stats.repositoryCount === 0
+      ? []
+      : [{ label: "Public Repositories", value: stats.repositoryCount }]),
+    ...(stats.localGit.length === 0
+      ? []
+      : [{ label: "Local Repositories", value: stats.localGit.length, tone: "success" as const }]),
     ...(stats.commits === undefined
       ? []
       : [
@@ -229,6 +234,58 @@ function languagesPanel(stats: ActivityStats, tokens: DesignTokens): Builder | u
   });
 }
 
+function localGitPanel(stats: ActivityStats, tokens: DesignTokens): Builder | undefined {
+  if (stats.localGit.length === 0) return undefined;
+  const entries: EntryItem[] = stats.localGit.map((repository) => ({
+    title: repository.label,
+    trailing: `${repository.commits.toLocaleString("en-US")} commits`,
+    subtitle: [
+      `${repository.firstCommit} to ${repository.lastCommit}`,
+      `${String(repository.months.length)} ${repository.months.length === 1 ? "month" : "months"} with activity`,
+      repository.languages[0]?.name,
+    ]
+      .filter((part) => part !== undefined)
+      .join(" · "),
+    detail: repository.filteredByAuthor ? "Only the commits of one author" : "All commits",
+  }));
+  return panel(tokens, {
+    title: "Local repositories",
+    tag: { label: "Local", tone: "success" },
+    content: stack({ gap: 8 }, [
+      caption(tokens, "Counted in local clones · only counts and dates, no code or messages"),
+      entryList(tokens, entries),
+    ]),
+  });
+}
+
+function contributionsPanel(stats: ActivityStats, tokens: DesignTokens): Builder | undefined {
+  if (stats.contributions.length === 0) return undefined;
+  const entries: EntryItem[] = stats.contributions.map((entry) => ({
+    title: entry.repository,
+    trailing: `${String(entry.merged)} merged`,
+    subtitle: [
+      entry.open > 0 ? `${String(entry.open)} open` : undefined,
+      entry.closed > 0 ? `${String(entry.closed)} closed` : undefined,
+      `last activity ${day(entry.lastActivity)}`,
+    ]
+      .filter((part) => part !== undefined)
+      .join(" · "),
+  }));
+  return panel(tokens, {
+    title: "Open source contributions",
+    tag: { label: "Observed", tone: "success" },
+    content: stack({ gap: 8 }, [
+      caption(
+        tokens,
+        stats.contributionsTruncated
+          ? "Pull requests in other owners' public repositories · the 100 most recent"
+          : "Pull requests in other owners' public repositories",
+      ),
+      entryList(tokens, entries.slice(0, 6), { hidden: Math.max(0, entries.length - 6) }),
+    ]),
+  });
+}
+
 function releasesPanel(stats: ActivityStats, tokens: DesignTokens): Builder | undefined {
   if (stats.releases.length === 0) return undefined;
   const repositoryName = (fullName: string): string => fullName.split("/")[1] ?? fullName;
@@ -257,7 +314,8 @@ export function renderDeveloperActivityDashboard(
 ): string {
   const { profile, settings, generatorVersion } = options;
   const tokens = requireDashboardTokens(settings);
-  const hasData = stats.repositoryCount > 0;
+  const hasData =
+    stats.repositoryCount > 0 || stats.localGit.length > 0 || stats.contributions.length > 0;
 
   return composeDashboard({
     title: TITLE,
@@ -268,7 +326,11 @@ export function renderDeveloperActivityDashboard(
     metrics: hasData ? metricCards(stats) : [],
     // The scope of every number below, stated once.
     notice: hasData
-      ? `Observed on ${repositories(stats.repositoryCount, "monitored public ")} · snapshot of ${day(stats.observedAt ?? "")} · not all GitHub activity`
+      ? stats.repositoryCount === 0
+        ? stats.localGit.length > 0
+          ? "Counted in local clones · not all activity"
+          : "Observed on GitHub · not all activity"
+        : `Observed on ${repositories(stats.repositoryCount, "monitored public ")} · snapshot of ${day(stats.observedAt ?? "")} · not all GitHub activity${stats.localGit.length === 0 ? "" : " · plus local clones"}`
       : undefined,
     panels: hasData
       ? [
@@ -280,6 +342,11 @@ export function renderDeveloperActivityDashboard(
           },
           { build: settings.showLanguages ? languagesPanel(stats, tokens) : undefined, span: 1 },
           { build: settings.showReleases ? releasesPanel(stats, tokens) : undefined, span: 1 },
+          { build: settings.showLocalGit ? localGitPanel(stats, tokens) : undefined, span: 1 },
+          {
+            build: settings.showContributions ? contributionsPanel(stats, tokens) : undefined,
+            span: 1,
+          },
         ]
       : [],
     emptyMessage: 'No GitHub data yet. Run "devtrace sync" first.',

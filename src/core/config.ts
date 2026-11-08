@@ -9,6 +9,8 @@ import type { StartupConfig } from "./models.js";
 import { DevTraceError, type Result } from "./result.js";
 import { validateUsageSnapshot } from "./usage-snapshot.js";
 import type { UsageSnapshot } from "./usage-snapshot.js";
+import { validateGitSnapshot } from "./git-snapshot.js";
+import type { GitSnapshot } from "./git-snapshot.js";
 import { validateStartupConfig } from "./validation.js";
 
 export type ConfigRead =
@@ -142,4 +144,9 @@ export function loadDeveloperActivityConfig(
 /** `undefined` means `devtrace import usage` has not been run. */
 export function loadUsageSnapshot(filePath: string): Promise<UsageSnapshot | undefined> {
   return loadOptionalConfig(filePath, validateUsageSnapshot, "usage snapshot");
+}
+
+/** `undefined` means `devtrace import git` has not been run. */
+export function loadGitSnapshot(filePath: string): Promise<GitSnapshot | undefined> {
+  return loadOptionalConfig(filePath, validateGitSnapshot, "git snapshot");
 }

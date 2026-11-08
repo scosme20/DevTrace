@@ -16,6 +16,9 @@ import type { CliIo } from "./io.js";
 import { initProject } from "./init.js";
 import { DEVTRACE_VERSION } from "../core/version.js";
 import { importUsage } from "../generators/usage.js";
+import { importGit } from "../generators/git.js";
+import { buildSnippet, indicatorFiles } from "./snippet.js";
+import { UsageError } from "./errors.js";
 import type { UsageSource } from "../usage/parsers.js";
 
 type GenerateInvocation = Extract<Invocation, { kind: "generate" }>;
@@ -126,8 +129,11 @@ export async function runValidate(target: ValidateTarget, io: CliIo): Promise<nu
   return report.errors === 0 ? EXIT.OK : EXIT.FAILURE;
 }
 
-export async function runInit(io: CliIo): Promise<number> {
-  const { created, skipped } = await initProject(io.rootDir);
+export async function runInit(
+  invocation: Extract<Invocation, { kind: "init" }>,
+  io: CliIo,
+): Promise<number> {
+  const { created, skipped } = await initProject(io.rootDir, invocation);
   for (const file of created) io.out(`Created ${file}`);
   for (const file of skipped) io.out(`Skipped ${file} (already exists, left as it is)`);
   if (created.length > 0) {
@@ -160,6 +166,42 @@ export async function runImportUsage(
     warn: (message) => {
       io.err(`Warning: ${message}`);
     },
+  });
+  for (const line of lines) io.out(line);
+  return EXIT.OK;
+}
+
+export async function runImportGit(
+  invocation: Extract<Invocation, { kind: "importGit" }>,
+  io: CliIo,
+): Promise<number> {
+  io.out("Reading the local repository (nothing leaves this machine)...");
+  const lines = await importGit(io.rootDir, {
+    repositoryPath: path.resolve(io.rootDir, invocation.repositoryPath),
+    label: invocation.label,
+    author: invocation.author,
+  });
+  for (const line of lines) io.out(line);
+  return EXIT.OK;
+}
+
+/** Prints the Markdown that shows the generated SVGs. It writes nothing. */
+export async function runSnippet(
+  invocation: Extract<Invocation, { kind: "snippet" }>,
+  io: CliIo,
+): Promise<number> {
+  const repository = invocation.repository ?? io.env["GITHUB_REPOSITORY"];
+  if (repository === undefined || repository === "") {
+    throw new UsageError(
+      "Missing --repo.",
+      "Use --repo owner/name, the repository that holds the generated SVGs.",
+    );
+  }
+  const lines = buildSnippet({
+    repository,
+    branch: invocation.branch,
+    pair: invocation.pair,
+    files: await indicatorFiles(io.rootDir),
   });
   for (const line of lines) io.out(line);
   return EXIT.OK;

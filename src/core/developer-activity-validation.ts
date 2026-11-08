@@ -23,6 +23,8 @@ const settingsSchema = z.strictObject({
   showRepositories: z.boolean().default(true),
   showLanguages: z.boolean().default(true),
   showReleases: z.boolean().default(true),
+  showLocalGit: z.boolean().default(false),
+  showContributions: z.boolean().default(false),
   repositoryLimit: z.number().int().min(1).max(20).default(DEFAULT_REPOSITORY_LIMIT),
   releaseLimit: z.number().int().min(1).max(20).default(DEFAULT_RELEASE_LIMIT),
 });

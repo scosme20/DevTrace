@@ -89,6 +89,16 @@ pnpm dev generate startup --theme LIGHT --output startup-light.svg
 </picture>
 ```
 
+Instead of writing the HTML by hand, `devtrace snippet` prints it for the files that exist:
+
+```bash
+devtrace snippet --repo <username>/<repository> --pair
+```
+
+With `--pair` the file `x.svg` is the dark version and `x-light.svg` the light one; the command says
+how to create a light file that is missing. Without `--pair` it prints one plain image per
+indicator. `--branch` replaces `HEAD` in the links.
+
 The `TRANSPARENT` theme has no background, so it adapts to either page, at a lower contrast than the
 opaque themes (see [customization](customization.md)).
 

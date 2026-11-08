@@ -35,6 +35,12 @@ The snapshot also keeps the tokens of each day (input plus output, all models), 
 feed the `TOKEN_EFFICIENCY` heatmap of the Developer Activity dashboard. Files made before this was
 recorded stay valid; run the import again to add them.
 
+The snapshot also holds the tokens of each week (Monday to Sunday, input plus output of every
+model). Set `"showTokenTrend": true` to draw them as a trend panel. Weeks cut by the period are
+shown in gray, and the change between the last 4 weeks and the 4 before needs 8 complete weeks:
+with less, the panel says so instead of showing a number. Snapshots made before this field existed
+still work; run the import again to get it.
+
 ## Where it reads
 
 | Tool        | Folder               | Changed by          |

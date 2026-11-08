@@ -159,6 +159,7 @@ const settingsSchema = z.strictObject({
   showCost: z.boolean().default(false),
   showLinks: z.boolean().default(true),
   showMilestones: z.boolean().optional(),
+  showTokenTrend: z.boolean().optional(),
   usageSnapshot: z.boolean().optional(),
   githubSignals: z.boolean().optional(),
   dashboard: z.boolean().optional(),

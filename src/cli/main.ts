@@ -1,7 +1,9 @@
 import { parseArgs } from "./args.js";
 import {
   runGenerate,
+  runImportGit,
   runImportUsage,
+  runSnippet,
   runHelp,
   runInit,
   runSync,
@@ -27,7 +29,7 @@ export async function runCli(argv: readonly string[], io: CliIo): Promise<number
       case "version":
         return runVersion(io);
       case "init":
-        return await runInit(io);
+        return await runInit(invocation, io);
       case "validate":
         return await runValidate(invocation.target, io);
       case "sync":
@@ -36,6 +38,10 @@ export async function runCli(argv: readonly string[], io: CliIo): Promise<number
         return await runGenerate(invocation, io, verbose);
       case "import":
         return await runImportUsage(invocation, io);
+      case "snippet":
+        return await runSnippet(invocation, io);
+      case "importGit":
+        return await runImportGit(invocation, io);
     }
   } catch (error) {
     io.err(formatError(error, { verbose, rootDir: io.rootDir }));

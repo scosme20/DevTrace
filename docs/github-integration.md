@@ -67,6 +67,7 @@ The file is optional. Without it, `pnpm sync:github` prints a message and does n
 | `collect.commitActivity`       | off      | Commits per day for the last 52 weeks: one more request per repository. Used by the developer activity dashboard.                                                                             |
 | `collect.releaseHistory`       | off      | Every published release (the 30 most recent), not only the latest: one more request per repository. Used for milestones.                                                                      |
 | `collect.aiSignals`            | off      | Assistant configuration files, AI topics and AI co-author trailers: two more requests per repository. See [AI Engineering Dashboard](ai-engineering-dashboard.md#ai-signals-found-on-github). |
+| `collect.contributions`        | off      | Pull requests you opened in other owners' public repositories: one search request. Used by the developer activity dashboard (`showContributions`).                                            |
 | `onUnavailable`                | `SKIP`   | `SKIP` warns and continues, `FAIL` stops the sync. See below.                                                                                                                                 |
 | `cacheTtlMinutes`              | `60`     | A snapshot younger than this is reused. `0` disables the cache. Maximum 1440.                                                                                                                 |
 
