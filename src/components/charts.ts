@@ -227,6 +227,8 @@ export interface HeatmapOptions {
   readonly rows?: number;
   /** Draw the "Less ... More" scale under the grid. */
   readonly legend?: boolean;
+  /** The two ends of the scale, "Less" and "More" by default. */
+  readonly legendLabels?: readonly [string, string];
   /** One label per row, drawn on the left (empty strings skip a row). */
   readonly rowLabels?: readonly string[];
 }
@@ -299,7 +301,8 @@ export function activityHeatmap(
     if (options.legend !== true) {
       return { body: labelText + cells, width: Math.min(width, usedWidth), height: gridHeight };
     }
-    const lessWidth = measure(tokens, "Less", font.small) + 6;
+    const [lessLabel, moreLabel] = options.legendLabels ?? ["Less", "More"];
+    const lessWidth = measure(tokens, lessLabel, font.small) + 6;
     const swatches = visual.heat
       .map((color, level) =>
         element("rect", {
@@ -314,14 +317,14 @@ export function activityHeatmap(
       .join("");
     const moreX = lessWidth + visual.heat.length * (cell + HEAT_GAP) + 4;
     const scale =
-      text("Less", {
+      text(lessLabel, {
         x: 0,
         y: gridHeight + 8 + Math.max(cell, font.small + 4) - 3,
         fill: palette.mutedText,
         size: font.small,
       }) +
       swatches +
-      text("More", {
+      text(moreLabel, {
         x: round(moreX),
         y: gridHeight + 8 + Math.max(cell, font.small + 4) - 3,
         fill: palette.mutedText,
@@ -329,7 +332,7 @@ export function activityHeatmap(
       });
     return {
       body: labelText + cells + scale,
-      width: Math.min(width, Math.max(usedWidth, moreX + measure(tokens, "More", font.small))),
+      width: Math.min(width, Math.max(usedWidth, moreX + measure(tokens, moreLabel, font.small))),
       height: gridHeight + 8 + Math.max(cell, font.small + 4),
     };
   };

@@ -6,6 +6,13 @@ All notable changes to DevTrace are documented here. The format follows
 
 ## [Unreleased]
 
+### Added
+
+- `settings.heatmapMode: "TOKEN_EFFICIENCY"` for the Developer Activity dashboard: the heatmap colors each
+  day by the tokens spent per commit, ranked against the user's own days, tagged `ESTIMATED`. Days
+  without commits or tokens stay gray. `devtrace import usage` now also keeps the tokens of each day
+  (`days`). The default mode, `COMMITS`, is unchanged. See `docs/developer-activity-dashboard.md`.
+
 ## [0.7.0] - 2026-11-07
 
 ### Added

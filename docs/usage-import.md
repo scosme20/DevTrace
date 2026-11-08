@@ -31,6 +31,10 @@ pnpm generate:ai
 existing switch that shows token usage at all. Both are off by default, so nothing is published
 unless you choose to.
 
+The snapshot also keeps the tokens of each day (input plus output, all models), under `days`. They
+feed the `TOKEN_EFFICIENCY` heatmap of the Developer Activity dashboard. Files made before this was
+recorded stay valid; run the import again to add them.
+
 ## Where it reads
 
 | Tool        | Folder               | Changed by          |
