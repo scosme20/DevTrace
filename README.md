@@ -47,6 +47,23 @@ The image above is generated from this repository's own `data/startup.json`. See
 [`examples/`](examples) for complete configuration files and [customization](docs/customization.md)
 for the other themes.
 
+## Gallery
+
+Made from the files in [`examples/`](examples) and a small set of made-up repositories, so none of it is
+real data. Rebuild them with `pnpm build && node scripts/build-example-images.mjs`.
+
+| Startup & SaaS, `TERMINAL`                                             | Startup & SaaS, `LIGHT`                                          |
+| ---------------------------------------------------------------------- | ---------------------------------------------------------------- |
+| ![Startup dashboard, TERMINAL theme](docs/images/startup-terminal.svg) | ![Startup dashboard, LIGHT theme](docs/images/startup-light.svg) |
+
+| AI Engineering, `TERMINAL`                                               | AI Engineering, `MIDNIGHT`                                               |
+| ------------------------------------------------------------------------ | ------------------------------------------------------------------------ |
+| ![AI Engineering dashboard, TERMINAL theme](docs/images/ai-terminal.svg) | ![AI Engineering dashboard, MIDNIGHT theme](docs/images/ai-midnight.svg) |
+
+| Developer Activity, `TERMINAL`                                                     | Developer Activity, `DARK`                                                 |
+| ---------------------------------------------------------------------------------- | -------------------------------------------------------------------------- |
+| ![Developer Activity dashboard, TERMINAL theme](docs/images/activity-terminal.svg) | ![Developer Activity dashboard, DARK theme](docs/images/activity-dark.svg) |
+
 ## Quick start
 
 Requires Node.js 22+ and pnpm 9.
