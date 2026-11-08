@@ -15,7 +15,7 @@ import {
   type MetricCardData,
   type EntryItem,
 } from "../components/index.js";
-import type { ActivityStats } from "../indicators/developer-activity/stats.js";
+import { EFFICIENCY_MIN_DAYS, type ActivityStats } from "../indicators/developer-activity/stats.js";
 import { composeDashboard } from "./dashboard.js";
 
 import { requireDashboardTokens, type DesignTokens } from "./design-tokens.js";
@@ -68,7 +68,33 @@ function metricCards(stats: ActivityStats): MetricCardData[] {
   ];
 }
 
+function efficiencyPanel(stats: ActivityStats, tokens: DesignTokens): Builder | undefined {
+  const { commits, efficiency } = stats;
+  if (commits === undefined || efficiency === undefined) return undefined;
+  const scope = `${commits.from} to ${commits.to}`;
+  const note = efficiency.ready
+    ? `Tokens per commit · ${scope} · ${String(efficiency.matchedDays)} days with both${efficiency.median === undefined ? "" : ` · median ${efficiency.median.toLocaleString("en-US")}`}`
+    : `Needs ${String(EFFICIENCY_MIN_DAYS)} days with commits and tokens; ${String(efficiency.matchedDays)} found`;
+  return panel(tokens, {
+    title: "Token efficiency heatmap",
+    tag: { label: "Estimated", tone: "warning" },
+    content: stack({ gap: 8 }, [
+      caption(tokens, note),
+      activityHeatmap(tokens, efficiency.ready ? efficiency.heatmap : [], {
+        rowLabels: WEEKDAY_LABELS,
+        legend: true,
+        legendLabels: ["More tokens", "Fewer"],
+      }),
+      caption(
+        tokens,
+        "Brighter means fewer tokens per commit, against your own days. A use measure, not quality. Gray is unknown.",
+      ),
+    ]),
+  });
+}
+
 function heatmapPanel(stats: ActivityStats, tokens: DesignTokens): Builder | undefined {
+  if (stats.efficiency !== undefined) return efficiencyPanel(stats, tokens);
   const { commits } = stats;
   if (commits === undefined) return undefined;
   return panel(tokens, {

@@ -37,10 +37,12 @@ export function aggregateUsage(
     string,
     { input: number; cached: number; output: number; sources: Set<UsageSource> }
   >();
+  const byDay = new Map<string, number>();
   const byWeek = new Map<string, number>();
   for (const record of records) {
     const day = record.timestamp.slice(0, 10);
     if (day < period.start || day > period.end) continue;
+    byDay.set(day, (byDay.get(day) ?? 0) + record.input + record.output);
     const week = mondayOf(day);
     byWeek.set(week, (byWeek.get(week) ?? 0) + record.input + record.output);
     const total = byModel.get(record.model) ?? {
@@ -84,6 +86,9 @@ export function aggregateUsage(
       .filter((source) => files[source] > 0)
       .map((source) => ({ label: SOURCE_LABELS[source], files: files[source] })),
     models,
+    days: [...byDay]
+      .sort(([a], [b]) => a.localeCompare(b))
+      .map(([date, tokens]) => ({ date, tokens })),
     weekly: [...byWeek]
       .sort(([a], [b]) => a.localeCompare(b))
       .map(([weekStart, tokens]) => ({ weekStart, tokens })),

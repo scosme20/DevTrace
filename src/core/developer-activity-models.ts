@@ -7,8 +7,14 @@ import type { AppearanceSettings } from "./appearance.js";
 export const DEFAULT_REPOSITORY_LIMIT = 6;
 export const DEFAULT_RELEASE_LIMIT = 5;
 
+/** What the heatmap colors mean. */
+export type HeatmapMode = "COMMITS" | "TOKEN_EFFICIENCY";
+export const HEATMAP_MODES = ["COMMITS", "TOKEN_EFFICIENCY"] as const;
+
 export interface DeveloperActivitySettings extends AppearanceSettings {
   readonly showHeatmap: boolean;
+  /** COMMITS (default) counts commits; TOKEN_EFFICIENCY colors days by tokens per commit. */
+  readonly heatmapMode: HeatmapMode;
   readonly showCommitActivity: boolean;
   readonly showRepositories: boolean;
   readonly showLanguages: boolean;

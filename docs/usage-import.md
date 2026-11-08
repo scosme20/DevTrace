@@ -31,6 +31,10 @@ pnpm generate:ai
 existing switch that shows token usage at all. Both are off by default, so nothing is published
 unless you choose to.
 
+The snapshot also keeps the tokens of each day (input plus output, all models), under `days`. They
+feed the `TOKEN_EFFICIENCY` heatmap of the Developer Activity dashboard. Files made before this was
+recorded stay valid; run the import again to add them.
+
 The snapshot also holds the tokens of each week (Monday to Sunday, input plus output of every
 model). Set `"showTokenTrend": true` to draw them as a trend panel. Weeks cut by the period are
 shown in gray, and the change between the last 4 weeks and the 4 before needs 8 complete weeks:

@@ -3,6 +3,7 @@ import { appearanceShape } from "./appearance.js";
 import {
   DEFAULT_RELEASE_LIMIT,
   DEFAULT_REPOSITORY_LIMIT,
+  HEATMAP_MODES,
   type DeveloperActivityConfig,
 } from "./developer-activity-models.js";
 import type { Result } from "./result.js";
@@ -17,6 +18,7 @@ const profileSchema = z.strictObject({
 const settingsSchema = z.strictObject({
   ...appearanceShape,
   showHeatmap: z.boolean().default(true),
+  heatmapMode: z.enum(HEATMAP_MODES).default("COMMITS"),
   showCommitActivity: z.boolean().default(true),
   showRepositories: z.boolean().default(true),
   showLanguages: z.boolean().default(true),

@@ -8,6 +8,10 @@ All notable changes to DevTrace are documented here. The format follows
 
 ### Added
 
+- `settings.heatmapMode: "TOKEN_EFFICIENCY"` for the Developer Activity dashboard: the heatmap colors each
+  day by the tokens spent per commit, ranked against the user's own days, tagged `ESTIMATED`. Days
+  without commits or tokens stay gray. `devtrace import usage` now also keeps the tokens of each day
+  (`days`). The default mode, `COMMITS`, is unchanged. See `docs/developer-activity-dashboard.md`.
 - `devtrace import git <folder> --label <name>`: counts the commits of a local clone, so a private
   repository can be shown without exposing it. Only counts, dates and file extensions are kept. The
   Developer Activity dashboard gets a "Local repositories" panel (`settings.showLocalGit`).

@@ -5,6 +5,7 @@ import type {
 } from "../../core/github-models.js";
 import type { GitRepositorySummary, GitSnapshot } from "../../core/git-snapshot.js";
 import type { DeveloperActivitySettings } from "../../core/developer-activity-models.js";
+import type { UsageSnapshot } from "../../core/usage-snapshot.js";
 
 // What the Developer Activity dashboard shows, computed from the GitHub
 // snapshot only. Nothing is guessed:
@@ -38,12 +39,70 @@ export interface CommitStats {
   /** The last day that had already happened when the data was fetched. */
   readonly to: string;
   readonly weeks: number;
+  /** The Sunday of the first week of the heatmap. */
+  readonly firstWeek: string;
   /** Column-major: seven values per week, Sunday first. `null` is a day that has not happened. */
   readonly heatmap: readonly (number | null)[];
   readonly months: readonly MonthCommits[];
   readonly byRepository: readonly { readonly fullName: string; readonly commits: number }[];
   /** Two equal, complete periods from the same data; absent when they cannot be compared. */
   readonly trend?: { readonly weeks: number; readonly current: number; readonly previous: number };
+}
+
+/** Days needed with both commits and tokens before the efficiency colors mean anything. */
+export const EFFICIENCY_MIN_DAYS = 8;
+const EFFICIENCY_LEVELS = 4;
+
+export interface EfficiencyStats {
+  /** Same layout as the commit heatmap. 1 to 4, where 4 is the fewest tokens per commit; `null` is unknown. */
+  readonly heatmap: readonly (number | null)[];
+  /** Days with commits on GitHub and tokens in the local logs. */
+  readonly matchedDays: number;
+  /** Median tokens per commit on those days. */
+  readonly median: number | undefined;
+  /** Enough matched days to color the grid. */
+  readonly ready: boolean;
+  /** Days of the window that have token data at all. */
+  readonly daysWithTokens: number;
+}
+
+/**
+ * Tokens per commit for each day that has both, ranked against the user's own
+ * other days. A day with no commits or no tokens is unknown, never good or bad.
+ */
+export function computeEfficiency(
+  commits: CommitStats,
+  usage: UsageSnapshot | undefined,
+): EfficiencyStats {
+  const tokensByDay = new Map((usage?.days ?? []).map((entry) => [entry.date, entry.tokens]));
+  const ratios = commits.heatmap.map((count, index): number | null => {
+    const tokens = tokensByDay.get(addDays(commits.firstWeek, index));
+    return count !== null && count > 0 && tokens !== undefined && tokens > 0
+      ? tokens / count
+      : null;
+  });
+  const sorted = ratios.filter((value): value is number => value !== null).sort((a, b) => a - b);
+  const ready = sorted.length >= EFFICIENCY_MIN_DAYS;
+  const median =
+    sorted.length === 0
+      ? undefined
+      : sorted.length % 2 === 1
+        ? sorted[(sorted.length - 1) / 2]
+        : ((sorted[sorted.length / 2 - 1] ?? 0) + (sorted[sorted.length / 2] ?? 0)) / 2;
+  const heatmap = ratios.map((ratio): number | null => {
+    if (ratio === null || !ready) return null;
+    const rank = sorted.indexOf(ratio);
+    return EFFICIENCY_LEVELS - Math.floor((rank / sorted.length) * EFFICIENCY_LEVELS);
+  });
+  const windowDays = new Set(commits.heatmap.map((_, index) => addDays(commits.firstWeek, index)));
+  return {
+    heatmap,
+    matchedDays: sorted.length,
+    median: median === undefined ? undefined : Math.round(median),
+    ready,
+    daysWithTokens: [...tokensByDay].filter(([day, tokens]) => windowDays.has(day) && tokens > 0)
+      .length,
+  };
 }
 
 export interface LanguageShare {
@@ -75,6 +134,8 @@ export interface ActivityStats {
   readonly withRelease: number;
   readonly lastPush: string | undefined;
   readonly commits?: CommitStats;
+  /** Only in the TOKEN_EFFICIENCY heatmap mode. */
+  readonly efficiency?: EfficiencyStats;
   readonly languages?: LanguageStats;
   /** Primary language per repository, as counts. Only when no byte data exists. */
   readonly primaryLanguages: readonly { readonly name: string; readonly repositories: number }[];
@@ -186,6 +247,7 @@ function computeCommits(
     from,
     to,
     weeks: weekStarts.length,
+    firstWeek: weekStarts[0] ?? from,
     heatmap,
     months,
     byRepository: [...repoTotals]
@@ -229,6 +291,7 @@ function computeLanguages(repositories: readonly GitHubRepository[]): LanguageSt
 export function computeActivityStats(
   snapshot: GitHubSnapshot | undefined,
   settings: DeveloperActivitySettings,
+  usage?: UsageSnapshot,
   gitSnapshot?: GitSnapshot,
 ): ActivityStats {
   const repositories = [...(snapshot?.repositories ?? [])].sort(newestFirst);
@@ -270,6 +333,9 @@ export function computeActivityStats(
     withRelease: releases.length,
     lastPush: pushes.sort().at(-1),
     ...(commits === undefined ? {} : { commits }),
+    ...(commits === undefined || settings.heatmapMode !== "TOKEN_EFFICIENCY"
+      ? {}
+      : { efficiency: computeEfficiency(commits, usage) }),
     ...(languages === undefined ? {} : { languages }),
     primaryLanguages:
       languages === undefined

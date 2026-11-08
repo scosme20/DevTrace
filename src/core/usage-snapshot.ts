@@ -18,12 +18,21 @@ export interface UsageModel {
   readonly outputTokens: number;
 }
 
+/** Input and output tokens of one day, all models together. */
+export interface UsageDay {
+  /** `YYYY-MM-DD`. */
+  readonly date: string;
+  readonly tokens: number;
+}
+
 export interface UsageSnapshot {
   readonly version: 1;
   readonly kind: "LOCAL_USAGE";
   readonly period: { readonly start: string; readonly end: string };
   readonly sources: readonly { readonly label: string; readonly files: number }[];
   readonly models: readonly UsageModel[];
+  /** Tokens per day, oldest first. Absent in files made before this was recorded. */
+  readonly days?: readonly UsageDay[] | undefined;
   /** Input plus output tokens of every model, per week. Absent in snapshots made before 0.8. */
   readonly weekly?: readonly UsageWeek[] | undefined;
 }
@@ -59,6 +68,10 @@ const snapshotSchema = z
       .array(z.strictObject({ label: requiredText("label").max(60), files: tokens }))
       .max(4),
     models: z.array(modelSchema).max(200),
+    days: z
+      .array(z.strictObject({ date: isoDate, tokens }))
+      .max(800)
+      .optional(),
     weekly: z
       .array(z.strictObject({ weekStart: isoDate, tokens }))
       .max(60)

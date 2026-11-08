@@ -4,6 +4,7 @@ import {
   loadDeveloperActivityConfig,
   loadGitHubSnapshot,
   loadGitSnapshot,
+  loadUsageSnapshot,
 } from "../core/config.js";
 import { writeIndicator } from "../core/output.js";
 import { DevTraceError } from "../core/result.js";
@@ -13,6 +14,7 @@ import { renderDeveloperActivityDashboard } from "../templates/developer-activit
 import { contrastWarnings } from "../templates/design-tokens.js";
 import { GIT_SNAPSHOT_FILE } from "./git.js";
 import { GITHUB_SNAPSHOT_FILE, INDICATORS_DIR, type GenerateOptions } from "./startup.js";
+import { USAGE_SNAPSHOT_FILE } from "./usage.js";
 
 export const DEVELOPER_ACTIVITY_CONFIG_FILE = "data/developer-activity.json";
 export const DEVELOPER_ACTIVITY_INDICATOR_FILE = "developer-activity.svg";
@@ -48,8 +50,18 @@ export async function generateDeveloperActivity(
     const settings = applyAppearanceOverrides(config.settings, options);
     contrastWarnings(settings).forEach((warning) => options.warn?.(warning));
 
+    const usage =
+      settings.heatmapMode === "TOKEN_EFFICIENCY"
+        ? await loadUsageSnapshot(path.join(rootDir, USAGE_SNAPSHOT_FILE))
+        : undefined;
+    if (settings.heatmapMode === "TOKEN_EFFICIENCY" && usage?.days === undefined) {
+      options.warn?.(
+        `settings.heatmapMode is TOKEN_EFFICIENCY but ${USAGE_SNAPSHOT_FILE} has no daily tokens. Run "devtrace import usage".`,
+      );
+    }
+
     const svg = renderDeveloperActivityDashboard(
-      computeActivityStats(snapshot, settings, gitSnapshot),
+      computeActivityStats(snapshot, settings, usage, gitSnapshot),
       {
         profile: config.profile,
         settings,
