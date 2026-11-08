@@ -22,12 +22,15 @@ entries are never drawn, and the same input always produces the same SVG.
 - Three indicators, each a complete static SVG: **Startup & SaaS**, **AI Engineering** and
   **Developer Activity**. The first two are also single-column cards; all three share one visual
   identity and can be used alone or together.
-- Five themes (`DARK`, `LIGHT`, `MIDNIGHT`, `MINIMAL`, `TRANSPARENT`), three layouts, custom
-  colors, fonts and dimensions.
+- Six themes (`DARK`, `LIGHT`, `MIDNIGHT`, `MINIMAL`, `TRANSPARENT` and the black, cyan and green
+  `TERMINAL`), three layouts, custom colors, fonts and dimensions.
 - A `validate` command that names the file, the field and a fix for every problem, and changes
   nothing.
 - Optional, read-only GitHub integration for public repository data: metadata, releases, languages
-  and commit activity.
+  and commit activity. Opt-in signals for the AI dashboard: releases as milestones, assistant
+  configuration files, AI topics and commits that name an AI co-author.
+- Optional local import of token usage from Claude Code and Codex logs (`devtrace import usage`):
+  model, time and token counts only, no text or paths, no network.
 - An optional GitHub Actions workflow that regenerates and commits the SVGs.
 - Private entries are removed before any statistic is computed.
 - Static SVGs with no scripts, no remote resources and escaped text.
@@ -112,7 +115,7 @@ Details and definitions: [docs/indicators.md](docs/indicators.md), and one page 
 
 ## Themes and customization
 
-`settings.theme` selects `DARK` (default), `LIGHT`, `MIDNIGHT`, `MINIMAL` or `TRANSPARENT`.
+`settings.theme` selects `DARK` (default), `LIGHT`, `MIDNIGHT`, `MINIMAL`, `TRANSPARENT` or `TERMINAL`.
 `settings.layout` selects `COMPACT`, `DEFAULT` or `EXPANDED`. Colors, typography and dimensions can
 be overridden one value at a time, and `--theme` / `--layout` override the file for a single run.
 
