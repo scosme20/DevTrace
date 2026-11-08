@@ -165,3 +165,70 @@ export function entryList(
     return { body: parts.join(""), width, height: y - gap };
   };
 }
+
+export interface Chip {
+  readonly label: string;
+  readonly value: string;
+  readonly tone?: Tone;
+}
+
+const CHIP_HEIGHT = 24;
+const CHIP_GAP = 8;
+
+/**
+ * Short facts as chips: a label on a quiet background and its value in an
+ * outlined cell. Chips wrap into lines that fit the width.
+ */
+export function chipStrip(tokens: DesignTokens, chips: readonly Chip[]): Builder {
+  const { palette, font, box, visual } = tokens;
+  return (width) => {
+    let x = 0;
+    let line = 0;
+    const parts: string[] = [];
+    for (const chip of chips) {
+      const label = fit(tokens, chip.label, width / 3, font.small, true);
+      const labelWidth = Math.ceil(measure(tokens, label, font.small, true)) + 20;
+      const value = fit(tokens, chip.value, Math.max(0, width - labelWidth - 20), font.label);
+      const chipWidth = labelWidth + Math.ceil(measure(tokens, value, font.label)) + 20;
+      if (x > 0 && x + chipWidth > width) {
+        x = 0;
+        line += 1;
+      }
+      const y = line * (CHIP_HEIGHT + CHIP_GAP);
+      const color = visual.tones[chip.tone ?? "primary"];
+      parts.push(
+        element("rect", {
+          x,
+          y,
+          width: labelWidth,
+          height: CHIP_HEIGHT,
+          rx: Math.min(box.tileRadius, 6),
+          fill: visual.surfaceSecondary,
+        }),
+        element("rect", {
+          x: round(x + labelWidth + 0.5),
+          y: y + 0.5,
+          width: chipWidth - labelWidth - 1,
+          height: CHIP_HEIGHT - 1,
+          rx: Math.min(box.tileRadius, 6),
+          fill: "none",
+          stroke: color,
+        }),
+        text(label, {
+          x: x + 10,
+          y: y + 16,
+          fill: palette.text,
+          size: font.small,
+          weight: font.emphasis,
+        }),
+        text(value, { x: x + labelWidth + 10, y: y + 16, fill: color, size: font.label }),
+      );
+      x += chipWidth + CHIP_GAP;
+    }
+    return {
+      body: parts.join(""),
+      width,
+      height: chips.length === 0 ? 0 : (line + 1) * (CHIP_HEIGHT + CHIP_GAP) - CHIP_GAP,
+    };
+  };
+}

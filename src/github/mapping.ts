@@ -3,6 +3,7 @@ import type {
   GitHubCollectSettings,
   GitHubRelease,
   GitHubRepository,
+  RepositoryFindings,
   RepositoryLanguage,
 } from "../core/github-models.js";
 import type { CommitActivityWeek, ReleaseResponse, RepositoryResponse } from "./repositories.js";
@@ -56,6 +57,8 @@ export interface ExtraData {
   readonly release?: GitHubRelease | undefined;
   readonly languages?: readonly RepositoryLanguage[] | undefined;
   readonly commitActivity?: readonly CommitWeek[] | undefined;
+  readonly releases?: readonly GitHubRelease[] | undefined;
+  readonly findings?: RepositoryFindings | undefined;
 }
 
 export function mapRepository(
@@ -63,7 +66,7 @@ export function mapRepository(
   collect: GitHubCollectSettings,
   extra: ExtraData = {},
 ): GitHubRepository {
-  const { release, languages, commitActivity } = extra;
+  const { release, languages, commitActivity, releases, findings } = extra;
   const description =
     collect.description && raw.description != null ? sanitizeText(raw.description, 200) : undefined;
   const language =
@@ -83,6 +86,8 @@ export function mapRepository(
     ...(collect.releases && release !== undefined ? { latestRelease: release } : {}),
     ...(languages === undefined || languages.length === 0 ? {} : { languages }),
     ...(commitActivity === undefined ? {} : { commitActivity }),
+    ...(releases === undefined || releases.length === 0 ? {} : { releases }),
+    ...(findings === undefined ? {} : { findings }),
     provenance: "OBSERVED",
   };
 }

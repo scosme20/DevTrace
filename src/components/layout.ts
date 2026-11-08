@@ -2,6 +2,7 @@ import { DevTraceError } from "../core/result.js";
 import { element, text } from "../shared/svg.js";
 import { fit, type DesignTokens } from "../templates/design-tokens.js";
 import { place, round, type Builder, type Fragment } from "./fragment.js";
+import { badge, type LabelData } from "./metrics.js";
 
 // Layout is deterministic arithmetic: every item is given an integer width by
 // `splitWidth`, builds itself for that width, and is placed in its own cell, so
@@ -145,6 +146,8 @@ export interface PanelOptions {
   /** Draw the frame. Without it the panel is a plain titled section. */
   readonly framed?: boolean;
   readonly minHeight?: number;
+  /** A small badge on the right of the title, for where the data of the panel comes from. */
+  readonly tag?: LabelData;
 }
 
 /** A titled container. As a section container it has no frame and no padding. */
@@ -156,16 +159,20 @@ export function panel(tokens: DesignTokens, options: PanelOptions): Builder {
   const render = (width: number, minHeight: number): Fragment => {
     const inner = Math.max(0, width - 2 * padding);
     const content = options.content(inner);
+    const tag = options.tag === undefined ? undefined : badge(tokens, options.tag, inner / 2);
     const heading =
       options.title === undefined
         ? ""
-        : text(fit(tokens, options.title.toUpperCase(), inner, font.small), {
-            x: padding,
-            y: padding + font.small,
-            fill: palette.mutedText,
-            size: font.small,
-            weight: font.emphasis,
-          });
+        : text(
+            fit(tokens, options.title.toUpperCase(), inner - (tag?.width ?? 0) - 8, font.small),
+            {
+              x: padding,
+              y: padding + font.small,
+              fill: palette.mutedText,
+              size: font.small,
+              weight: font.emphasis,
+            },
+          );
     const headingHeight = options.title === undefined ? 0 : visual.panelHeadingHeight;
     const height = Math.max(minHeight, 2 * padding + headingHeight + content.height);
     const frame = framed
@@ -181,7 +188,11 @@ export function panel(tokens: DesignTokens, options: PanelOptions): Builder {
         })
       : "";
     return {
-      body: frame + heading + place(content, padding, padding + headingHeight),
+      body:
+        frame +
+        heading +
+        (tag === undefined ? "" : place(tag, width - padding - tag.width, padding - 4)) +
+        place(content, padding, padding + headingHeight),
       width,
       height: round(height),
       resize: (taller) => render(width, taller),

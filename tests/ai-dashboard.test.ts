@@ -79,8 +79,8 @@ const PANEL_TITLES = {
   models: "AI FOUNDATION MODELS",
   skills: "AI ENGINEERING SKILLS · DECLARED LEVELS",
   projects: "AI PROJECTS",
-  activity: "AI ENGINEERING ACTIVITY · DECLARED RECORDS",
-  tokens: "TOKEN USAGE · REPORTED VALUES",
+  activity: "AI CONTRIBUTIONS · DECLARED RECORDS",
+  tokens: "TOKEN ECONOMICS · REPORTED VALUES",
 } as const;
 
 function size(svg: string): { width: number; height: number } {
@@ -416,7 +416,9 @@ describe("layout composition", () => {
   it("grows taller with more content but stays bounded by the list limits", () => {
     const many = (n: number, make: (i: number) => Record<string, unknown>) =>
       Array.from({ length: n }, (_, i) => make(i));
-    const small = size(render()).height;
+    const small = size(
+      render({ models: [], skills: [], projects: [], activities: [], tokenUsage: [] }),
+    ).height;
     const big = size(
       render({
         tools: many(40, (i) => makeTool({ id: `t${String(i)}`, name: `Tool ${String(i)}` })),
@@ -436,7 +438,7 @@ describe("layout composition", () => {
         projects: [],
         tools: many(40, (i) => makeTool({ id: `t${String(i)}`, name: `Tool ${String(i)}` })),
       }),
-    ).toContain("+35 more");
+    ).toContain("+36 more");
   });
 });
 

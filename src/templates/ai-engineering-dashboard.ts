@@ -9,16 +9,20 @@ import type { ProjectStatus, StartupProfile } from "../core/models.js";
 import {
   badgeRow,
   caption,
+  chipStrip,
   distributionBar,
   entryList,
   grid,
   horizontalBarChart,
+  levelMeter,
   panel,
   progressBar,
   stack,
   type BadgeSpec,
   type Builder,
+  type Chip,
   type EntryItem,
+  type LabelData,
   type MetricCardData,
 } from "../components/index.js";
 import {
@@ -31,6 +35,7 @@ import type { AiEngineeringStats } from "../indicators/ai-engineering/stats.js";
 import {
   ACTIVITY_LABELS,
   INVOLVEMENT_LABELS,
+  FREQUENCY_LABELS,
   PROFICIENCY_LABELS,
   SKILL_CATEGORY_LABELS,
   TECHNIQUE_LABELS,
@@ -100,6 +105,26 @@ function provenanceBadge(provenance: Provenance): BadgeSpec {
   return { label: label(provenance), tone: PROVENANCE_TONES[provenance] };
 }
 
+/** Where the data of a panel comes from: one word when every record agrees, "Mixed" when not. */
+function sourceTag(items: readonly { readonly provenance: Provenance }[]): LabelData | undefined {
+  const [first] = items;
+  if (first === undefined) return undefined;
+  return items.every((item) => item.provenance === first.provenance)
+    ? { label: label(first.provenance), tone: PROVENANCE_TONES[first.provenance] }
+    : { label: "Mixed", tone: "muted" };
+}
+
+/** With a uniform source the panel tag says it all; rows repeat it only when sources differ. */
+function isUniform(items: readonly { readonly provenance: Provenance }[]): boolean {
+  return items.every((item) => item.provenance === items[0]?.provenance);
+}
+
+function formatContext(tokens: number): string {
+  return tokens >= 1_000_000
+    ? `${String(tokens / 1_000_000)}M ctx`
+    : `${String(Math.round(tokens / 1000))}k ctx`;
+}
+
 function formatMetricValue(metric: TokenUsageMetric): string {
   if (metric.kind === "ESTIMATED_COST") {
     return new Intl.NumberFormat("en-US", { style: "currency", currency: metric.unit }).format(
@@ -139,12 +164,13 @@ function toolsPanel(model: AiDashboardModel, tokens: DesignTokens): Builder | un
       ...(tool.experienceLevel === undefined
         ? []
         : [{ label: PROFICIENCY_LABELS[tool.experienceLevel], tone: "primary" as const }]),
-      provenanceBadge(tool.provenance),
+      ...(isUniform(tools.items) ? [] : [provenanceBadge(tool.provenance)]),
     ],
     ...(tool.usageType === undefined ? {} : { trailing: USAGE_TYPE_LABELS[tool.usageType] }),
   }));
   return panel(tokens, {
     title: "AI tools & providers",
+    ...tagOption(sourceTag(tools.items)),
     content: stack({ gap: tokens.visual.gap }, [
       ...(tools.byCategory.length > 1
         ? [
@@ -173,16 +199,41 @@ function modelsPanel(
 ): Builder | undefined {
   const { models } = model;
   if (models === undefined) return undefined;
-  const entries: EntryItem[] = models.items.map((item) => ({
-    title: item.name,
-    subtitle: `${item.provider} · ${item.modelFamily}`,
-    badges: [provenanceBadge(item.provenance)],
-    ...(item.usageContext === undefined ? {} : { trailing: item.usageContext }),
-  }));
+  const shareById = new Map(
+    (model.tokenUsage?.shares ?? []).map((share) => [share.model.id, share.percent]),
+  );
+  const entries: EntryItem[] = models.items.map((item) => {
+    const share = shareById.get(item.id);
+    // A share that rounds to zero is still not zero: say so instead of "0%".
+    const trailing =
+      share === undefined ? item.usageContext : `${share === 0 ? "<1" : String(share)}% of tokens`;
+    return {
+      title: item.name,
+      subtitle: [
+        item.provider,
+        item.modelFamily,
+        item.capability,
+        item.contextWindow === undefined ? undefined : formatContext(item.contextWindow),
+      ]
+        .filter((part) => part !== undefined)
+        .join(" · "),
+      ...(isUniform(models.items) ? {} : { badges: [provenanceBadge(item.provenance)] }),
+      ...(trailing === undefined ? {} : { trailing }),
+    };
+  });
   return panel(tokens, {
     title: "AI foundation models",
+    ...tagOption(sourceTag(models.items)),
     content: stack({ gap: tokens.visual.gap }, [
       ...(showProviders && model.providers.length > 0 ? [providersBlock(model, tokens)] : []),
+      ...(shareById.size === 0 || model.tokenUsage?.period === undefined
+        ? []
+        : [
+            caption(
+              tokens,
+              `Share of reported total tokens · ${model.tokenUsage.period.start.slice(0, 10)} to ${model.tokenUsage.period.end.slice(0, 10)}`,
+            ),
+          ]),
       entryList(tokens, entries, { hidden: models.hidden }),
     ]),
   });
@@ -196,12 +247,15 @@ function skillsPanel(model: AiDashboardModel, tokens: DesignTokens): Builder | u
     stack({ gap: 8 }, [
       caption(tokens, SKILL_CATEGORY_LABELS[group.category], "primary"),
       ...group.skills.map((skill) =>
-        // The bar shows a self-declared level on a five-step scale, not a measurement.
-        progressBar(tokens, {
+        // Separate steps: a declared level on a five-step scale, not a measurement.
+        levelMeter(tokens, {
           label: skill.name,
-          value: PROFICIENCY_LEVELS.indexOf(skill.proficiencyLevel) + 1,
-          max: levels,
-          valueText: PROFICIENCY_LABELS[skill.proficiencyLevel],
+          level: PROFICIENCY_LEVELS.indexOf(skill.proficiencyLevel) + 1,
+          steps: levels,
+          valueText:
+            skill.frequency === undefined
+              ? PROFICIENCY_LABELS[skill.proficiencyLevel]
+              : `${PROFICIENCY_LABELS[skill.proficiencyLevel]} · ${FREQUENCY_LABELS[skill.frequency]}`,
           tone: PROVENANCE_TONES[skill.provenance] === "warning" ? "warning" : "primary",
         }),
       ),
@@ -213,6 +267,7 @@ function skillsPanel(model: AiDashboardModel, tokens: DesignTokens): Builder | u
     const columns = inner >= MIN_TWO_COLUMN_SKILLS ? 2 : 1;
     return panel(tokens, {
       title: "AI engineering skills · declared levels",
+      ...tagOption(sourceTag(skills.groups.flatMap((group) => group.skills))),
       content: grid({ columns, gap: tokens.visual.gap * 2 }, groups),
     })(width);
   };
@@ -250,7 +305,11 @@ function projectsPanel(
       title: project.name,
       tone: STATUS_TONES[project.status],
       trailing: label(project.status),
-      subtitle: [project.category, links, label(project.provenance)]
+      subtitle: [
+        project.category,
+        links,
+        isUniform(projects.items.map((entry) => entry.project)) ? "" : label(project.provenance),
+      ]
         .filter((part) => part !== "")
         .join(" · "),
       ...(detail === undefined ? {} : { detail }),
@@ -262,15 +321,21 @@ function projectsPanel(
   });
   return panel(tokens, {
     title: "AI projects",
+    ...tagOption(sourceTag(projects.items.map((entry) => entry.project))),
     content: entryList(tokens, entries, { hidden: projects.hidden }),
   });
 }
 
-function activityPanel(model: AiDashboardModel, tokens: DesignTokens): Builder | undefined {
+function activityPanel(
+  model: AiDashboardModel,
+  tokens: DesignTokens,
+  showDescriptions: boolean,
+): Builder | undefined {
   const { activity } = model;
   if (activity === undefined) return undefined;
   return panel(tokens, {
-    title: "AI engineering activity · declared records",
+    title: "AI contributions · declared records",
+    ...tagOption(sourceTag(activity.recent)),
     content: stack({ gap: tokens.visual.gap }, [
       stack({ gap: 6 }, [
         caption(tokens, "By involvement"),
@@ -306,13 +371,34 @@ function activityPanel(model: AiDashboardModel, tokens: DesignTokens): Builder |
             title: ACTIVITY_LABELS[record.activityType],
             tone: INVOLVEMENT_TONES[record.involvement],
             trailing: record.date.slice(0, 10),
-            subtitle: `${INVOLVEMENT_LABELS[record.involvement]} · ${label(record.provenance)}`,
-            detail: record.description,
+            subtitle: [
+              INVOLVEMENT_LABELS[record.involvement],
+              isUniform(activity.recent) ? "" : label(record.provenance),
+            ]
+              .filter((part) => part !== "")
+              .join(" · "),
+            ...(showDescriptions ? { detail: record.description } : {}),
           })),
           { hidden: Math.max(0, activity.total - activity.recent.length) },
         ),
       ]),
     ]),
+  });
+}
+
+function milestonesPanel(model: AiDashboardModel, tokens: DesignTokens): Builder | undefined {
+  const { milestones } = model;
+  if (milestones === undefined) return undefined;
+  const entries: EntryItem[] = milestones.items.map((milestone) => ({
+    title: milestone.title,
+    tone: "primary",
+    trailing: milestone.date.slice(0, 10),
+    ...(milestone.description === undefined ? {} : { subtitle: milestone.description }),
+  }));
+  return panel(tokens, {
+    title: "AI engineering milestones",
+    ...tagOption(sourceTag(milestones.items)),
+    content: entryList(tokens, entries, { hidden: milestones.hidden }),
   });
 }
 
@@ -323,15 +409,110 @@ function tokenPanel(model: AiDashboardModel, tokens: DesignTokens): Builder | un
     title: usedModel.name,
     trailing: formatMetricValue(metric),
     subtitle: `${TOKEN_KIND_LABELS[metric.kind]} · ${metric.period.start.slice(0, 10)} to ${metric.period.end.slice(0, 10)}`,
-    detail: [usedModel.provider, label(metric.provenance), metric.source]
+    detail: [
+      usedModel.provider,
+      isUniform(tokenUsage.items.map(({ metric: m }) => m)) ? undefined : label(metric.provenance),
+      metric.source,
+    ]
       .filter((part) => part !== undefined)
       .join(" · "),
   }));
   return panel(tokens, {
-    // Each row is one reported measurement. DevTrace adds nothing up and estimates nothing.
-    title: "Token usage · reported values",
-    content: entryList(tokens, entries, { hidden: tokenUsage.hidden }),
+    // Each row is one reported measurement. Nothing is estimated: a cache hit rate is
+    // shown only where the same model reported input and cached input for one period.
+    title: "Token economics · reported values",
+    ...tagOption(sourceTag(tokenUsage.items.map(({ metric }) => metric))),
+    content: stack({ gap: tokens.visual.gap }, [
+      ...(tokenUsage.cacheHits.length === 0
+        ? []
+        : [
+            stack({ gap: 6 }, [
+              caption(tokens, "Cache hit · cached input ÷ input, same model and period"),
+              ...tokenUsage.cacheHits.map((hit) =>
+                progressBar(tokens, {
+                  label: `${hit.model.name} · ${hit.period.start.slice(0, 10)} to ${hit.period.end.slice(0, 10)}`,
+                  value: hit.percent,
+                  max: 100,
+                  valueText: `${String(hit.percent)}%`,
+                  tone: "success",
+                }),
+              ),
+            ]),
+          ]),
+      entryList(tokens, entries, { hidden: tokenUsage.hidden }),
+    ]),
   });
+}
+
+function foundPanel(model: AiDashboardModel, tokens: DesignTokens): Builder | undefined {
+  const { found } = model;
+  if (found === undefined || found.repositories.length === 0) return undefined;
+  const entries: EntryItem[] = found.repositories.map((repository) => ({
+    title: repository.name,
+    tone: "success",
+    ...(repository.coauthored === undefined
+      ? {}
+      : {
+          trailing: `${String(repository.coauthored.matching)} of ${String(repository.coauthored.inspected)} commits`,
+        }),
+    badges: [
+      ...repository.toolFiles.map((tool) => ({ label: tool, tone: "primary" as const })),
+      ...repository.aiTopics.map((topic) => ({ label: topic })),
+    ],
+  }));
+  return panel(tokens, {
+    title: "AI in my repositories · found on GitHub",
+    tag: { label: "Observed", tone: "success" },
+    content: stack({ gap: tokens.visual.gap }, [
+      caption(
+        tokens,
+        found.coauthored === undefined
+          ? "Assistant files and AI topics · not a share of AI code"
+          : "Co-authors declared in commits · not a share of AI code",
+      ),
+      entryList(tokens, entries, { hidden: found.hidden }),
+    ]),
+  });
+}
+
+function stackChips(model: AiDashboardModel): Chip[] {
+  return [
+    ...(model.stack.length === 0
+      ? []
+      : [{ label: "AI Stack", value: model.stack.join(" · "), tone: "success" as const }]),
+    ...(model.topModel === undefined
+      ? []
+      : [
+          {
+            label: "Top Model",
+            value: `${model.topModel.model.name} · ${String(model.topModel.percent)}%`,
+            tone: "primary" as const,
+          },
+        ]),
+    ...(model.found?.coauthored === undefined
+      ? []
+      : [
+          {
+            label: "AI Co-authored",
+            value: `${String(model.found.coauthored.matching)} of ${String(model.found.coauthored.inspected)} recent commits`,
+            tone: "primary" as const,
+          },
+        ]),
+    ...(model.cacheHit === undefined
+      ? []
+      : [
+          {
+            label: "Cache Hit",
+            value: `${String(model.cacheHit.percent)}%`,
+            tone: "success" as const,
+          },
+        ]),
+  ];
+}
+
+/** A panel option object that leaves the key out when there is no tag. */
+function tagOption(tag: LabelData | undefined): { tag?: LabelData } {
+  return tag === undefined ? {} : { tag };
 }
 
 export function renderAiEngineeringDashboard(
@@ -350,14 +531,17 @@ export function renderAiEngineeringDashboard(
     generatorVersion,
     settings,
     metrics: metricCards(model.metrics),
+    chips: stackChips(model).length === 0 ? undefined : chipStrip(tokens, stackChips(model)),
     panels: [
       { build: toolsPanel(model, tokens), span: 1 },
       // Providers are listed once: with the tools if they are shown, else with the models.
       { build: modelsPanel(model, tokens, model.tools === undefined), span: 1 },
       { build: skillsPanel(model, tokens), span: 2 },
       { build: projectsPanel(model, settings, display.descriptions, tokens), span: 1 },
-      { build: activityPanel(model, tokens), span: 1 },
-      { build: tokenPanel(model, tokens), span: 2 },
+      { build: activityPanel(model, tokens, display.descriptions), span: 1 },
+      { build: foundPanel(model, tokens), span: 1 },
+      { build: tokenPanel(model, tokens), span: 1 },
+      { build: milestonesPanel(model, tokens), span: 1 },
     ],
     emptyMessage: "No AI engineering data to display.",
   });

@@ -15,6 +15,10 @@ export interface GitHubCollectSettings {
   readonly languages?: boolean | undefined;
   /** Commits per day for the last 52 weeks (one extra call per repository). Off unless set. */
   readonly commitActivity?: boolean | undefined;
+  /** Every published release, not only the latest (one extra call per repository). Off unless set. */
+  readonly releaseHistory?: boolean | undefined;
+  /** AI signals: assistant configuration files, AI topics and co-author trailers (two extra calls per repository). Off unless set. */
+  readonly aiSignals?: boolean | undefined;
 }
 
 export interface GitHubRepositorySelection {
@@ -57,6 +61,26 @@ export interface CommitWeek {
   readonly days: readonly number[];
 }
 
+/** What was found in a repository that points at AI assistants. */
+export interface RepositoryFindings {
+  /** Assistants that have a configuration file in the repository. */
+  readonly toolFiles: readonly string[];
+  /** AI-related topics of the repository, as readable names. */
+  readonly aiTopics: readonly string[];
+  /**
+   * Commits by the configured user whose message names an AI assistant as a
+   * co-author. It counts a declaration in the message, not how much code an AI wrote.
+   */
+  readonly coauthored?:
+    | {
+        /** How many recent commits by the user were looked at. */
+        readonly inspected: number;
+        readonly matching: number;
+        readonly assistants: readonly { readonly name: string; readonly count: number }[];
+      }
+    | undefined;
+}
+
 export interface GitHubRepository {
   /** `owner/name`. */
   readonly fullName: string;
@@ -73,6 +97,10 @@ export interface GitHubRepository {
   readonly latestRelease?: GitHubRelease | undefined;
   /** Present only when `collect.languages` was on and GitHub answered. */
   readonly languages?: readonly RepositoryLanguage[] | undefined;
+  /** Present only when `collect.releaseHistory` was on. Newest first. */
+  readonly releases?: readonly GitHubRelease[] | undefined;
+  /** Present only when `collect.aiSignals` was on. */
+  readonly findings?: RepositoryFindings | undefined;
   /** Present only when `collect.commitActivity` was on and GitHub had the statistics ready. */
   readonly commitActivity?: readonly CommitWeek[] | undefined;
   /** Always OBSERVED: the value was read from the GitHub API, never typed in. */

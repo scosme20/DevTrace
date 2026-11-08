@@ -73,6 +73,7 @@ DevTrace reads `data/startup.json`, `data/ai-engineering.json` and, optionally,
 - [Developer Activity Dashboard](docs/developer-activity-dashboard.md): commit heatmap, languages and releases from the GitHub data.
 - [Startup & SaaS Dashboard](docs/startup-dashboard.md): the multi-panel version of the Startup indicator.
 - [Using the SVGs in your profile](docs/github-profile.md): embedding, updating, tokens, problems.
+- [Token usage from local logs](docs/usage-import.md): fill the Token Economics panel automatically.
 - [AI Engineering Dashboard](docs/ai-engineering-dashboard.md): the multi-panel version of the AI indicator.
 - [SVG components](docs/svg-components.md): the reusable chart, metric and layout components for contributors.
 - [`examples/`](examples): complete files for startup, AI engineering, `LIGHT` with `COMPACT`,
@@ -88,6 +89,7 @@ Environment variables: only `GITHUB_TOKEN`, optional, read by `sync` and never s
 | `devtrace validate [target]`   | Check the configuration; writes nothing                          |
 | `devtrace generate [target]`   | Write the SVGs. Options: `--theme`, `--layout`, `--output`       |
 | `devtrace sync [--force]`      | Read public GitHub data (the only command that uses the network) |
+| `devtrace import usage`        | Read token usage from local Claude Code and Codex logs           |
 | `devtrace --help`, `--version` | Help and version                                                 |
 
 Exit codes: `0` success, `1` failure, `2` usage error. In this repository run it with

@@ -23,21 +23,25 @@ placeholders: replace them with your own data.
 A panel is drawn only when its section is enabled and has public data. Missing panels leave no gap:
 two narrow panels share a row, and a narrow panel without a partner takes the whole row.
 
-| Panel                   | Setting          | What it shows                                                                                              |
-| ----------------------- | ---------------- | ---------------------------------------------------------------------------------------------------------- |
-| Metrics strip           | `showSummary`    | Counts of tools, providers, models, skills, projects and activity records (only for sections with data)    |
-| AI tools & providers    | `showTools`      | Tools by category, the providers, and each tool with its provider, category, declared level and provenance |
-| AI foundation models    | `showModels`     | Each model with its provider, family, usage context and provenance                                         |
-| AI engineering skills   | `showSkills`     | Skills grouped by category, with the level you declared on a five-step scale                               |
-| AI projects             | `showProjects`   | Public projects: status, category, techniques, public tools used, link kinds (`showLinks`), provenance     |
-| AI engineering activity | `showActivity`   | Records by involvement and by type, and the most recent records                                            |
-| Token usage             | `showTokenUsage` | The measurements you reported, one row each; costs only with `showCost`                                    |
+| Panel                     | Setting          | What it shows                                                                                                      |
+| ------------------------- | ---------------- | ------------------------------------------------------------------------------------------------------------------ |
+| Metrics strip             | `showSummary`    | Counts of tools, providers, models, skills, projects and activity records (only for sections with data)            |
+| Chips                     | `showSummary`    | The AI stack (the first tools), the top model by reported tokens and the cache hit, each only when its data exists |
+| AI tools & providers      | `showTools`      | Tools by category, the providers, and each tool with its provider, category and declared level                     |
+| AI foundation models      | `showModels`     | Each model with provider, family, capability and context window; its share of the reported tokens                  |
+| AI engineering skills     | `showSkills`     | Skills grouped by category, with the level and, if declared, how often you use them                                |
+| AI projects               | `showProjects`   | Public projects: status, category, techniques, public tools used, link kinds (`showLinks`)                         |
+| AI contributions          | `showActivity`   | Declared records by involvement and by type, and the most recent records                                           |
+| Token economics           | `showTokenUsage` | The measurements you reported, one row each, and the cache hit; costs only with `showCost`                         |
+| AI engineering milestones | `showMilestones` | Dated steps you declare, newest first. No levels, tiers or badges                                                  |
+
+Every panel has a small tag in its header with where its data comes from (`Declared`, `Observed`,
+`Estimated`, or `Mixed` when the records differ). With a uniform source the rows do not repeat it;
+with mixed sources each row keeps its own.
 
 Each list shows a limited number of entries (5 tools, 5 models, 3 skills per category, 3 projects,
 3 recent records, 4 token rows) and ends with "+N more" for the rest. The same display options as the
 card apply: `showTitle`, `showSummary`, `showDescriptions` and `showFooter`.
-
-The milestones panel is not implemented: the configuration has no milestone data.
 
 ## Themes and size
 
@@ -55,6 +59,15 @@ the width of the README, so very large widths reduce legibility.
 - Skill levels are your own statements. They are not certifications or measurements.
 - Activity records keep the distinction between AI-assisted, AI-generated and AI-related
   engineering. DevTrace does not classify commits and does not read repositories to decide this.
+- **Cache hit** is cached input tokens divided by input tokens. It exists only where the same model
+  reported both for the same period and the input is not zero; pairs from different periods or models
+  are never combined. The chip appears only when every pair covers the same period.
+- **Share of tokens** is a model's part of the reported `TOTAL_TOKENS`, and exists only when all the
+  totals cover one shared period. It says nothing about quality.
+- **Token usage can be imported** from your local Claude Code and Codex logs instead of typed: see
+  [Token usage from local logs](usage-import.md).
+- **Milestones** are declared by you (`milestones` in `data/ai-engineering.json`). A milestone of a
+  private project is never drawn.
 - Token rows are the values you reported. DevTrace estimates nothing and adds nothing up. Costs are
   hidden unless `showCost` is `true`, and are labeled as estimated costs.
 - There is no productivity, efficiency or "AI-generated code" score, because nothing in the data
@@ -84,3 +97,35 @@ See the [GitHub Actions workflow](github-integration.md#github-actions) to keep 
 statistics. `src/templates/ai-engineering-dashboard.ts` draws it with the
 [SVG components](svg-components.md). Neither duplicates the privacy filter, which runs once in
 `selectPublicAiData`.
+
+## AI signals found on GitHub
+
+With `"githubSignals": true` in `settings`, the dashboard also uses what the GitHub snapshot shows. It
+needs the data, collected by `devtrace sync` with these options in `data/github.json`
+(see [examples/github-ai-signals.json](../examples/github-ai-signals.json)):
+
+```json
+"collect": { "releaseHistory": true, "aiSignals": true }
+```
+
+Everything below is `OBSERVED` on GitHub, comes from public repositories only, and is labeled "found on
+GitHub". None of it is a measure of how much work an AI did.
+
+- **Milestones from releases.** Each published release (drafts and pre-releases excluded) becomes a
+  milestone: "repository tag", on the date it was published. They are mixed, by date, with the
+  milestones you declared.
+- **AI in my repositories.** One row per repository where something was found:
+  - **Assistant files:** `CLAUDE.md` or `.claude/`, `AGENTS.md`, `.cursorrules` or `.cursor/`,
+    `.github/copilot-instructions.md`, `GEMINI.md`, `.windsurfrules` at the expected path. They show
+    that an assistant was set up in the repository, not how much it was used.
+  - **AI topics** of the repository (for example `llm`, `rag`, `ai-agents`): labels the owner chose.
+  - **Co-authored commits:** of your 100 most recent commits in the repository, how many have a
+    `Co-authored-by:` line that names an AI assistant. It counts a declaration in the message. A
+    commit with no such line may still have had help, and the line says nothing about how much of the
+    code came from the AI.
+- **A chip** at the top ("AI Co-authored: 20 of 50 recent commits") sums the repositories whose commits
+  were looked at, and says how many commits that is.
+
+Only the assistant's name and counts are kept: commit text is read to find the trailer and is never
+stored, and the snapshot rejects any other field. The panel does not guess projects or tools from
+dependencies or from code.

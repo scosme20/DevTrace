@@ -37,6 +37,8 @@ export interface DashboardOptions {
   readonly generatorVersion: string;
   readonly settings: AppearanceSettings;
   readonly metrics: readonly MetricCardData[];
+  /** Chips under the metrics, for a few short facts. */
+  readonly chips?: Builder | undefined;
   /** One muted line under the metrics, for the scope of the data. */
   readonly notice?: string | undefined;
   readonly panels: readonly DashboardPanel[];
@@ -68,6 +70,7 @@ export function composeDashboard(options: DashboardOptions): string {
     ...(display.summary && options.metrics.length > 0
       ? [metricsStrip(options.metrics, tokens)]
       : []),
+    ...(options.chips === undefined ? [] : [options.chips]),
     ...(options.notice === undefined || slots.length + options.metrics.length === 0
       ? []
       : [caption(tokens, options.notice)]),

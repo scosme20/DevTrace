@@ -1,9 +1,13 @@
-import type { GitHubConfig, GitHubRepository } from "../core/github-models.js";
+import type { GitHubConfig, GitHubRepository, RepositoryFindings } from "../core/github-models.js";
 import { DevTraceError } from "../core/result.js";
 import { GitHubApiError, type GitHubClient } from "./client.js";
+import { aiTopics, coauthorAssistants, detectToolFiles } from "./ai-signals.js";
 import { mapCommitActivity, mapLanguages, mapRelease, mapRepository } from "./mapping.js";
 import {
   fetchCommitActivity,
+  fetchCommitMessages,
+  fetchReleases,
+  fetchTreePaths,
   fetchLanguages,
   fetchLatestRelease,
   fetchRepository,
@@ -99,7 +103,66 @@ export async function collectRepositories(
         commitActivity = mapCommitActivity(weeks);
       }
     }
-    result.push(mapRepository(repository, collect, { release, languages, commitActivity }));
+    const releases =
+      collect.releaseHistory === true
+        ? (await fetchReleases(client, repository.full_name))
+            // Drafts are not public, and a pre-release is not a milestone.
+            .filter((raw) => raw.prerelease !== true)
+            .flatMap((raw) => mapRelease(raw) ?? [])
+            .sort(
+              (a, b) =>
+                b.publishedAt.localeCompare(a.publishedAt) || a.tagName.localeCompare(b.tagName),
+            )
+        : undefined;
+    const findings =
+      collect.aiSignals === true
+        ? await findRepositoryFindings(client, repository, config.username)
+        : undefined;
+    result.push(
+      mapRepository(repository, collect, {
+        release,
+        languages,
+        commitActivity,
+        releases,
+        findings,
+      }),
+    );
   }
   return result.sort((a, b) => a.fullName.localeCompare(b.fullName));
+}
+
+/**
+ * Looks for AI signals in one repository: configuration files of assistants,
+ * AI-related topics, and commits by the user that name an AI co-author.
+ */
+async function findRepositoryFindings(
+  client: GitHubClient,
+  repository: RepositoryResponse,
+  username: string,
+): Promise<RepositoryFindings> {
+  const paths = await fetchTreePaths(client, repository.full_name);
+  const messages = await fetchCommitMessages(client, repository.full_name, username);
+
+  const counts = new Map<string, number>();
+  let matching = 0;
+  for (const message of messages) {
+    const assistants = coauthorAssistants(message);
+    if (assistants.length > 0) matching += 1;
+    for (const name of assistants) counts.set(name, (counts.get(name) ?? 0) + 1);
+  }
+  return {
+    toolFiles: detectToolFiles(paths ?? []),
+    aiTopics: aiTopics(repository.topics ?? []),
+    ...(messages.length === 0
+      ? {}
+      : {
+          coauthored: {
+            inspected: messages.length,
+            matching,
+            assistants: [...counts]
+              .sort(([nameA, a], [nameB, b]) => b - a || nameA.localeCompare(nameB))
+              .map(([name, count]) => ({ name, count })),
+          },
+        }),
+  };
 }

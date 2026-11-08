@@ -6,6 +6,7 @@ import {
   AI_TECHNIQUES,
   PROFICIENCY_LEVELS,
   SKILL_CATEGORIES,
+  SKILL_FREQUENCIES,
   TOKEN_METRIC_KINDS,
   TOOL_CATEGORIES,
   USAGE_TYPES,
@@ -46,6 +47,8 @@ const modelSchema = z.strictObject({
   provider: requiredText("provider").max(60),
   modelFamily: requiredText("modelFamily").max(60),
   usageContext: requiredText("usageContext").max(80).optional(),
+  contextWindow: z.number().int().positive().max(100_000_000).optional(),
+  capability: requiredText("capability").max(30).optional(),
 });
 
 const skillSchema = z.strictObject({
@@ -53,6 +56,7 @@ const skillSchema = z.strictObject({
   name: requiredText("name").max(60),
   category: enumField("skill category", SKILL_CATEGORIES),
   proficiencyLevel: enumField("proficiency level", PROFICIENCY_LEVELS),
+  frequency: enumField("skill frequency", SKILL_FREQUENCIES).optional(),
   description: requiredText("description").max(200).optional(),
 });
 
@@ -76,6 +80,14 @@ const activitySchema = z.strictObject({
   description: requiredText("description").max(200),
   projectId: kebabCaseId.optional(),
   date: isoDate,
+});
+
+const milestoneSchema = z.strictObject({
+  ...common,
+  title: requiredText("title").max(60),
+  description: requiredText("description").max(120).optional(),
+  date: isoDate,
+  projectId: kebabCaseId.optional(),
 });
 
 const periodSchema = z
@@ -146,6 +158,9 @@ const settingsSchema = z.strictObject({
   showTokenUsage: z.boolean().default(false),
   showCost: z.boolean().default(false),
   showLinks: z.boolean().default(true),
+  showMilestones: z.boolean().optional(),
+  usageSnapshot: z.boolean().optional(),
+  githubSignals: z.boolean().optional(),
   dashboard: z.boolean().optional(),
 });
 
@@ -160,6 +175,7 @@ const configSchema = z
     projects: z.array(projectSchema).default([]),
     activities: z.array(activitySchema).default([]),
     tokenUsage: z.array(tokenUsageSchema).default([]),
+    milestones: z.array(milestoneSchema).default([]),
   })
   .superRefine((config, ctx) => {
     const collections = [
@@ -169,6 +185,7 @@ const configSchema = z
       ["projects", "project", config.projects],
       ["activities", "activity", config.activities],
       ["tokenUsage", "token usage", config.tokenUsage],
+      ["milestones", "milestone", config.milestones],
     ] as const;
     for (const [key, noun, items] of collections) {
       const seen = new Set<string>();
@@ -204,6 +221,16 @@ const configSchema = z
           code: "custom",
           path: ["activities", index, "projectId"],
           message: `Unknown project ID referenced: ${activity.projectId}.`,
+        });
+      }
+    });
+
+    config.milestones.forEach((milestone, index) => {
+      if (milestone.projectId !== undefined && !projectIds.has(milestone.projectId)) {
+        ctx.addIssue({
+          code: "custom",
+          path: ["milestones", index, "projectId"],
+          message: `Unknown project ID referenced: ${milestone.projectId}.`,
         });
       }
     });

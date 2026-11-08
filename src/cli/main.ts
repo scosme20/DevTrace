@@ -1,5 +1,13 @@
 import { parseArgs } from "./args.js";
-import { runGenerate, runHelp, runInit, runSync, runValidate, runVersion } from "./commands.js";
+import {
+  runGenerate,
+  runImportUsage,
+  runHelp,
+  runInit,
+  runSync,
+  runValidate,
+  runVersion,
+} from "./commands.js";
 import { EXIT, UsageError, formatError } from "./errors.js";
 import type { CliIo } from "./io.js";
 
@@ -26,6 +34,8 @@ export async function runCli(argv: readonly string[], io: CliIo): Promise<number
         return await runSync(invocation.force, io);
       case "generate":
         return await runGenerate(invocation, io, verbose);
+      case "import":
+        return await runImportUsage(invocation, io);
     }
   } catch (error) {
     io.err(formatError(error, { verbose, rootDir: io.rootDir }));

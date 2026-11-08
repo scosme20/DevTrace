@@ -8,6 +8,23 @@ All notable changes to DevTrace are documented here. The format follows
 
 ### Added
 
+- AI signals found on GitHub (`settings.githubSignals`): releases as `OBSERVED` milestones, a panel and
+  a chip for assistant configuration files, AI topics and commits that name an AI co-author. Collected
+  by two new opt-in options, `collect.releaseHistory` and `collect.aiSignals`. Commit text is never
+  stored. See `docs/ai-engineering-dashboard.md`.
+
+- `devtrace import usage`: reads the token usage kept in the local logs of Claude Code and Codex
+  (model, time and token counts only, no text or paths, no network) into `data/usage-snapshot.json`.
+  `settings.usageSnapshot` adds the numbers to the AI dashboard as `OBSERVED` data with their source.
+  See `docs/usage-import.md`.
+
+- AI Engineering Dashboard: a strip of chips (AI stack, top model, cache hit), a source tag in every
+  panel header, a milestones panel, a cache hit rate and model shares of reported tokens, skill
+  frequency, and model capability and context window. New optional data: `milestones`,
+  `CACHED_INPUT_TOKENS`, `skills[].frequency`, `models[].contextWindow` and `models[].capability`.
+  Older files stay valid. The activity panel is now titled "AI contributions" and the token panel
+  "Token economics". See `docs/ai-engineering-dashboard.md`.
+
 - Final composition (M12): the three dashboards are drawn by one shared frame
   (`src/templates/dashboard.ts`) and a test keeps their width, header, footer, frame and colors
   identical in every theme and layout. `docs/github-profile.md` explains embedding, updating, tokens
