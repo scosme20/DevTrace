@@ -1,6 +1,7 @@
 import { DevTraceError } from "../core/result.js";
 import { element, text } from "../shared/svg.js";
 import { fit, type DesignTokens } from "../templates/design-tokens.js";
+import { measure } from "../templates/design-tokens.js";
 import { place, round, type Builder, type Fragment } from "./fragment.js";
 import { badge, type LabelData } from "./metrics.js";
 
@@ -151,29 +152,109 @@ export interface PanelOptions {
 }
 
 /** A titled container. As a section container it has no frame and no padding. */
+/** "AI tools & providers" becomes "AI Tools & Providers"; words already in capitals stay as they are. */
+function titleCase(value: string): string {
+  return value
+    .split(" ")
+    .map((word) => (/^[a-z]/.test(word) ? `${word.charAt(0).toUpperCase()}${word.slice(1)}` : word))
+    .join(" ");
+}
+
+const TERMINAL_TAG_HEIGHT = 22;
+const SUBTITLE_SEPARATOR = " · ";
+
+/** The tag of a TERMINAL panel: a dot and the source in capitals, inside a rounded pill. */
+function terminalTag(tokens: DesignTokens, tag: LabelData): Fragment {
+  const { palette, font, visual } = tokens;
+  const label = tag.label.toUpperCase();
+  const width = Math.ceil(measure(tokens, label, font.small, true)) + 34;
+  return {
+    body:
+      element("rect", {
+        x: 0.5,
+        y: 0.5,
+        width: width - 1,
+        height: TERMINAL_TAG_HEIGHT - 1,
+        rx: 6,
+        fill: visual.surfaceSecondary,
+        stroke: palette.border,
+      }) +
+      element("circle", {
+        cx: 13,
+        cy: TERMINAL_TAG_HEIGHT / 2,
+        r: 3.5,
+        fill: visual.tones[tag.tone ?? "muted"],
+      }) +
+      text(label, {
+        x: 23,
+        y: TERMINAL_TAG_HEIGHT / 2 + font.small * 0.36,
+        fill: palette.text,
+        size: font.small,
+        weight: 700,
+      }),
+    width,
+    height: TERMINAL_TAG_HEIGHT,
+  };
+}
+
 export function panel(tokens: DesignTokens, options: PanelOptions): Builder {
   const { palette, font, box, visual } = tokens;
   const framed = options.framed ?? true;
   const padding = framed ? visual.panelPadding : 0;
+  const terminal = visual.look === "TERMINAL";
 
   const render = (width: number, minHeight: number): Fragment => {
     const inner = Math.max(0, width - 2 * padding);
     const content = options.content(inner);
-    const tag = options.tag === undefined ? undefined : badge(tokens, options.tag, inner / 2);
-    const heading =
-      options.title === undefined
-        ? ""
-        : text(
-            fit(tokens, options.title.toUpperCase(), inner - (tag?.width ?? 0) - 8, font.small),
-            {
-              x: padding,
-              y: padding + font.small,
-              fill: palette.mutedText,
-              size: font.small,
-              weight: font.emphasis,
-            },
-          );
-    const headingHeight = options.title === undefined ? 0 : visual.panelHeadingHeight;
+    const tag =
+      options.tag === undefined
+        ? undefined
+        : terminal
+          ? terminalTag(tokens, options.tag)
+          : badge(tokens, options.tag, inner / 2);
+
+    // Standard: one quiet line in capitals. Terminal: an accent title, and the part
+    // after the dot as a quiet line under it.
+    const [mainTitle = "", ...rest] = (options.title ?? "").split(SUBTITLE_SEPARATOR);
+    const subtitle = rest.join(SUBTITLE_SEPARATOR);
+    const titleSize = font.body + 4;
+    const room = inner - (tag?.width ?? 0) - 8;
+    let heading = "";
+    let headingHeight = 0;
+    if (options.title !== undefined && terminal) {
+      heading =
+        text(fit(tokens, titleCase(mainTitle), room, titleSize, true), {
+          x: padding,
+          y: padding + Math.round(titleSize * 0.8),
+          fill: visual.tones.primary,
+          size: titleSize,
+          weight: font.strong,
+        }) +
+        text(
+          fit(
+            tokens,
+            subtitle === "" ? "" : `${subtitle.charAt(0).toUpperCase()}${subtitle.slice(1)}`,
+            inner,
+            font.small,
+          ),
+          {
+            x: padding,
+            y: padding + Math.round(titleSize * 0.8) + font.small + 8,
+            fill: palette.mutedText,
+            size: font.small,
+          },
+        );
+      headingHeight = Math.round(titleSize * 0.8) + (subtitle === "" ? 18 : font.small + 26);
+    } else if (options.title !== undefined) {
+      heading = text(fit(tokens, options.title.toUpperCase(), room, font.small), {
+        x: padding,
+        y: padding + font.small,
+        fill: palette.mutedText,
+        size: font.small,
+        weight: font.emphasis,
+      });
+      headingHeight = visual.panelHeadingHeight;
+    }
     const height = Math.max(minHeight, 2 * padding + headingHeight + content.height);
     const frame = framed
       ? element("rect", {
@@ -191,7 +272,9 @@ export function panel(tokens: DesignTokens, options: PanelOptions): Builder {
       body:
         frame +
         heading +
-        (tag === undefined ? "" : place(tag, width - padding - tag.width, padding - 4)) +
+        (tag === undefined
+          ? ""
+          : place(tag, width - padding - tag.width, terminal ? padding - 2 : padding - 4)) +
         place(content, padding, padding + headingHeight),
       width,
       height: round(height),

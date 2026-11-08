@@ -36,7 +36,7 @@ export const DASHBOARD_LIMITS = {
   projects: 3,
   recentActivities: 2,
   tokenRows: 3,
-  milestones: 3,
+  milestones: 5,
   stackTools: 3,
   foundRepositories: 4,
 } as const;

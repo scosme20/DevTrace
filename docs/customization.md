@@ -31,30 +31,39 @@ them renders exactly as it did in version 0.4.0.
 | `MIDNIGHT`    | Deep navy with a periwinkle accent and softer corners.                      | 12            |
 | `MINIMAL`     | Black on white, tiles outlined instead of filled, nearly square corners.    | 4             |
 | `TRANSPARENT` | No background at all, so the card takes on the color of the page behind it. | 10            |
+| `TERMINAL`    | Pure black, cyan titles, green bars and mono numbers. See below.            | 8             |
 
 All colors below are the theme defaults.
 
-| Token           | DARK      | LIGHT     | MIDNIGHT  | MINIMAL   | TRANSPARENT |
-| --------------- | --------- | --------- | --------- | --------- | ----------- |
-| `background`    | `#0d1117` | `#ffffff` | `#0b1020` | `#ffffff` | none        |
-| `surface`       | `#161b22` | `#f6f8fa` | `#131a33` | none      | none        |
-| `border`        | `#30363d` | `#d0d7de` | `#263057` | `#d4d4d4` | `#8a8a8a`   |
-| `text`          | `#f0f6fc` | `#1f2328` | `#eef1ff` | `#111111` | `#797979`   |
-| `secondaryText` | `#c9d1d9` | `#3d444d` | `#c3caea` | `#404040` | `#797979`   |
-| `mutedText`     | `#8b949e` | `#59636e` | `#8d97c4` | `#6b6b6b` | `#797979`   |
-| `primary`       | `#58a6ff` | `#0969da` | `#8ea2ff` | `#111111` | `#3b82f6`   |
-| `success`       | `#3fb950` | `#1a7f37` | `#5ee0a0` | `#2e7d32` | `#2ea043`   |
-| `warning`       | `#d29922` | `#9a6700` | `#f2c35b` | `#8a6100` | `#bf8700`   |
-| `error`         | `#f85149` | `#cf222e` | `#ff7a90` | `#b42318` | `#e5534b`   |
+| Token           | DARK      | LIGHT     | MIDNIGHT  | MINIMAL   | TRANSPARENT | TERMINAL  |
+| --------------- | --------- | --------- | --------- | --------- | ----------- | --------- |
+| `background`    | `#0d1117` | `#ffffff` | `#0b1020` | `#ffffff` | none        | `#000000` |
+| `surface`       | `#161b22` | `#f6f8fa` | `#131a33` | none      | none        | `#050607` |
+| `border`        | `#30363d` | `#d0d7de` | `#263057` | `#d4d4d4` | `#8a8a8a`   | `#33373d` |
+| `text`          | `#f0f6fc` | `#1f2328` | `#eef1ff` | `#111111` | `#797979`   | `#ffffff` |
+| `secondaryText` | `#c9d1d9` | `#3d444d` | `#c3caea` | `#404040` | `#797979`   | `#d3d7dc` |
+| `mutedText`     | `#8b949e` | `#59636e` | `#8d97c4` | `#6b6b6b` | `#797979`   | `#9ba1a8` |
+| `primary`       | `#58a6ff` | `#0969da` | `#8ea2ff` | `#111111` | `#3b82f6`   | `#1ed3f5` |
+| `success`       | `#3fb950` | `#1a7f37` | `#5ee0a0` | `#2e7d32` | `#2ea043`   | `#19e56b` |
+| `warning`       | `#d29922` | `#9a6700` | `#f2c35b` | `#8a6100` | `#bf8700`   | `#ffcc1a` |
+| `error`         | `#f85149` | `#cf222e` | `#ff7a90` | `#b42318` | `#e5534b`   | `#ff5a52` |
 
 `surface` is the fill of the summary tiles. `primary` is the accent: the logo mark, the bars and
 the group headings. `success` and `warning` color the operational status (`ACTIVE`, `PAUSED`);
 `INACTIVE` uses `mutedText`. `error` is part of the palette and can be customized, but no card
 element uses it yet.
 
+### The TERMINAL look
+
+`TERMINAL` changes more than colors, and only in the dashboards. A panel title is drawn in the accent
+color in title case, with the part after the dot of a title as a quiet line under it; the source of the
+panel's data is a pill with a dot (`OBSERVED`, `DECLARED`); bars are green by default; and numbers use
+a monospace face. The other themes keep their quiet look. Colors can still be overridden one by one,
+so setting `colors.primary` changes the accent of the titles and the tiles.
+
 ### Contrast
 
-`DARK`, `LIGHT`, `MIDNIGHT` and `MINIMAL` reach at least 4.5:1 (WCAG AA) for all three text
+`DARK`, `LIGHT`, `MIDNIGHT`, `MINIMAL` and `TERMINAL` reach at least 4.5:1 (WCAG AA) for all three text
 colors on their background and surface, and at least 3:1 for the accents. A test enforces it.
 
 `TRANSPARENT` cannot know what is behind it, and no single color can be read at 4.5:1 on both a

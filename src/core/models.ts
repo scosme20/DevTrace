@@ -23,7 +23,7 @@ export const VISIBILITIES = ["PUBLIC", "PRIVATE"] as const;
 export const DATA_SOURCES = ["OBSERVED", "DECLARED", "ESTIMATED"] as const;
 
 // Predefined looks. How they are customized is described in `appearance.ts`.
-export const THEMES = ["DARK", "LIGHT", "MIDNIGHT", "MINIMAL", "TRANSPARENT"] as const;
+export const THEMES = ["DARK", "LIGHT", "MIDNIGHT", "MINIMAL", "TRANSPARENT", "TERMINAL"] as const;
 
 export type LifecycleStage = (typeof LIFECYCLE_STAGES)[number];
 export type ProjectStatus = (typeof PROJECT_STATUSES)[number];
