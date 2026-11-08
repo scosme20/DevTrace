@@ -19,7 +19,7 @@ A release is not ready if any of these fail:
 2. `pnpm typecheck`, `pnpm lint`, `pnpm format:check`
 3. `pnpm test`
 4. `pnpm build`
-5. `pnpm generate` leaves `public/indicators` unchanged (indicators up to date and valid SVG)
+5. `pnpm generate` twice gives identical files (deterministic), and the SVG files are valid
 6. `node dist/index.js validate` and every file in `examples/` validate
 7. `pnpm audit --prod` reports no vulnerabilities
 8. No credentials in the repository (covered by `tests/repository-hygiene.test.ts`)
