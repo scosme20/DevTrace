@@ -2,6 +2,7 @@ import type {
   ActivityType,
   AiActivity,
   AiEngineeringSettings,
+  AiMilestone,
   AiInvolvement,
   AiModel,
   AiProject,
@@ -16,6 +17,7 @@ import {
   SKILL_CATEGORIES,
 } from "../../core/ai-engineering-models.js";
 import type { GitHubRepository } from "../../core/github-models.js";
+import type { FoundInRepositories } from "./github-signals.js";
 import type { AiEngineeringStats, CountEntry, PublicTokenMetric } from "./stats.js";
 
 // What the AI Engineering Dashboard shows, decided from the public statistics
@@ -28,12 +30,15 @@ import type { AiEngineeringStats, CountEntry, PublicTokenMetric } from "./stats.
 
 /** How many entries each list shows. The rest is reported as a count. */
 export const DASHBOARD_LIMITS = {
-  tools: 5,
-  models: 5,
+  tools: 4,
+  models: 4,
   skillsPerCategory: 3,
   projects: 3,
-  recentActivities: 3,
-  tokenRows: 4,
+  recentActivities: 2,
+  tokenRows: 3,
+  milestones: 3,
+  stackTools: 3,
+  foundRepositories: 4,
 } as const;
 
 export type MetricKey = "tools" | "providers" | "models" | "skills" | "projects" | "activities";
@@ -56,8 +61,31 @@ export interface SkillGroup {
   readonly hidden: number;
 }
 
+/** Cached input over input for one model and period. Only when both were reported. */
+export interface CacheHit {
+  readonly model: AiModel;
+  readonly period: { readonly start: string; readonly end: string };
+  readonly inputTokens: number;
+  readonly cachedTokens: number;
+  /** Whole percent, from 0 to 100. */
+  readonly percent: number;
+}
+
+/** A model's part of the total tokens reported for one shared period. */
+export interface ModelShare {
+  readonly model: AiModel;
+  readonly tokens: number;
+  readonly percent: number;
+}
+
 export interface AiDashboardModel {
   readonly metrics: readonly DashboardMetric[];
+  /** The names of the first tools, for the strip at the top. */
+  readonly stack: readonly string[];
+  /** The model with the largest share of the reported tokens, when shares exist. */
+  readonly topModel?: ModelShare;
+  /** Cache hit as one number, when every reported pair covers the same period. */
+  readonly cacheHit?: { readonly percent: number };
   readonly providers: readonly string[];
   readonly tools?: {
     readonly byCategory: readonly CountEntry<ToolCategory>[];
@@ -76,7 +104,78 @@ export interface AiDashboardModel {
     readonly byType: readonly CountEntry<ActivityType>[];
     readonly recent: readonly AiActivity[];
   };
-  readonly tokenUsage?: { readonly items: readonly PublicTokenMetric[]; readonly hidden: number };
+  readonly tokenUsage?: {
+    readonly items: readonly PublicTokenMetric[];
+    readonly hidden: number;
+    readonly cacheHits: readonly CacheHit[];
+    readonly period?: { readonly start: string; readonly end: string };
+    readonly shares: readonly ModelShare[];
+  };
+  readonly milestones?: { readonly items: readonly AiMilestone[]; readonly hidden: number };
+  /** What the GitHub snapshot shows about AI in the repositories. Only with `githubSignals`. */
+  readonly found?: {
+    readonly repositories: FoundInRepositories["repositories"];
+    readonly hidden: number;
+    readonly coauthored: FoundInRepositories["coauthored"];
+    readonly tools: readonly string[];
+  };
+}
+
+const samePeriod = (
+  a: { readonly start: string; readonly end: string },
+  b: { readonly start: string; readonly end: string },
+): boolean => a.start === b.start && a.end === b.end;
+
+/**
+ * Cache hit per model and period. A rate needs a real denominator, so a pair
+ * counts only when the same model reported both the input and the cached input
+ * for the same period, and the input is not zero.
+ */
+export function computeCacheHits(metrics: readonly PublicTokenMetric[]): CacheHit[] {
+  const hits: CacheHit[] = [];
+  for (const input of metrics.filter(({ metric }) => metric.kind === "INPUT_TOKENS")) {
+    const cached = metrics.find(
+      ({ metric, model }) =>
+        metric.kind === "CACHED_INPUT_TOKENS" &&
+        model.id === input.model.id &&
+        samePeriod(metric.period, input.metric.period),
+    );
+    if (cached === undefined || input.metric.value === 0) continue;
+    hits.push({
+      model: input.model,
+      period: input.metric.period,
+      inputTokens: input.metric.value,
+      cachedTokens: cached.metric.value,
+      percent: Math.min(100, Math.round((cached.metric.value / input.metric.value) * 100)),
+    });
+  }
+  return hits;
+}
+
+/**
+ * Shares of the reported total tokens. Different periods are never mixed: shares
+ * exist only when every total was reported for the same period.
+ */
+export function computeModelShares(metrics: readonly PublicTokenMetric[]): {
+  period: { start: string; end: string } | undefined;
+  shares: ModelShare[];
+} {
+  const totals = metrics.filter(({ metric }) => metric.kind === "TOTAL_TOKENS");
+  const first = totals[0];
+  if (first === undefined) return { period: undefined, shares: [] };
+  if (!totals.every(({ metric }) => samePeriod(metric.period, first.metric.period))) {
+    return { period: undefined, shares: [] };
+  }
+  const all = totals.reduce((sum, { metric }) => sum + metric.value, 0);
+  if (all === 0) return { period: undefined, shares: [] };
+  const shares = totals
+    .map(({ metric, model }) => ({
+      model,
+      tokens: metric.value,
+      percent: Math.round((metric.value / all) * 100),
+    }))
+    .sort((a, b) => b.tokens - a.tokens || a.model.name.localeCompare(b.model.name));
+  return { period: first.metric.period, shares };
 }
 
 function take<T>(items: readonly T[], limit: number): { items: T[]; hidden: number } {
@@ -117,9 +216,34 @@ export function buildAiDashboardModel(
   ];
 
   const toolsById = new Map(stats.tools.map((tool) => [tool.id, tool]));
+  const milestonesShown = settings.showMilestones !== false && stats.milestones.length > 0;
+  // Shown when something was found, or at least when commits were looked at (the chip).
+  const found =
+    stats.found !== undefined &&
+    (stats.found.repositories.length > 0 || stats.found.coauthored !== undefined)
+      ? stats.found
+      : undefined;
+  const cacheHits = tokensShown ? computeCacheHits(stats.tokenUsage) : [];
+  const { period: sharesPeriod, shares } = tokensShown
+    ? computeModelShares(stats.tokenUsage)
+    : { period: undefined, shares: [] };
+  const [onlyHit] = cacheHits;
+  const sameHitPeriod =
+    onlyHit !== undefined && cacheHits.every((hit) => samePeriod(hit.period, onlyHit.period));
+  const hitInput = cacheHits.reduce((sum, hit) => sum + hit.inputTokens, 0);
+  const hitCached = cacheHits.reduce((sum, hit) => sum + hit.cachedTokens, 0);
+
+  const [topShare] = shares;
 
   return {
     metrics,
+    stack: toolsShown
+      ? stats.tools.slice(0, DASHBOARD_LIMITS.stackTools).map((tool) => tool.name)
+      : [],
+    ...(topShare === undefined ? {} : { topModel: topShare }),
+    ...(sameHitPeriod && hitInput > 0
+      ? { cacheHit: { percent: Math.min(100, Math.round((hitCached / hitInput) * 100)) } }
+      : {}),
     providers: providersShown ? stats.providers : [],
     ...(toolsShown
       ? {
@@ -172,6 +296,26 @@ export function buildAiDashboardModel(
           },
         }
       : {}),
-    ...(tokensShown ? { tokenUsage: take(stats.tokenUsage, DASHBOARD_LIMITS.tokenRows) } : {}),
+    ...(tokensShown
+      ? {
+          tokenUsage: {
+            ...take(stats.tokenUsage, DASHBOARD_LIMITS.tokenRows),
+            cacheHits,
+            ...(sharesPeriod === undefined ? {} : { period: sharesPeriod }),
+            shares,
+          },
+        }
+      : {}),
+    ...(milestonesShown ? { milestones: take(stats.milestones, DASHBOARD_LIMITS.milestones) } : {}),
+    ...(found === undefined
+      ? {}
+      : {
+          found: {
+            repositories: found.repositories.slice(0, DASHBOARD_LIMITS.foundRepositories),
+            hidden: Math.max(0, found.repositories.length - DASHBOARD_LIMITS.foundRepositories),
+            coauthored: found.coauthored,
+            tools: found.tools,
+          },
+        }),
   };
 }

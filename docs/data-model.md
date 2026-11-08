@@ -132,6 +132,9 @@ and six optional lists (default `[]`): `tools`, `models`, `skills`, `projects`, 
 | `settings.showCost`       | boolean | `false`                  |
 | `settings.showLinks`      | boolean | `true`                   |
 | `settings.dashboard`      | boolean | `false` (not stored)     |
+| `settings.showMilestones` | boolean | `true` in dashboard      |
+| `settings.usageSnapshot`  | boolean | `false` (not stored)     |
+| `settings.githubSignals`  | boolean | `false` (not stored)     |
 
 ### Fields common to every entity
 

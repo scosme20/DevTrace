@@ -15,6 +15,8 @@ import { helpFor } from "./help.js";
 import type { CliIo } from "./io.js";
 import { initProject } from "./init.js";
 import { DEVTRACE_VERSION } from "../core/version.js";
+import { importUsage } from "../generators/usage.js";
+import type { UsageSource } from "../usage/parsers.js";
 
 type GenerateInvocation = Extract<Invocation, { kind: "generate" }>;
 
@@ -137,3 +139,28 @@ export async function runInit(io: CliIo): Promise<number> {
 }
 
 export type { GenerateTarget };
+
+const USAGE_SOURCE_CHOICES: Readonly<Record<string, readonly UsageSource[]>> = {
+  CLAUDE: ["CLAUDE_CODE"],
+  CODEX: ["CODEX"],
+  ALL: ["CLAUDE_CODE", "CODEX"],
+};
+
+export async function runImportUsage(
+  invocation: Extract<Invocation, { kind: "import" }>,
+  io: CliIo,
+): Promise<number> {
+  io.out("Reading local usage logs (nothing leaves this machine)...");
+  const lines = await importUsage(io.rootDir, {
+    sources: USAGE_SOURCE_CHOICES[invocation.source] ?? [],
+    days: invocation.days,
+    since: invocation.since,
+    until: invocation.until,
+    env: io.env,
+    warn: (message) => {
+      io.err(`Warning: ${message}`);
+    },
+  });
+  for (const line of lines) io.out(line);
+  return EXIT.OK;
+}

@@ -1,0 +1,23 @@
+{
+  "version": 1,
+  "username": "scosme20",
+  "repositories": {
+    "include": [],
+    "exclude": [],
+    "includeForks": false,
+    "includeArchived": false
+  },
+  "collect": {
+    "description": true,
+    "language": true,
+    "stars": true,
+    "forks": true,
+    "releases": true,
+    "languages": true,
+    "commitActivity": true,
+    "releaseHistory": true,
+    "aiSignals": true
+  },
+  "onUnavailable": "SKIP",
+  "cacheTtlMinutes": 60
+}

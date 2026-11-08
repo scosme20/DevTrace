@@ -7,7 +7,8 @@
     "theme": "DARK",
     "showProjectList": true,
     "showLifecycleDistribution": true,
-    "showLinks": true
+    "showLinks": true,
+    "dashboard": true
   },
   "projects": [
     {
@@ -20,7 +21,8 @@
       "visibility": "PUBLIC",
       "dataSource": "DECLARED",
       "createdAt": "2026-11-07",
-      "updatedAt": "2026-11-07"
+      "updatedAt": "2026-11-07",
+      "githubRepository": "scosme20/DevTrace"
     }
   ]
 }

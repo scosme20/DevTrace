@@ -60,11 +60,17 @@ jobs:
 
       # Generation is deterministic: if the committed SVG files differ from a
       # fresh run, someone changed the data or the renderer without regenerating.
-      - name: Verify the committed indicators are up to date
+      # The committed SVG files also depend on data that is not in the repository (the
+      # GitHub snapshot is generated, and token usage is read from local logs), so they
+      # cannot be compared with a fresh run here. What CI can check is that generating
+      # is deterministic: the same input must give the same files, twice.
+      - name: Verify that generating is deterministic
         if: matrix.node == '22'
         run: |
           pnpm generate
-          git diff --exit-code -- public/indicators
+          cp -r public/indicators "$RUNNER_TEMP/first"
+          pnpm generate
+          diff -r "$RUNNER_TEMP/first" public/indicators
 
       - name: Audit production dependencies
         if: matrix.node == '22'

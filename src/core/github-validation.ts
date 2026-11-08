@@ -39,6 +39,8 @@ const configSchema = z.strictObject({
       // Opt in: each one costs one more API call per repository.
       languages: z.boolean().optional(),
       commitActivity: z.boolean().optional(),
+      releaseHistory: z.boolean().optional(),
+      aiSignals: z.boolean().optional(),
     })
     .prefault({}),
   onUnavailable: enumField("unavailable repository behavior", UNAVAILABLE_BEHAVIORS).default(
@@ -72,6 +74,28 @@ const commitWeekSchema = z.strictObject({
   days: z.array(z.number().int().nonnegative()).length(7),
 });
 
+const findingsSchema = z.strictObject({
+  toolFiles: z.array(requiredText("tool").max(40)).max(10),
+  aiTopics: z.array(requiredText("topic").max(40)).max(20),
+  coauthored: z
+    .strictObject({
+      inspected: z.number().int().nonnegative(),
+      matching: z.number().int().nonnegative(),
+      assistants: z
+        .array(
+          z.strictObject({
+            name: requiredText("assistant").max(40),
+            count: z.number().int().nonnegative(),
+          }),
+        )
+        .max(10),
+    })
+    .refine((value) => value.matching <= value.inspected, {
+      message: "More commits match than were inspected.",
+    })
+    .optional(),
+});
+
 const repositorySchema = z.strictObject({
   fullName: githubRepoFullName,
   name: requiredText("name").max(100),
@@ -87,6 +111,8 @@ const repositorySchema = z.strictObject({
   createdAt: isoDate,
   pushedAt: isoDate.optional(),
   latestRelease: releaseSchema.optional(),
+  releases: z.array(releaseSchema).max(30).optional(),
+  findings: findingsSchema.optional(),
   languages: z.array(languageSchema).max(100).optional(),
   commitActivity: z.array(commitWeekSchema).max(53).optional(),
   // A snapshot can only claim observed data; anything else is rejected.

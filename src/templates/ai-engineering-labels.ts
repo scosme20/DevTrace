@@ -4,6 +4,7 @@ import type {
   AiTechnique,
   ProficiencyLevel,
   SkillCategory,
+  SkillFrequency,
   TokenMetricKind,
   ToolCategory,
   UsageType,
@@ -67,6 +68,7 @@ export const TOKEN_KIND_LABELS: Readonly<Record<TokenMetricKind, string>> = {
   INPUT_TOKENS: "Input tokens",
   OUTPUT_TOKENS: "Output tokens",
   TOTAL_TOKENS: "Total tokens",
+  CACHED_INPUT_TOKENS: "Cached input tokens",
   ESTIMATED_COST: "Estimated cost",
 };
 
@@ -75,4 +77,11 @@ export const USAGE_TYPE_LABELS: Readonly<Record<UsageType, string>> = {
   PROFESSIONAL: "Professional",
   OPEN_SOURCE: "Open source",
   ACADEMIC: "Academic",
+};
+
+export const FREQUENCY_LABELS: Readonly<Record<SkillFrequency, string>> = {
+  DAILY: "Daily",
+  WEEKLY: "Weekly",
+  MONTHLY: "Monthly",
+  OCCASIONAL: "Occasional",
 };

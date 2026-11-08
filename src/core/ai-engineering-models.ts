@@ -64,8 +64,13 @@ export const TOKEN_METRIC_KINDS = [
   "INPUT_TOKENS",
   "OUTPUT_TOKENS",
   "TOTAL_TOKENS",
+  // The part of the input that was served from a cache. Needed to compute a cache hit rate.
+  "CACHED_INPUT_TOKENS",
   "ESTIMATED_COST",
 ] as const;
+
+// How often the owner says they use a skill. A statement, never a measurement.
+export const SKILL_FREQUENCIES = ["DAILY", "WEEKLY", "MONTHLY", "OCCASIONAL"] as const;
 
 export type ToolCategory = (typeof TOOL_CATEGORIES)[number];
 export type UsageType = (typeof USAGE_TYPES)[number];
@@ -75,6 +80,7 @@ export type AiTechnique = (typeof AI_TECHNIQUES)[number];
 export type ActivityType = (typeof ACTIVITY_TYPES)[number];
 export type AiInvolvement = (typeof AI_INVOLVEMENTS)[number];
 export type TokenMetricKind = (typeof TOKEN_METRIC_KINDS)[number];
+export type SkillFrequency = (typeof SKILL_FREQUENCIES)[number];
 
 /** A product or tool (for example "Claude Code"). Its provider is a separate attribute. */
 export interface AiTool {
@@ -95,6 +101,10 @@ export interface AiModel {
   readonly provider: string;
   readonly modelFamily: string;
   readonly usageContext?: string | undefined;
+  /** Maximum context window in tokens, as published by the provider. */
+  readonly contextWindow?: number | undefined;
+  /** What the model is used for, in a word or two (for example "Agentic"). */
+  readonly capability?: string | undefined;
   readonly visibility: Visibility;
   readonly provenance: Provenance;
 }
@@ -104,6 +114,7 @@ export interface AiSkill {
   readonly name: string;
   readonly category: SkillCategory;
   readonly proficiencyLevel: ProficiencyLevel;
+  readonly frequency?: SkillFrequency | undefined;
   readonly description?: string | undefined;
   readonly visibility: Visibility;
   readonly provenance: Provenance;
@@ -134,6 +145,18 @@ export interface AiActivity {
   /** ID of an entry in `projects`. */
   readonly projectId?: string | undefined;
   readonly date: string;
+  readonly visibility: Visibility;
+  readonly provenance: Provenance;
+}
+
+/** A dated step in the owner's AI engineering work, declared by them. There are no levels or badges. */
+export interface AiMilestone {
+  readonly id: string;
+  readonly title: string;
+  readonly description?: string | undefined;
+  readonly date: string;
+  /** ID of an entry in `projects`. */
+  readonly projectId?: string | undefined;
   readonly visibility: Visibility;
   readonly provenance: Provenance;
 }
@@ -171,6 +194,12 @@ export interface AiEngineeringSettings extends AppearanceSettings {
   /** Costs are financial data: hidden unless explicitly enabled. */
   readonly showCost: boolean;
   readonly showLinks: boolean;
+  /** Add what the GitHub snapshot shows: releases as milestones and AI signals in the repositories. Default `false`. */
+  readonly githubSignals?: boolean | undefined;
+  /** Add the token usage read by `devtrace import usage` (data/usage-snapshot.json). Default `false`. */
+  readonly usageSnapshot?: boolean | undefined;
+  /** Dashboard only: the milestones panel. Shown unless set to `false`. */
+  readonly showMilestones?: boolean | undefined;
   /** Draw the multi-panel dashboard instead of the single-column card. Default `false`. */
   readonly dashboard?: boolean | undefined;
 }
@@ -185,4 +214,5 @@ export interface AiEngineeringConfig {
   readonly projects: readonly AiProject[];
   readonly activities: readonly AiActivity[];
   readonly tokenUsage: readonly TokenUsageMetric[];
+  readonly milestones: readonly AiMilestone[];
 }

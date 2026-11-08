@@ -5,11 +5,14 @@ import { closestMatch } from "./suggestions.js";
 
 export const GENERATE_TARGETS = ["startup", "ai", "activity", "all"] as const;
 export const VALIDATE_TARGETS = ["startup", "ai", "activity", "github", "all"] as const;
-export const COMMAND_NAMES = ["init", "validate", "generate", "sync", "help"] as const;
+export const IMPORT_TARGETS = ["usage"] as const;
+export const USAGE_SOURCES = ["CLAUDE", "CODEX", "ALL"] as const;
+export const COMMAND_NAMES = ["init", "validate", "generate", "sync", "import", "help"] as const;
 
 export type GenerateTarget = (typeof GENERATE_TARGETS)[number];
 export type ValidateTarget = (typeof VALIDATE_TARGETS)[number];
 export type CommandName = (typeof COMMAND_NAMES)[number];
+export type UsageSourceChoice = (typeof USAGE_SOURCES)[number];
 
 export type Invocation =
   | { readonly kind: "help"; readonly topic?: CommandName | undefined }
@@ -23,6 +26,13 @@ export type Invocation =
       readonly output?: string | undefined;
     }
   | { readonly kind: "sync"; readonly force: boolean }
+  | {
+      readonly kind: "import";
+      readonly source: UsageSourceChoice;
+      readonly days?: number | undefined;
+      readonly since?: string | undefined;
+      readonly until?: string | undefined;
+    }
   | { readonly kind: "validate"; readonly target: ValidateTarget }
   | { readonly kind: "init" };
 
@@ -39,10 +49,19 @@ const OPTIONS_BY_COMMAND: Readonly<Record<CommandName, readonly string[]>> = {
   validate: [],
   generate: ["--theme", "--layout", "--output"],
   sync: ["--force"],
+  import: ["--source", "--days", "--since", "--until"],
   help: [],
 };
 
-const VALUE_OPTIONS = ["--theme", "--layout", "--output"];
+const VALUE_OPTIONS = [
+  "--theme",
+  "--layout",
+  "--output",
+  "--source",
+  "--days",
+  "--since",
+  "--until",
+];
 const FLAG_OPTIONS = ["--force"];
 const INDICATORS_PREFIX = "public/indicators/";
 
@@ -62,6 +81,23 @@ export function parseOutputName(value: string): string {
     );
   }
   return name;
+}
+
+function parseDay(option: string, value: string): string {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(value) || Number.isNaN(Date.parse(`${value}T00:00:00Z`))) {
+    throw new UsageError(`Invalid ${option} value: "${value}". Expected a date like 2026-03-31.`);
+  }
+  return value;
+}
+
+function parseDays(value: string): number {
+  const days = Number(value);
+  if (!Number.isInteger(days) || days < 1 || days > 365) {
+    throw new UsageError(
+      `Invalid --days value: "${value}". Expected a whole number from 1 to 365.`,
+    );
+  }
+  return days;
 }
 
 function choice<T extends string>(option: string, value: string, allowed: readonly T[]): T {
@@ -212,6 +248,21 @@ export function parseArgs(argv: readonly string[]): ParsedArgs {
     case "sync":
       expectNoMore(0);
       return done({ kind: "sync", force: tokens.options.has("--force") });
+    case "import": {
+      target("import", positionals[0] ?? "", IMPORT_TARGETS);
+      expectNoMore(1);
+      const source = tokens.options.get("--source");
+      const days = tokens.options.get("--days");
+      const since = tokens.options.get("--since");
+      const until = tokens.options.get("--until");
+      return done({
+        kind: "import",
+        source: typeof source === "string" ? choice("--source", source, USAGE_SOURCES) : "ALL",
+        days: typeof days === "string" ? parseDays(days) : undefined,
+        since: typeof since === "string" ? parseDay("--since", since) : undefined,
+        until: typeof until === "string" ? parseDay("--until", until) : undefined,
+      });
+    }
     case "validate": {
       const chosen = target("validate", positionals[0], VALIDATE_TARGETS);
       expectNoMore(1);

@@ -13,6 +13,7 @@ Commands:
   validate [target]     Check the configuration without writing anything
   generate [target]     Generate the SVG indicators (default target: all)
   sync                  Read public GitHub data into data/github-snapshot.json
+  import usage          Read token usage from local Claude Code and Codex logs
   help [command]        Show help for a command
 
 Targets:
@@ -101,9 +102,26 @@ Set the GITHUB_TOKEN environment variable to raise the rate limit. It is optiona
 for public data, and is never stored or printed. If the sync fails, the previous
 snapshot is left untouched.`,
 
+  import: `devtrace import usage [options]
+
+Reads the token usage that Claude Code and Codex keep in their local log files and
+writes the totals of one period, per model, to data/usage-snapshot.json. It reads
+only the model, the time and the token counts of each entry: never message text,
+file paths or project names. It uses no network.
+
+Options:
+  --source <source>   CLAUDE, CODEX or ALL (default: ALL)
+  --days <n>          Number of days up to --until (default: 30, at most 365)
+  --since <date>      First day, like 2026-03-01 (replaces --days)
+  --until <date>      Last day (default: today, UTC)
+
+The tools' folders are ~/.claude and ~/.codex; CLAUDE_CONFIG_DIR and CODEX_HOME
+change them. To show the numbers, set settings.usageSnapshot and
+settings.showTokenUsage to true in data/ai-engineering.json.`,
+
   help: `devtrace help [command]
 
-Shows the help of a command: init, validate, generate, sync or help.
+Shows the help of a command: init, validate, generate, sync, import or help.
 "devtrace <command> --help" does the same.`,
 };
 

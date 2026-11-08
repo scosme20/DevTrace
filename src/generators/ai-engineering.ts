@@ -1,14 +1,16 @@
 import path from "node:path";
 import { applyAppearanceOverrides } from "../core/appearance.js";
-import { loadAiEngineeringConfig, loadGitHubSnapshot } from "../core/config.js";
+import { loadAiEngineeringConfig, loadGitHubSnapshot, loadUsageSnapshot } from "../core/config.js";
 import { writeIndicator } from "../core/output.js";
 import { DevTraceError } from "../core/result.js";
 import { DEVTRACE_VERSION } from "../core/version.js";
 import { computeAiEngineeringStats } from "../indicators/ai-engineering/stats.js";
 import { linkGitHubRepositories } from "../indicators/github-link.js";
+import { mergeUsageSnapshot } from "../indicators/ai-engineering/usage.js";
 import { renderAiEngineeringDashboard } from "../templates/ai-engineering-dashboard.js";
 import { renderAiEngineeringStats } from "../templates/ai-engineering-stats.js";
 import { contrastWarnings } from "../templates/design-tokens.js";
+import { USAGE_SNAPSHOT_FILE } from "./usage.js";
 import { GITHUB_SNAPSHOT_FILE, INDICATORS_DIR, type GenerateOptions } from "./startup.js";
 
 export const AI_ENGINEERING_CONFIG_FILE = "data/ai-engineering.json";
@@ -23,7 +25,18 @@ export async function generateAiEngineeringStats(
   options: GenerateOptions = {},
 ): Promise<string> {
   try {
-    const config = await loadAiEngineeringConfig(path.join(rootDir, AI_ENGINEERING_CONFIG_FILE));
+    const declared = await loadAiEngineeringConfig(path.join(rootDir, AI_ENGINEERING_CONFIG_FILE));
+    let config = declared;
+    if (declared.settings.usageSnapshot === true) {
+      const usage = await loadUsageSnapshot(path.join(rootDir, USAGE_SNAPSHOT_FILE));
+      if (usage === undefined) {
+        options.warn?.(
+          `settings.usageSnapshot is on but ${USAGE_SNAPSHOT_FILE} was not found. Run "devtrace import usage".`,
+        );
+      } else {
+        config = mergeUsageSnapshot(declared, usage);
+      }
+    }
     const snapshot = await loadGitHubSnapshot(path.join(rootDir, GITHUB_SNAPSHOT_FILE));
     const links = linkGitHubRepositories(config.projects, snapshot);
     links.warnings.forEach((warning) => options.warn?.(warning));
@@ -31,7 +44,16 @@ export async function generateAiEngineeringStats(
     const settings = applyAppearanceOverrides(config.settings, options);
     contrastWarnings(settings).forEach((warning) => options.warn?.(warning));
 
-    const stats = computeAiEngineeringStats(config, links.byProjectId);
+    if (settings.githubSignals === true && snapshot === undefined) {
+      options.warn?.(
+        'settings.githubSignals is on but there is no GitHub data. Run "devtrace sync".',
+      );
+    }
+    const stats = computeAiEngineeringStats(
+      config,
+      links.byProjectId,
+      settings.githubSignals === true ? (snapshot?.repositories ?? []) : [],
+    );
     const render =
       settings.dashboard === true ? renderAiEngineeringDashboard : renderAiEngineeringStats;
     const svg = render(stats, {

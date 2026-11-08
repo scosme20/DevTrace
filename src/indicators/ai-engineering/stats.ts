@@ -4,6 +4,7 @@ import {
   TOOL_CATEGORIES,
   type AiActivity,
   type AiEngineeringConfig,
+  type AiMilestone,
   type AiModel,
   type AiProject,
   type AiSkill,
@@ -14,6 +15,11 @@ import {
 } from "../../core/ai-engineering-models.js";
 import { PROJECT_STATUSES, type ProjectStatus } from "../../core/models.js";
 import { restrictToProjects } from "../github-link.js";
+import {
+  foundInRepositories,
+  releaseMilestones,
+  type FoundInRepositories,
+} from "./github-signals.js";
 
 export interface CountEntry<K extends string> {
   readonly key: K;
@@ -33,9 +39,12 @@ export interface PublicAiData {
   readonly projects: readonly AiProject[];
   readonly activities: readonly AiActivity[];
   readonly tokenUsage: readonly PublicTokenMetric[];
+  readonly milestones: readonly AiMilestone[];
 }
 
 export interface AiEngineeringStats extends PublicAiData {
+  /** What was found in the repositories of the GitHub snapshot. Only with `settings.githubSignals`. */
+  readonly found?: FoundInRepositories;
   readonly totalTools: number;
   /** Distinct providers across public tools and public models, sorted by name. */
   readonly providers: readonly string[];
@@ -89,6 +98,14 @@ export function selectPublicAiData(config: AiEngineeringConfig): PublicAiData {
       // Newest first; id keeps the order stable when dates are equal.
       .sort((a, b) => b.date.localeCompare(a.date) || a.id.localeCompare(b.id)),
     tokenUsage,
+    // A milestone of a private project would reveal that the project exists.
+    milestones: config.milestones
+      .filter(
+        (milestone) =>
+          milestone.visibility === "PUBLIC" &&
+          (milestone.projectId === undefined || publicProjectIds.has(milestone.projectId)),
+      )
+      .sort((a, b) => b.date.localeCompare(a.date) || a.id.localeCompare(b.id)),
   };
 }
 
@@ -116,11 +133,23 @@ function collectProviders(tools: readonly AiTool[], models: readonly AiModel[]):
 export function computeAiEngineeringStats(
   config: AiEngineeringConfig,
   github: Readonly<Record<string, GitHubRepository>> = {},
+  /** The repositories of the GitHub snapshot. Used only when `settings.githubSignals` is on. */
+  observed: readonly GitHubRepository[] = [],
 ): AiEngineeringStats {
   const data = selectPublicAiData(config);
+  const signals = config.settings.githubSignals === true;
+  const found = signals ? foundInRepositories(observed) : undefined;
+  // Releases are public and dated, so they join the milestones the owner declared.
+  const milestones = signals
+    ? [...data.milestones, ...releaseMilestones(observed)].sort(
+        (a, b) => b.date.localeCompare(a.date) || a.id.localeCompare(b.id),
+      )
+    : data.milestones;
   const providers = collectProviders(data.tools, data.models);
   return {
     ...data,
+    milestones,
+    ...(found === undefined ? {} : { found }),
     providers,
     totalTools: data.tools.length,
     totalProviders: providers.length,

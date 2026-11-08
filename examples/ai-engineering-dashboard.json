@@ -1,6 +1,8 @@
 {
   "version": 1,
-  "profile": { "displayName": "AI Engineering" },
+  "profile": {
+    "displayName": "AI Engineering"
+  },
   "settings": {
     "theme": "DARK",
     "dashboard": true,
@@ -11,7 +13,8 @@
     "showActivity": true,
     "showTokenUsage": true,
     "showCost": false,
-    "showLinks": true
+    "showLinks": true,
+    "showMilestones": true
   },
   "tools": [
     {
@@ -52,7 +55,9 @@
       "modelFamily": "Example Large",
       "usageContext": "Production",
       "visibility": "PUBLIC",
-      "provenance": "DECLARED"
+      "provenance": "DECLARED",
+      "contextWindow": 200000,
+      "capability": "Agentic"
     },
     {
       "id": "model-small",
@@ -61,7 +66,9 @@
       "modelFamily": "Example Small",
       "usageContext": "Prototyping",
       "visibility": "PUBLIC",
-      "provenance": "DECLARED"
+      "provenance": "DECLARED",
+      "contextWindow": 128000,
+      "capability": "Fast tasks"
     }
   ],
   "skills": [
@@ -71,7 +78,8 @@
       "category": "LLM_ENGINEERING",
       "proficiencyLevel": "PROFICIENT",
       "visibility": "PUBLIC",
-      "provenance": "DECLARED"
+      "provenance": "DECLARED",
+      "frequency": "DAILY"
     },
     {
       "id": "function-calling",
@@ -79,7 +87,8 @@
       "category": "LLM_ENGINEERING",
       "proficiencyLevel": "PRACTICING",
       "visibility": "PUBLIC",
-      "provenance": "DECLARED"
+      "provenance": "DECLARED",
+      "frequency": "WEEKLY"
     },
     {
       "id": "agents",
@@ -168,8 +177,72 @@
       "kind": "TOTAL_TOKENS",
       "value": 1200000,
       "unit": "TOKENS",
-      "period": { "start": "2026-04-01", "end": "2026-04-30" },
+      "period": {
+        "start": "2026-04-01",
+        "end": "2026-04-30"
+      },
       "source": "Provider usage page",
+      "visibility": "PUBLIC",
+      "provenance": "DECLARED"
+    },
+    {
+      "id": "t2",
+      "modelId": "model-small",
+      "kind": "TOTAL_TOKENS",
+      "value": 400000,
+      "unit": "TOKENS",
+      "period": {
+        "start": "2026-04-01",
+        "end": "2026-04-30"
+      },
+      "source": "Provider usage page",
+      "visibility": "PUBLIC",
+      "provenance": "DECLARED"
+    },
+    {
+      "id": "t3",
+      "modelId": "model-large",
+      "kind": "INPUT_TOKENS",
+      "value": 900000,
+      "unit": "TOKENS",
+      "period": {
+        "start": "2026-04-01",
+        "end": "2026-04-30"
+      },
+      "source": "Provider usage page",
+      "visibility": "PUBLIC",
+      "provenance": "DECLARED"
+    },
+    {
+      "id": "t4",
+      "modelId": "model-large",
+      "kind": "CACHED_INPUT_TOKENS",
+      "value": 450000,
+      "unit": "TOKENS",
+      "period": {
+        "start": "2026-04-01",
+        "end": "2026-04-30"
+      },
+      "source": "Provider usage page",
+      "visibility": "PUBLIC",
+      "provenance": "DECLARED"
+    }
+  ],
+  "milestones": [
+    {
+      "id": "m-first-agent",
+      "title": "First tool-using agent",
+      "description": "Replace with a step of your own.",
+      "date": "2026-02-10",
+      "projectId": "support-assistant",
+      "visibility": "PUBLIC",
+      "provenance": "DECLARED"
+    },
+    {
+      "id": "m-rag",
+      "title": "RAG pipeline in use",
+      "description": "Replace with a step of your own.",
+      "date": "2026-03-22",
       "visibility": "PUBLIC",
       "provenance": "DECLARED"
     }

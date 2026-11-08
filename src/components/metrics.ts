@@ -449,3 +449,58 @@ export function caption(tokens: DesignTokens, content: string, tone: Tone = "mut
     height: font.small + 4,
   });
 }
+
+export interface LevelMeterData {
+  readonly label: string;
+  /** How many of the steps are filled, from 0 to `steps`. */
+  readonly level: number;
+  readonly steps: number;
+  readonly valueText: string;
+  readonly tone?: Tone;
+}
+
+const STEP_GAP = 4;
+
+/**
+ * A label and a row of steps, some of them filled. It shows a declared level on
+ * a short scale: separate steps read as a statement, where a smooth bar would
+ * read as a measurement.
+ */
+export function levelMeter(tokens: DesignTokens, data: LevelMeterData): Builder {
+  const { palette, font, layout, box, visual } = tokens;
+  return (width) => {
+    const shown = fit(tokens, data.valueText, Math.round(width * 0.45), font.label);
+    const shownWidth = measure(tokens, shown, font.label);
+    const barY = font.body + 6;
+    const steps = Math.max(1, Math.floor(data.steps));
+    const filled = Math.max(0, Math.min(steps, Math.floor(data.level)));
+    const stepWidth = (width - STEP_GAP * (steps - 1)) / steps;
+    const color = visual.tones[data.tone ?? "primary"];
+    const segments = Array.from({ length: steps }, (_unused, index) =>
+      element("rect", {
+        x: round(index * (stepWidth + STEP_GAP)),
+        y: barY,
+        width: round(stepWidth),
+        height: layout.barHeight,
+        rx: Math.min(box.barRadius, stepWidth / 2),
+        fill: index < filled ? color : palette.track,
+      }),
+    ).join("");
+    const body =
+      text(fit(tokens, data.label, Math.max(0, width - shownWidth - 12), font.body), {
+        x: 0,
+        y: font.body,
+        fill: palette.secondaryText,
+        size: font.body,
+      }) +
+      text(shown, {
+        x: width,
+        y: font.body,
+        fill: palette.mutedText,
+        size: font.label,
+        anchor: "end",
+      }) +
+      segments;
+    return { body, width, height: barY + layout.barHeight + 2 };
+  };
+}

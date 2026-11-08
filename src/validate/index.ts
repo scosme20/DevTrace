@@ -37,7 +37,7 @@ const MISSING_HINT =
   'Run "devtrace init" to create the configuration files, or copy one from the examples directory.';
 
 const plural = (count: number, word: string): string =>
-  `${String(count)} ${word}${count === 1 ? "" : "s"}`;
+  `${String(count)} ${count === 1 ? word : word.endsWith("y") ? `${word.slice(0, -1)}ies` : `${word}s`}`;
 const split = (total: number, visible: number): string =>
   `${String(total)} (${String(visible)} public, ${String(total - visible)} private)`;
 
@@ -366,9 +366,19 @@ function githubReport(config: GitHubConfig, context: Context): FileReport {
   }
   findings.push(...snapshotFindings(context));
 
-  const collected = (["description", "language", "stars", "forks", "releases"] as const).filter(
-    (field) => config.collect[field],
-  );
+  const collected = (
+    [
+      "description",
+      "language",
+      "stars",
+      "forks",
+      "releases",
+      "languages",
+      "commitActivity",
+      "releaseHistory",
+      "aiSignals",
+    ] as const
+  ).filter((field) => config.collect[field]);
   const snapshot = context.snapshot;
   return {
     target: "github",

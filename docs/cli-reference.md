@@ -24,6 +24,7 @@ Commands:
   validate [target]     Check the configuration without writing anything
   generate [target]     Generate the SVG indicators (default target: all)
   sync                  Read public GitHub data into data/github-snapshot.json
+  import usage          Read token usage from local Claude Code and Codex logs
   help [command]        Show help for a command
 
 Targets:
