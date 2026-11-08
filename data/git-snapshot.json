@@ -1,0 +1,70 @@
+{
+  "version": 1,
+  "kind": "LOCAL_GIT",
+  "repositories": [
+    {
+      "label": "BuildFlow",
+      "commits": 1041,
+      "firstCommit": "2026-06-25",
+      "lastCommit": "2026-11-06",
+      "months": [
+        {
+          "month": "2026-06",
+          "commits": 16
+        },
+        {
+          "month": "2026-07",
+          "commits": 39
+        },
+        {
+          "month": "2026-08",
+          "commits": 136
+        },
+        {
+          "month": "2026-09",
+          "commits": 352
+        },
+        {
+          "month": "2026-10",
+          "commits": 444
+        },
+        {
+          "month": "2026-11",
+          "commits": 54
+        }
+      ],
+      "languages": [
+        {
+          "name": "TypeScript",
+          "files": 2593
+        },
+        {
+          "name": "SQL",
+          "files": 213
+        },
+        {
+          "name": "JavaScript",
+          "files": 197
+        },
+        {
+          "name": "CSS",
+          "files": 98
+        },
+        {
+          "name": "YAML",
+          "files": 30
+        },
+        {
+          "name": "HTML",
+          "files": 3
+        },
+        {
+          "name": "Prisma",
+          "files": 1
+        }
+      ],
+      "filteredByAuthor": true,
+      "importedAt": "2026-11-08"
+    }
+  ]
+}

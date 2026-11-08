@@ -10,6 +10,8 @@ export interface BarDatum {
   readonly label: string;
   readonly value: number;
   readonly tone?: Tone;
+  /** Written above the column instead of the rounded value, for example `936M`. */
+  readonly valueText?: string;
 }
 
 function barColor(tokens: DesignTokens, datum: BarDatum): string {
@@ -113,7 +115,7 @@ export function verticalBarChart(
                 fill: barColor(tokens, datum),
               })) +
           (showLabels
-            ? text(String(Math.round(safeAmount(datum.value))), {
+            ? text(datum.valueText ?? String(Math.round(safeAmount(datum.value))), {
                 x: round(center),
                 y: round(baseline - barHeight - 4),
                 fill: palette.mutedText,
