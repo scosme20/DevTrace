@@ -3,12 +3,12 @@
 DevTrace reads up to three files from `data/`. All are JSON, all reject unknown fields, and none
 ever contains credentials.
 
-| File                        | Required      | Written by              | Purpose                               |
-| --------------------------- | ------------- | ----------------------- | ------------------------------------- |
-| `data/startup.json`         | for `startup` | you (`init` creates it) | Startup & SaaS Statistics card        |
-| `data/ai-engineering.json`  | for `ai`      | you (`init` creates it) | AI Engineering Statistics card        |
-| `data/github.json`          | no            | you                     | Which public repositories to read     |
-| `data/github-snapshot.json` | no            | `sync`                  | Generated GitHub data. Ignored by git |
+| File                        | Required      | Written by              | Purpose                           |
+| --------------------------- | ------------- | ----------------------- | --------------------------------- |
+| `data/startup.json`         | for `startup` | you (`init` creates it) | Startup & SaaS Statistics card    |
+| `data/ai-engineering.json`  | for `ai`      | you (`init` creates it) | AI Engineering Statistics card    |
+| `data/github.json`          | no            | you                     | Which public repositories to read |
+| `data/github-snapshot.json` | no            | `sync`                  | Generated GitHub data. Committed  |
 
 Complete, valid files to copy from are in [`examples/`](../examples):
 

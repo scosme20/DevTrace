@@ -12,6 +12,19 @@
   },
   "projects": [
     {
+      "id": "obra-justa-buildflow",
+      "name": "Obra Justa / BuildFlow",
+      "description": "Construction technology ecosystem to manage projects, budgets, materials, pricing and procurement.",
+      "category": "Construction Tech",
+      "lifecycleStage": "DEVELOPMENT",
+      "status": "ACTIVE",
+      "visibility": "PUBLIC",
+      "dataSource": "DECLARED",
+      "createdAt": "2026-02-20",
+      "updatedAt": "2026-05-07",
+      "githubRepository": "scosme20/Obra-justa-api"
+    },
+    {
       "id": "devtrace",
       "name": "DevTrace",
       "description": "Open-source SVG indicators for GitHub profile READMEs.",
@@ -23,6 +36,30 @@
       "createdAt": "2026-11-07",
       "updatedAt": "2026-11-07",
       "githubRepository": "scosme20/DevTrace"
+    },
+    {
+      "id": "sports-esports-platform",
+      "name": "Sports & Esports Platform",
+      "description": "Competitive gaming education, player development, performance analysis, communities and tournaments.",
+      "category": "Esports Tech",
+      "lifecycleStage": "DEVELOPMENT",
+      "status": "ACTIVE",
+      "visibility": "PUBLIC",
+      "dataSource": "DECLARED",
+      "createdAt": "2026-11-08",
+      "updatedAt": "2026-11-08"
+    },
+    {
+      "id": "marketing-ai",
+      "name": "Marketing AI",
+      "description": "AI-powered marketing intelligence, automation and decision support.",
+      "category": "Marketing Tech",
+      "lifecycleStage": "DEVELOPMENT",
+      "status": "ACTIVE",
+      "visibility": "PUBLIC",
+      "dataSource": "DECLARED",
+      "createdAt": "2026-11-08",
+      "updatedAt": "2026-11-08"
     }
   ]
 }

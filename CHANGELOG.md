@@ -68,8 +68,8 @@ All notable changes to DevTrace are documented here. The format follows
 - CLI with `init`, `validate`, `generate`, `sync` and `help`, plus `--version`.
 - Documentation in `docs/` and validated example configurations in `examples/`.
 - `CI` workflow: typecheck, lint, format check, tests, build, CLI smoke test, a check that the
-  generation is deterministic (the committed indicators also depend on data outside the
-  repository, so they are not compared), and a production dependency audit.
+  committed indicators are up to date, and a production dependency audit. The GitHub snapshot is
+  now committed, so the SVG files can be reproduced from the repository.
 - MIT `LICENSE`, `CODE_OF_CONDUCT.md`, `SECURITY.md`, issue templates, a pull request template and `docs/release.md`.
 
 ### Changed

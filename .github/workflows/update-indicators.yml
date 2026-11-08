@@ -66,6 +66,10 @@ jobs:
             echo "Indicators are up to date. Nothing to commit."
             exit 0
           fi
+          # Keep the data that produced these files next to them, so CI can reproduce them.
+          if [ -e data/github-snapshot.json ]; then
+            git add -- data/github-snapshot.json
+          fi
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git commit -m "chore: update indicators"

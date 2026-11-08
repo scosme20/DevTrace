@@ -65,7 +65,7 @@ Tests use Vitest and live in `tests/`.
   validators, and `docs/cli-reference.md` must match `devtrace --help`.
 
 Run `pnpm check` before you open a pull request. The `CI` workflow runs the same checks, plus the
-build and a check that generating is deterministic. See [release](docs/release.md).
+build and a check that the committed indicators are up to date. See [release](docs/release.md).
 
 ## Pull requests
 
