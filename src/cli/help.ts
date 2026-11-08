@@ -82,7 +82,7 @@ Targets:
   all       startup and ai, plus activity when it is configured (default)
 
 Options:
-  --theme <theme>     DARK, LIGHT, MIDNIGHT, MINIMAL or TRANSPARENT
+  --theme <theme>     DARK, LIGHT, MIDNIGHT, MINIMAL, TRANSPARENT or TERMINAL
   --layout <layout>   COMPACT, DEFAULT or EXPANDED
   --output <file>     File name inside public/indicators (not with the target "all")
 

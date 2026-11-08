@@ -13,7 +13,7 @@ export interface BarDatum {
 }
 
 function barColor(tokens: DesignTokens, datum: BarDatum): string {
-  return tokens.visual.tones[datum.tone ?? "primary"];
+  return tokens.visual.tones[datum.tone ?? tokens.visual.barTone];
 }
 
 /** One row per bar: label, bar scaled to the largest value, and the value. */

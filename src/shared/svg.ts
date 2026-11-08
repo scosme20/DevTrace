@@ -47,6 +47,8 @@ export interface TextOptions {
   readonly size: number;
   readonly weight?: number;
   readonly anchor?: "start" | "middle" | "end";
+  /** A font stack for this text only, for numbers in a different face. */
+  readonly family?: string;
 }
 
 /** Empty text draws nothing, so an element with no content is never written. */
@@ -61,6 +63,7 @@ export function text(content: string, options: TextOptions): string {
       "font-size": options.size,
       "font-weight": options.weight,
       "text-anchor": options.anchor,
+      "font-family": options.family,
     },
     escapeXml(content),
   );

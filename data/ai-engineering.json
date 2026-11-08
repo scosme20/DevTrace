@@ -4,21 +4,19 @@
     "displayName": "Sebastião Cosme"
   },
   "settings": {
-    "theme": "DARK",
+    "theme": "TERMINAL",
     "dashboard": true,
     "showTools": true,
     "showModels": true,
     "showSkills": true,
     "showProjects": true,
-    "showActivity": false,
+    "showActivity": true,
     "showTokenUsage": true,
     "showCost": false,
     "showLinks": true,
-    "colors": {
-      "primary": "#3fb950"
-    },
     "usageSnapshot": true,
-    "githubSignals": true
+    "githubSignals": true,
+    "showMilestones": true
   },
   "tools": [
     {
@@ -87,6 +85,92 @@
     }
   ],
   "projects": [],
-  "activities": [],
-  "tokenUsage": []
+  "activities": [
+    {
+      "id": "act-gemini",
+      "activityType": "LLM_INTEGRATION",
+      "involvement": "AI_RELATED_ENGINEERING",
+      "description": "Integrated Gemini into the BuildFlow API.",
+      "date": "2026-02-21",
+      "visibility": "PUBLIC",
+      "provenance": "DECLARED"
+    },
+    {
+      "id": "act-nlp",
+      "activityType": "LLM_INTEGRATION",
+      "involvement": "AI_RELATED_ENGINEERING",
+      "description": "Built NLP extraction of professionals and suppliers.",
+      "date": "2026-02-23",
+      "visibility": "PUBLIC",
+      "provenance": "DECLARED"
+    },
+    {
+      "id": "act-devtrace",
+      "activityType": "AI_ASSISTED_CODING",
+      "involvement": "AI_ASSISTED",
+      "description": "Built DevTrace with Claude as co-author, declared in the commits.",
+      "date": "2026-11-07",
+      "visibility": "PUBLIC",
+      "provenance": "DECLARED"
+    }
+  ],
+  "tokenUsage": [],
+  "milestones": [
+    {
+      "id": "buildflow-first-commit",
+      "title": "BuildFlow API started",
+      "description": "First commit of the API, with AI added the same day.",
+      "date": "2026-02-20",
+      "visibility": "PUBLIC",
+      "provenance": "DECLARED"
+    },
+    {
+      "id": "buildflow-gemini",
+      "title": "Gemini integrated",
+      "description": "First LLM integration in the BuildFlow API.",
+      "date": "2026-02-21",
+      "visibility": "PUBLIC",
+      "provenance": "DECLARED"
+    },
+    {
+      "id": "buildflow-reports",
+      "title": "Expense reports and categories",
+      "description": "Spending by month and week, categories and reports.",
+      "date": "2026-02-21",
+      "visibility": "PUBLIC",
+      "provenance": "DECLARED"
+    },
+    {
+      "id": "buildflow-auth",
+      "title": "Authentication and profiles",
+      "description": "Users and profiles, with tests.",
+      "date": "2026-02-22",
+      "visibility": "PUBLIC",
+      "provenance": "DECLARED"
+    },
+    {
+      "id": "buildflow-nlp",
+      "title": "NLP extraction of professionals and suppliers",
+      "description": "AI feature that reads text to find professionals and suppliers.",
+      "date": "2026-02-23",
+      "visibility": "PUBLIC",
+      "provenance": "DECLARED"
+    },
+    {
+      "id": "buildflow-pdf",
+      "title": "PDF reports",
+      "description": "Report generation with pdfkit.",
+      "date": "2026-02-24",
+      "visibility": "PUBLIC",
+      "provenance": "DECLARED"
+    },
+    {
+      "id": "buildflow-v2",
+      "title": "New version of BuildFlow",
+      "description": "Firebase configuration, security fix and tests.",
+      "date": "2026-05-07",
+      "visibility": "PUBLIC",
+      "provenance": "DECLARED"
+    }
+  ]
 }

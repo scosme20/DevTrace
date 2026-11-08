@@ -23,8 +23,13 @@ export interface Palette {
   readonly error: string;
 }
 
+/** STANDARD keeps the quiet look. TERMINAL has bold accent titles, mono numbers and green bars. */
+export type ThemeLook = "STANDARD" | "TERMINAL";
+
 export interface ThemeDefinition {
   readonly palette: Palette;
+  /** How panels and numbers are drawn. Default STANDARD. */
+  readonly look?: ThemeLook;
   /** Corner radius of the card. Tiles and marks derive from it. */
   readonly radius: number;
 }
@@ -122,14 +127,34 @@ export const THEME_DEFINITIONS: Readonly<Record<Theme, ThemeDefinition>> = {
       error: "#e5534b",
     },
   },
+  TERMINAL: {
+    radius: 8,
+    look: "TERMINAL",
+    palette: {
+      background: "#000000",
+      surface: "#050607",
+      border: "#33373d",
+      track: "#16191d",
+      text: "#ffffff",
+      secondaryText: "#d3d7dc",
+      mutedText: "#9ba1a8",
+      primary: "#1ed3f5",
+      success: "#19e56b",
+      warning: "#ffcc1a",
+      error: "#ff5a52",
+    },
+  },
 };
 
+// Pure black with a cyan accent for titles and green bars: a terminal dashboard. Every
+// text color reaches 4.5:1 on the background.
 export const PALETTES: Readonly<Record<Theme, Palette>> = {
   DARK: THEME_DEFINITIONS.DARK.palette,
   LIGHT: THEME_DEFINITIONS.LIGHT.palette,
   MIDNIGHT: THEME_DEFINITIONS.MIDNIGHT.palette,
   MINIMAL: THEME_DEFINITIONS.MINIMAL.palette,
   TRANSPARENT: THEME_DEFINITIONS.TRANSPARENT.palette,
+  TERMINAL: THEME_DEFINITIONS.TERMINAL.palette,
 };
 
 export function statusColor(palette: Palette, status: ProjectStatus): string {

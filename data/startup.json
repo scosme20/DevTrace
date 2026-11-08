@@ -4,7 +4,7 @@
     "displayName": "Developer Portfolio"
   },
   "settings": {
-    "theme": "DARK",
+    "theme": "TERMINAL",
     "showProjectList": true,
     "showLifecycleDistribution": true,
     "showLinks": true,
@@ -12,11 +12,11 @@
   },
   "projects": [
     {
-      "id": "obra-justa-buildflow",
-      "name": "Obra Justa / BuildFlow",
+      "id": "buildflow",
+      "name": "BuildFlow",
       "description": "Construction technology ecosystem to manage projects, budgets, materials, pricing and procurement.",
       "category": "Construction Tech",
-      "lifecycleStage": "DEVELOPMENT",
+      "lifecycleStage": "LAUNCHED",
       "status": "ACTIVE",
       "visibility": "PUBLIC",
       "dataSource": "DECLARED",
@@ -42,7 +42,7 @@
       "name": "Sports & Esports Platform",
       "description": "Competitive gaming education, player development, performance analysis, communities and tournaments.",
       "category": "Esports Tech",
-      "lifecycleStage": "DEVELOPMENT",
+      "lifecycleStage": "PROTOTYPE",
       "status": "ACTIVE",
       "visibility": "PUBLIC",
       "dataSource": "DECLARED",
@@ -54,10 +54,34 @@
       "name": "Marketing AI",
       "description": "AI-powered marketing intelligence, automation and decision support.",
       "category": "Marketing Tech",
-      "lifecycleStage": "DEVELOPMENT",
+      "lifecycleStage": "IDEA",
       "status": "ACTIVE",
       "visibility": "PUBLIC",
       "dataSource": "DECLARED",
+      "createdAt": "2026-11-08",
+      "updatedAt": "2026-11-08"
+    },
+    {
+      "id": "smart-waste-management",
+      "name": "Smart Waste Management",
+      "description": "Waste management, recycling operations and sustainability.",
+      "category": "GreenTech",
+      "status": "ACTIVE",
+      "visibility": "PUBLIC",
+      "dataSource": "DECLARED",
+      "lifecycleStage": "IDEA",
+      "createdAt": "2026-11-08",
+      "updatedAt": "2026-11-08"
+    },
+    {
+      "id": "smart-sanitation-platform",
+      "name": "Smart Sanitation Platform",
+      "description": "Sanitation management and infrastructure.",
+      "category": "GovTech",
+      "status": "ACTIVE",
+      "visibility": "PUBLIC",
+      "dataSource": "DECLARED",
+      "lifecycleStage": "IDEA",
       "createdAt": "2026-11-08",
       "updatedAt": "2026-11-08"
     }

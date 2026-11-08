@@ -7,6 +7,12 @@ import { ratio, round, safeAmount, type Builder, type Fragment } from "./fragmen
 
 const EMPTY_TEXT = "No data";
 
+/** The face for numbers, when the theme has one. */
+function familyOf(tokens: DesignTokens): { family?: string } {
+  const family = tokens.visual.numberFamily;
+  return family === undefined ? {} : { family };
+}
+
 function emptyState(tokens: DesignTokens, width: number, message = EMPTY_TEXT): Fragment {
   const { palette, font, layout } = tokens;
   return {
@@ -78,6 +84,7 @@ export function metricCard(tokens: DesignTokens, data: MetricCardData): Builder 
         fill: palette.text,
         size: font.number,
         weight: font.strong,
+        ...familyOf(tokens),
       }) +
       caption +
       text(fit(tokens, data.label, width - 2 * inner, font.label), {
@@ -157,7 +164,7 @@ export function progressBar(tokens: DesignTokens, data: ProgressBarData): Builde
             width: round(Math.max(layout.barHeight, fraction * width)),
             height: layout.barHeight,
             rx: box.barRadius,
-            fill: visual.tones[data.tone ?? "primary"],
+            fill: visual.tones[data.tone ?? visual.barTone],
           });
     const body =
       text(fit(tokens, data.label, Math.max(0, width - shownWidth - 12), font.body), {
@@ -172,6 +179,7 @@ export function progressBar(tokens: DesignTokens, data: ProgressBarData): Builde
         fill: palette.mutedText,
         size: font.label,
         anchor: "end",
+        ...familyOf(tokens),
       }) +
       element("rect", {
         x: 0,
@@ -475,7 +483,7 @@ export function levelMeter(tokens: DesignTokens, data: LevelMeterData): Builder 
     const steps = Math.max(1, Math.floor(data.steps));
     const filled = Math.max(0, Math.min(steps, Math.floor(data.level)));
     const stepWidth = (width - STEP_GAP * (steps - 1)) / steps;
-    const color = visual.tones[data.tone ?? "primary"];
+    const color = visual.tones[data.tone ?? visual.barTone];
     const segments = Array.from({ length: steps }, (_unused, index) =>
       element("rect", {
         x: round(index * (stepWidth + STEP_GAP)),

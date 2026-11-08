@@ -37,7 +37,7 @@ describe.each(INDICATORS)("appearance settings of the $name configuration", ({ v
 
     it("rejects an unknown theme and lists the valid ones", () => {
       expect(errors({ theme: "NEON" })).toContain(
-        "Invalid theme: NEON. Expected one of DARK, LIGHT, MIDNIGHT, MINIMAL, TRANSPARENT.",
+        "Invalid theme: NEON. Expected one of DARK, LIGHT, MIDNIGHT, MINIMAL, TRANSPARENT, TERMINAL.",
       );
     });
 

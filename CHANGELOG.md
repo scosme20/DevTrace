@@ -8,6 +8,10 @@ All notable changes to DevTrace are documented here. The format follows
 
 ### Added
 
+- `TERMINAL` theme: pure black, cyan accent titles, a source pill with a dot, green bars and mono numbers
+  (in the dashboards). The five existing themes are unchanged. The Startup data now has the declared
+  stages of the profile projects.
+
 - AI signals found on GitHub (`settings.githubSignals`): releases as `OBSERVED` milestones, a panel and
   a chip for assistant configuration files, AI topics and commits that name an AI co-author. Collected
   by two new opt-in options, `collect.releaseHistory` and `collect.aiSignals`. Commit text is never

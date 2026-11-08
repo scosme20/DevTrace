@@ -87,6 +87,12 @@ export type Tone = "primary" | "success" | "warning" | "error" | "muted";
 
 /** What the SVG components need beyond the card tokens, derived once from them. */
 export interface VisualTokens {
+  /** The look of panels, tags and numbers; follows the theme. */
+  readonly look: "STANDARD" | "TERMINAL";
+  /** The tone bars take when the data does not name one. */
+  readonly barTone: Tone;
+  /** A font for numbers, when they should differ from the text. */
+  readonly numberFamily?: string | undefined;
   readonly tones: Readonly<Record<Tone, string>>;
   /** Categorical colors for the series of a chart, in a fixed order. */
   readonly series: readonly string[];
@@ -208,8 +214,17 @@ function blend(from: string, to: string, amount: number): string {
   return from === NO_PAINT || to === NO_PAINT ? to : mixColors(from, to, amount);
 }
 
-function resolveVisual(palette: Palette, tileGap: number, font: FontTokens): VisualTokens {
+function resolveVisual(
+  palette: Palette,
+  tileGap: number,
+  font: FontTokens,
+  look: "STANDARD" | "TERMINAL",
+): VisualTokens {
+  const terminal = look === "TERMINAL";
   return {
+    look,
+    barTone: terminal ? "success" : "primary",
+    ...(terminal ? { numberFamily: FONT_STACKS.MONOSPACE } : {}),
     tones: {
       primary: palette.primary,
       success: palette.success,
@@ -321,7 +336,7 @@ export function resolveDesignTokens(settings: AppearanceSettings): Result<Design
     ok: true,
     value: {
       palette,
-      visual: resolveVisual(palette, Math.round(spacing / 2), font),
+      visual: resolveVisual(palette, Math.round(spacing / 2), font, theme.look ?? "STANDARD"),
       font,
       box: {
         width,

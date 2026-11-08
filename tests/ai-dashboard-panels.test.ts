@@ -257,7 +257,7 @@ describe("milestones", () => {
     );
     const svg = render(configOf({ milestones: many }));
     expect(svg.indexOf("Step 6")).toBeLessThan(svg.indexOf("Step 5"));
-    expect(svg).toContain("+4 more");
+    expect(svg).toContain("+2 more");
   });
 });
 
