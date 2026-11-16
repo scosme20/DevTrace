@@ -2,7 +2,7 @@
   "version": 1,
   "source": "GitHub REST API",
   "username": "scosme20",
-  "fetchedAt": "2026-11-15T12:01:24.764Z",
+  "fetchedAt": "2026-11-16T12:53:46.659Z",
   "repositories": [
     {
       "fullName": "scosme20/Api-estudos",
@@ -371,7 +371,7 @@
       "archived": false,
       "fork": false,
       "createdAt": "2026-11-07T19:25:57Z",
-      "pushedAt": "2026-11-14T11:36:37Z",
+      "pushedAt": "2026-11-15T12:01:26Z",
       "latestRelease": {
         "tagName": "v0.8.0",
         "name": "DevTrace 0.8.0",
@@ -488,19 +488,19 @@
       "fullName": "scosme20/Hackaton-Onfly",
       "name": "Hackaton-Onfly",
       "url": "https://github.com/scosme20/Hackaton-Onfly",
-      "description": "API em deploy",
+      "description": "REST API for lodging management, built for the Onfly hackathon with NestJS and Prisma.",
       "language": "TypeScript",
       "stars": 0,
       "forks": 0,
       "archived": false,
       "fork": false,
       "createdAt": "2024-11-25T04:59:24Z",
-      "pushedAt": "2024-11-28T17:49:36Z",
+      "pushedAt": "2026-11-15T15:38:53Z",
       "findings": {
         "toolFiles": [],
         "aiTopics": [],
         "coauthored": {
-          "inspected": 28,
+          "inspected": 29,
           "matching": 0,
           "assistants": []
         }
@@ -626,18 +626,19 @@
       "fullName": "scosme20/java-senior-journey",
       "name": "java-senior-journey",
       "url": "https://github.com/scosme20/java-senior-journey",
+      "description": "Study roadmap from Java fundamentals to senior engineering, with hands-on exercises.",
       "language": "Java",
       "stars": 0,
       "forks": 0,
       "archived": false,
       "fork": false,
       "createdAt": "2026-06-21T01:08:21Z",
-      "pushedAt": "2026-06-22T01:31:13Z",
+      "pushedAt": "2026-11-15T15:46:19Z",
       "findings": {
         "toolFiles": [],
         "aiTopics": [],
         "coauthored": {
-          "inspected": 4,
+          "inspected": 11,
           "matching": 0,
           "assistants": []
         }
@@ -702,38 +703,6 @@
         {
           "name": "JavaScript",
           "bytes": 40152
-        }
-      ],
-      "provenance": "OBSERVED"
-    },
-    {
-      "fullName": "scosme20/Obra-justa-api",
-      "name": "Obra-justa-api",
-      "url": "https://github.com/scosme20/Obra-justa-api",
-      "language": "TypeScript",
-      "stars": 0,
-      "forks": 0,
-      "archived": false,
-      "fork": false,
-      "createdAt": "2026-02-20T06:04:39Z",
-      "pushedAt": "2026-05-07T22:27:59Z",
-      "findings": {
-        "toolFiles": [],
-        "aiTopics": [],
-        "coauthored": {
-          "inspected": 14,
-          "matching": 0,
-          "assistants": []
-        }
-      },
-      "languages": [
-        {
-          "name": "TypeScript",
-          "bytes": 119886
-        },
-        {
-          "name": "JavaScript",
-          "bytes": 663
         }
       ],
       "provenance": "OBSERVED"
@@ -887,12 +856,12 @@
       "archived": false,
       "fork": false,
       "createdAt": "2024-04-13T22:37:37Z",
-      "pushedAt": "2026-11-15T04:33:12Z",
+      "pushedAt": "2026-11-16T04:29:50Z",
       "findings": {
         "toolFiles": [],
         "aiTopics": [],
         "coauthored": {
-          "inspected": 23,
+          "inspected": 25,
           "matching": 7,
           "assistants": [
             {
@@ -908,6 +877,7 @@
       "fullName": "scosme20/senior-journey",
       "name": "senior-journey",
       "url": "https://github.com/scosme20/senior-journey",
+      "description": "Backend engineering study journey in TypeScript, with notes, exercises and projects.",
       "language": "TypeScript",
       "stars": 0,
       "forks": 0,
