@@ -2,7 +2,7 @@
   "version": 1,
   "source": "GitHub REST API",
   "username": "scosme20",
-  "fetchedAt": "2026-11-18T13:11:53.391Z",
+  "fetchedAt": "2026-11-19T13:27:29.200Z",
   "repositories": [
     {
       "fullName": "scosme20/Api-estudos",
@@ -371,7 +371,7 @@
       "archived": false,
       "fork": false,
       "createdAt": "2026-11-07T19:25:57Z",
-      "pushedAt": "2026-11-17T13:36:21Z",
+      "pushedAt": "2026-11-18T13:11:55Z",
       "latestRelease": {
         "tagName": "v0.8.0",
         "name": "DevTrace 0.8.0",
@@ -856,7 +856,7 @@
       "archived": false,
       "fork": false,
       "createdAt": "2024-04-13T22:37:37Z",
-      "pushedAt": "2026-11-18T05:42:36Z",
+      "pushedAt": "2026-11-19T05:41:33Z",
       "findings": {
         "toolFiles": [],
         "aiTopics": [],
@@ -1069,13 +1069,6 @@
       "open": 0,
       "closed": 0,
       "lastActivity": "2023-08-09T19:02:55Z"
-    },
-    {
-      "repository": "gabriel-augg/minhas-notas-api",
-      "merged": 0,
-      "open": 1,
-      "closed": 0,
-      "lastActivity": "2024-07-10T01:51:53Z"
     }
   ],
   "contributionsTruncated": false
